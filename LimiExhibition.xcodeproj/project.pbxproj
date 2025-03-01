@@ -1,0 +1,508 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9ABFFE3B2D6F20AF00FCA582 /* modela.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */; };
+		9ABFFE502D6F38BC00FCA582 /* Bulbs.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 9ABFFE4F2D6F38BC00FCA582 /* Bulbs.usdz */; };
+		9ACC85E72D731F33009F2DD5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9ACC85E62D731F23009F2DD5 /* README.md */; };
+		9AD3FD5E2D70563900847A51 /* logo animation.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 9AD3FD5D2D70563900847A51 /* logo animation.mp4 */; };
+		9ADA72EC2D6DD73C0044A7CF /* Amenti-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D22D6DD73C0044A7CF /* Amenti-Medium.ttf */; };
+		9ADA72ED2D6DD73C0044A7CF /* Poppins-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E22D6DD73C0044A7CF /* Poppins-Light.ttf */; };
+		9ADA72EE2D6DD73C0044A7CF /* Poppins-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DF2D6DD73C0044A7CF /* Poppins-ExtraLight.ttf */; };
+		9ADA72EF2D6DD73C0044A7CF /* info.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D72D6DD73C0044A7CF /* info.txt */; };
+		9ADA72F02D6DD73C0044A7CF /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E72D6DD73C0044A7CF /* Poppins-SemiBold.ttf */; };
+		9ADA72F12D6DD73C0044A7CF /* Amenti-Thin.otf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D52D6DD73C0044A7CF /* Amenti-Thin.otf */; };
+		9ADA72F22D6DD73C0044A7CF /* Amenti-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D02D6DD73C0044A7CF /* Amenti-Black.ttf */; };
+		9ADA72F32D6DD73C0044A7CF /* Amenti-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D32D6DD73C0044A7CF /* Amenti-Regular.otf */; };
+		9ADA72F42D6DD73C0044A7CF /* Poppins-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E52D6DD73C0044A7CF /* Poppins-MediumItalic.ttf */; };
+		9ADA72F52D6DD73C0044A7CF /* Poppins-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E92D6DD73C0044A7CF /* Poppins-Thin.ttf */; };
+		9ADA72F62D6DD73C0044A7CF /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E62D6DD73C0044A7CF /* Poppins-Regular.ttf */; };
+		9ADA72F72D6DD73C0044A7CF /* Amenti-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D42D6DD73C0044A7CF /* Amenti-Light.otf */; };
+		9ADA72F82D6DD73C0044A7CF /* Amenti-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D12D6DD73C0044A7CF /* Amenti-Bold.ttf */; };
+		9ADA72F92D6DD73C0044A7CF /* Poppins-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DE2D6DD73C0044A7CF /* Poppins-ExtraBoldItalic.ttf */; };
+		9ADA72FA2D6DD73C0044A7CF /* Poppins-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E32D6DD73C0044A7CF /* Poppins-LightItalic.ttf */; };
+		9ADA72FB2D6DD73C0044A7CF /* Poppins-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DA2D6DD73C0044A7CF /* Poppins-BlackItalic.ttf */; };
+		9ADA72FC2D6DD73C0044A7CF /* Amenti-Vf.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D62D6DD73C0044A7CF /* Amenti-Vf.ttf */; };
+		9ADA72FD2D6DD73C0044A7CF /* Poppins-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E12D6DD73C0044A7CF /* Poppins-Italic.ttf */; };
+		9ADA72FE2D6DD73C0044A7CF /* Poppins-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DD2D6DD73C0044A7CF /* Poppins-ExtraBold.ttf */; };
+		9ADA72FF2D6DD73C0044A7CF /* Poppins-ExtraLightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E02D6DD73C0044A7CF /* Poppins-ExtraLightItalic.ttf */; };
+		9ADA73002D6DD73C0044A7CF /* Poppins-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72EA2D6DD73C0044A7CF /* Poppins-ThinItalic.ttf */; };
+		9ADA73012D6DD73C0044A7CF /* Poppins-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D92D6DD73C0044A7CF /* Poppins-Black.ttf */; };
+		9ADA73022D6DD73C0044A7CF /* Poppins-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E82D6DD73C0044A7CF /* Poppins-SemiBoldItalic.ttf */; };
+		9ADA73032D6DD73C0044A7CF /* Poppins-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DC2D6DD73C0044A7CF /* Poppins-BoldItalic.ttf */; };
+		9ADA73042D6DD73C0044A7CF /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D82D6DD73C0044A7CF /* OFL.txt */; };
+		9ADA73052D6DD73C0044A7CF /* Poppins-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DB2D6DD73C0044A7CF /* Poppins-Bold.ttf */; };
+		9ADA73062D6DD73C0044A7CF /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E42D6DD73C0044A7CF /* Poppins-Medium.ttf */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = modela.usdz; sourceTree = "<group>"; };
+		9ABFFE4F2D6F38BC00FCA582 /* Bulbs.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Bulbs.usdz; sourceTree = "<group>"; };
+		9ACC85E62D731F23009F2DD5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		9AD3FD5D2D70563900847A51 /* logo animation.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "logo animation.mp4"; sourceTree = "<group>"; };
+		9ADA72142D6DD6D80044A7CF /* LimiExhibition.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LimiExhibition.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ADA72D02D6DD73C0044A7CF /* Amenti-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Black.ttf"; sourceTree = "<group>"; };
+		9ADA72D12D6DD73C0044A7CF /* Amenti-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Bold.ttf"; sourceTree = "<group>"; };
+		9ADA72D22D6DD73C0044A7CF /* Amenti-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Medium.ttf"; sourceTree = "<group>"; };
+		9ADA72D32D6DD73C0044A7CF /* Amenti-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Regular.otf"; sourceTree = "<group>"; };
+		9ADA72D42D6DD73C0044A7CF /* Amenti-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Light.otf"; sourceTree = "<group>"; };
+		9ADA72D52D6DD73C0044A7CF /* Amenti-Thin.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Thin.otf"; sourceTree = "<group>"; };
+		9ADA72D62D6DD73C0044A7CF /* Amenti-Vf.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Vf.ttf"; sourceTree = "<group>"; };
+		9ADA72D72D6DD73C0044A7CF /* info.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = info.txt; sourceTree = "<group>"; };
+		9ADA72D82D6DD73C0044A7CF /* OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
+		9ADA72D92D6DD73C0044A7CF /* Poppins-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Black.ttf"; sourceTree = "<group>"; };
+		9ADA72DA2D6DD73C0044A7CF /* Poppins-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-BlackItalic.ttf"; sourceTree = "<group>"; };
+		9ADA72DB2D6DD73C0044A7CF /* Poppins-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Bold.ttf"; sourceTree = "<group>"; };
+		9ADA72DC2D6DD73C0044A7CF /* Poppins-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-BoldItalic.ttf"; sourceTree = "<group>"; };
+		9ADA72DD2D6DD73C0044A7CF /* Poppins-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-ExtraBold.ttf"; sourceTree = "<group>"; };
+		9ADA72DE2D6DD73C0044A7CF /* Poppins-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
+		9ADA72DF2D6DD73C0044A7CF /* Poppins-ExtraLight.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-ExtraLight.ttf"; sourceTree = "<group>"; };
+		9ADA72E02D6DD73C0044A7CF /* Poppins-ExtraLightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-ExtraLightItalic.ttf"; sourceTree = "<group>"; };
+		9ADA72E12D6DD73C0044A7CF /* Poppins-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Italic.ttf"; sourceTree = "<group>"; };
+		9ADA72E22D6DD73C0044A7CF /* Poppins-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Light.ttf"; sourceTree = "<group>"; };
+		9ADA72E32D6DD73C0044A7CF /* Poppins-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-LightItalic.ttf"; sourceTree = "<group>"; };
+		9ADA72E42D6DD73C0044A7CF /* Poppins-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Medium.ttf"; sourceTree = "<group>"; };
+		9ADA72E52D6DD73C0044A7CF /* Poppins-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-MediumItalic.ttf"; sourceTree = "<group>"; };
+		9ADA72E62D6DD73C0044A7CF /* Poppins-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Regular.ttf"; sourceTree = "<group>"; };
+		9ADA72E72D6DD73C0044A7CF /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
+		9ADA72E82D6DD73C0044A7CF /* Poppins-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
+		9ADA72E92D6DD73C0044A7CF /* Poppins-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Thin.ttf"; sourceTree = "<group>"; };
+		9ADA72EA2D6DD73C0044A7CF /* Poppins-ThinItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-ThinItalic.ttf"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9ACC85E52D731820009F2DD5 /* Exceptions for "LimiExhibition" folder in "LimiExhibition" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9ADA72132D6DD6D80044A7CF /* LimiExhibition */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		9ACC85E12D72F151009F2DD5 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "LimiExhibition" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 9ADA72122D6DD6D80044A7CF /* Resources */;
+			membershipExceptions = (
+				"Home_Controling/smart-home-app.tsx",
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		9ADA72162D6DD6D80044A7CF /* LimiExhibition */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9ACC85E52D731820009F2DD5 /* Exceptions for "LimiExhibition" folder in "LimiExhibition" target */,
+				9ACC85E12D72F151009F2DD5 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "LimiExhibition" target */,
+			);
+			path = LimiExhibition;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9ADA72112D6DD6D80044A7CF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9ABFFE462D6F26F500FCA582 /* Objects */ = {
+			isa = PBXGroup;
+			children = (
+				9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */,
+				9ABFFE4F2D6F38BC00FCA582 /* Bulbs.usdz */,
+			);
+			path = Objects;
+			sourceTree = "<group>";
+		};
+		9ADA720B2D6DD6D80044A7CF = {
+			isa = PBXGroup;
+			children = (
+				9ACC85E62D731F23009F2DD5 /* README.md */,
+				9ADA72CE2D6DD7310044A7CF /* video */,
+				9ADA72EB2D6DD73C0044A7CF /* Font */,
+				9ADA72152D6DD6D80044A7CF /* Products */,
+				9ABFFE462D6F26F500FCA582 /* Objects */,
+				9ADA72162D6DD6D80044A7CF /* LimiExhibition */,
+			);
+			sourceTree = "<group>";
+		};
+		9ADA72152D6DD6D80044A7CF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9ADA72142D6DD6D80044A7CF /* LimiExhibition.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9ADA72CE2D6DD7310044A7CF /* video */ = {
+			isa = PBXGroup;
+			children = (
+				9AD3FD5D2D70563900847A51 /* logo animation.mp4 */,
+			);
+			path = video;
+			sourceTree = "<group>";
+		};
+		9ADA72EB2D6DD73C0044A7CF /* Font */ = {
+			isa = PBXGroup;
+			children = (
+				9ADA72D02D6DD73C0044A7CF /* Amenti-Black.ttf */,
+				9ADA72D12D6DD73C0044A7CF /* Amenti-Bold.ttf */,
+				9ADA72D22D6DD73C0044A7CF /* Amenti-Medium.ttf */,
+				9ADA72D32D6DD73C0044A7CF /* Amenti-Regular.otf */,
+				9ADA72D42D6DD73C0044A7CF /* Amenti-Light.otf */,
+				9ADA72D52D6DD73C0044A7CF /* Amenti-Thin.otf */,
+				9ADA72D62D6DD73C0044A7CF /* Amenti-Vf.ttf */,
+				9ADA72D72D6DD73C0044A7CF /* info.txt */,
+				9ADA72D82D6DD73C0044A7CF /* OFL.txt */,
+				9ADA72D92D6DD73C0044A7CF /* Poppins-Black.ttf */,
+				9ADA72DA2D6DD73C0044A7CF /* Poppins-BlackItalic.ttf */,
+				9ADA72DB2D6DD73C0044A7CF /* Poppins-Bold.ttf */,
+				9ADA72DC2D6DD73C0044A7CF /* Poppins-BoldItalic.ttf */,
+				9ADA72DD2D6DD73C0044A7CF /* Poppins-ExtraBold.ttf */,
+				9ADA72DE2D6DD73C0044A7CF /* Poppins-ExtraBoldItalic.ttf */,
+				9ADA72DF2D6DD73C0044A7CF /* Poppins-ExtraLight.ttf */,
+				9ADA72E02D6DD73C0044A7CF /* Poppins-ExtraLightItalic.ttf */,
+				9ADA72E12D6DD73C0044A7CF /* Poppins-Italic.ttf */,
+				9ADA72E22D6DD73C0044A7CF /* Poppins-Light.ttf */,
+				9ADA72E32D6DD73C0044A7CF /* Poppins-LightItalic.ttf */,
+				9ADA72E42D6DD73C0044A7CF /* Poppins-Medium.ttf */,
+				9ADA72E52D6DD73C0044A7CF /* Poppins-MediumItalic.ttf */,
+				9ADA72E62D6DD73C0044A7CF /* Poppins-Regular.ttf */,
+				9ADA72E72D6DD73C0044A7CF /* Poppins-SemiBold.ttf */,
+				9ADA72E82D6DD73C0044A7CF /* Poppins-SemiBoldItalic.ttf */,
+				9ADA72E92D6DD73C0044A7CF /* Poppins-Thin.ttf */,
+				9ADA72EA2D6DD73C0044A7CF /* Poppins-ThinItalic.ttf */,
+			);
+			path = Font;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9ADA72132D6DD6D80044A7CF /* LimiExhibition */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9ADA72222D6DD6D90044A7CF /* Build configuration list for PBXNativeTarget "LimiExhibition" */;
+			buildPhases = (
+				9ADA72102D6DD6D80044A7CF /* Sources */,
+				9ADA72112D6DD6D80044A7CF /* Frameworks */,
+				9ADA72122D6DD6D80044A7CF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				9ADA72162D6DD6D80044A7CF /* LimiExhibition */,
+			);
+			name = LimiExhibition;
+			packageProductDependencies = (
+			);
+			productName = LimiExhibition;
+			productReference = 9ADA72142D6DD6D80044A7CF /* LimiExhibition.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9ADA720C2D6DD6D80044A7CF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					9ADA72132D6DD6D80044A7CF = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = 9ADA720F2D6DD6D80044A7CF /* Build configuration list for PBXProject "LimiExhibition" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9ADA720B2D6DD6D80044A7CF;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 9ADA72152D6DD6D80044A7CF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9ADA72132D6DD6D80044A7CF /* LimiExhibition */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9ADA72122D6DD6D80044A7CF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ADA72EC2D6DD73C0044A7CF /* Amenti-Medium.ttf in Resources */,
+				9ADA72ED2D6DD73C0044A7CF /* Poppins-Light.ttf in Resources */,
+				9AD3FD5E2D70563900847A51 /* logo animation.mp4 in Resources */,
+				9ADA72EE2D6DD73C0044A7CF /* Poppins-ExtraLight.ttf in Resources */,
+				9ADA72EF2D6DD73C0044A7CF /* info.txt in Resources */,
+				9ADA72F02D6DD73C0044A7CF /* Poppins-SemiBold.ttf in Resources */,
+				9ADA72F12D6DD73C0044A7CF /* Amenti-Thin.otf in Resources */,
+				9ADA72F22D6DD73C0044A7CF /* Amenti-Black.ttf in Resources */,
+				9ADA72F32D6DD73C0044A7CF /* Amenti-Regular.otf in Resources */,
+				9ADA72F42D6DD73C0044A7CF /* Poppins-MediumItalic.ttf in Resources */,
+				9ADA72F52D6DD73C0044A7CF /* Poppins-Thin.ttf in Resources */,
+				9ADA72F62D6DD73C0044A7CF /* Poppins-Regular.ttf in Resources */,
+				9ADA72F72D6DD73C0044A7CF /* Amenti-Light.otf in Resources */,
+				9ADA72F82D6DD73C0044A7CF /* Amenti-Bold.ttf in Resources */,
+				9ADA72F92D6DD73C0044A7CF /* Poppins-ExtraBoldItalic.ttf in Resources */,
+				9ACC85E72D731F33009F2DD5 /* README.md in Resources */,
+				9ADA72FA2D6DD73C0044A7CF /* Poppins-LightItalic.ttf in Resources */,
+				9ABFFE3B2D6F20AF00FCA582 /* modela.usdz in Resources */,
+				9ADA72FB2D6DD73C0044A7CF /* Poppins-BlackItalic.ttf in Resources */,
+				9ADA72FC2D6DD73C0044A7CF /* Amenti-Vf.ttf in Resources */,
+				9ADA72FD2D6DD73C0044A7CF /* Poppins-Italic.ttf in Resources */,
+				9ADA72FE2D6DD73C0044A7CF /* Poppins-ExtraBold.ttf in Resources */,
+				9ADA72FF2D6DD73C0044A7CF /* Poppins-ExtraLightItalic.ttf in Resources */,
+				9ABFFE502D6F38BC00FCA582 /* Bulbs.usdz in Resources */,
+				9ADA73002D6DD73C0044A7CF /* Poppins-ThinItalic.ttf in Resources */,
+				9ADA73012D6DD73C0044A7CF /* Poppins-Black.ttf in Resources */,
+				9ADA73022D6DD73C0044A7CF /* Poppins-SemiBoldItalic.ttf in Resources */,
+				9ADA73032D6DD73C0044A7CF /* Poppins-BoldItalic.ttf in Resources */,
+				9ADA73042D6DD73C0044A7CF /* OFL.txt in Resources */,
+				9ADA73052D6DD73C0044A7CF /* Poppins-Bold.ttf in Resources */,
+				9ADA73062D6DD73C0044A7CF /* Poppins-Medium.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9ADA72102D6DD6D80044A7CF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9ADA72202D6DD6D90044A7CF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		9ADA72212D6DD6D90044A7CF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		9ADA72232D6DD6D90044A7CF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LimiExhibition/Preview Content\"";
+				DEVELOPMENT_TEAM = UKC34VN2UD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LimiExhibition/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = os.shahryar.LimitLessEX.LimiExhibition;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9ADA72242D6DD6D90044A7CF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LimiExhibition/Preview Content\"";
+				DEVELOPMENT_TEAM = UKC34VN2UD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LimiExhibition/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = os.shahryar.LimitLessEX.LimiExhibition;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9ADA720F2D6DD6D80044A7CF /* Build configuration list for PBXProject "LimiExhibition" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9ADA72202D6DD6D90044A7CF /* Debug */,
+				9ADA72212D6DD6D90044A7CF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9ADA72222D6DD6D90044A7CF /* Build configuration list for PBXNativeTarget "LimiExhibition" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9ADA72232D6DD6D90044A7CF /* Debug */,
+				9ADA72242D6DD6D90044A7CF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9ADA720C2D6DD6D80044A7CF /* Project object */;
+}
