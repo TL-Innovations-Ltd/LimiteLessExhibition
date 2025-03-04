@@ -32,6 +32,7 @@ struct OnboardingView: View {
                 GetStart()
                     .tag(3)
             }
+            .ignoresSafeArea()
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never)) // Hide default dots
             
             if currentPage < totalPages - 1 { // Show indicator if not on last page

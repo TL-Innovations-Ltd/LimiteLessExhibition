@@ -36,7 +36,7 @@ struct LoginView: View {
                         Image("logoSplash")
                             .resizable()
                             .frame(width: 200, height: 150)
-                            .padding(.bottom, 100)
+                            .padding(.bottom, 80)
                             .offset(y: welcomeTextOffset)
                             .opacity(welcomeTextOpacity)
                             .onAppear {
@@ -80,7 +80,7 @@ struct LoginView: View {
                     .sheet(isPresented: $isShowingOTPView) {
                         OTPVerificationView(email: email, enteredOTP: $enteredOTP, isOTPVerified: $isOTPVerified)
                     }
-
+                    .keyboardResponsive()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.alabaster.opacity(0.8))
@@ -95,7 +95,7 @@ struct LoginView: View {
     }
     
     func generateOTP() {
-        guard let url = URL(string: "http://localhost:3000/client/send_otp") else {
+        guard let url = URL(string: "https://exhibition-workout-alex-wishlist.trycloudflare.com/client/send_otp") else {
             print("Invalid URL")
             return
         }
@@ -208,7 +208,7 @@ struct OTPVerificationView: View {
         
         
         func verifyOTP() {
-            guard let url = URL(string: "http://localhost:3000/client/verify_otp") else {
+            guard let url = URL(string: "https://exhibition-workout-alex-wishlist.trycloudflare.com/client/verify_otp") else {
                 errorMessage = "Invalid URL"
                 return
             }
@@ -281,6 +281,34 @@ struct OTPVerificationView: View {
         
     }
     
+import SwiftUI
+
+struct KeyboardResponsiveModifier: ViewModifier {
+    @State private var keyboardHeight: CGFloat = 0
+
+    func body(content: Content) -> some View {
+        content
+            .padding(.bottom, keyboardHeight)
+            .onAppear {
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
+                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                        keyboardHeight = keyboardFrame.height - 20
+                    }
+                }
+                
+                NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
+                    keyboardHeight = 0
+                }
+            }
+    }
+}
+
+extension View {
+    func keyboardResponsive() -> some View {
+        self.modifier(KeyboardResponsiveModifier())
+    }
+}
+
 
 
 struct RegistrationView_Previews: PreviewProvider {

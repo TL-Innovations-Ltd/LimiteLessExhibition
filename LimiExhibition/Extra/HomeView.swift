@@ -5,73 +5,78 @@ struct HomeView: View {
     @State private var isSidebarOpen = false
     @State private var searchText = ""
     @State private var linkedDevices: [DeviceHome] = []
+    @State private var isNavigatingToAddDevice = false // ✅ Navigation State
 
     var body: some View {
-        ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.alabaster.opacity(0.8), Color.etonBlue]),
-                           startPoint: .top,
-                           endPoint: .bottom)
+        NavigationStack { // ✅ Wrap inside NavigationStack
+            ZStack {
+                LinearGradient(gradient: Gradient(colors: [Color.alabaster.opacity(0.8), Color.etonBlue]),
+                               startPoint: .top,
+                               endPoint: .bottom)
                 .edgesIgnoringSafeArea(.all)
-
-            VStack {
-                HeaderView(isSidebarOpen: $isSidebarOpen)
-
-                HStack {
-                    TextField("Search for a device...", text: $searchText)
-                        .frame(width: 300, height: 45)
-                        .background(Color.alabaster.opacity(0.9))
-                        .cornerRadius(10)
-                        .shadow(radius: 3)
-                    
-                    Button(action: {
-                        print("Scanning...")
-                    }) {
-                        Image("scanBtn")
-                            .resizable()
-                            .frame(width: 30, height: 30)
-                            .clipShape(Circle())
-                            .shadow(radius: 5)
-                    }
-                }
-                .padding(.top, 10)
                 
-                // Show Linked Devices
-                if linkedDevices.isEmpty {
-                    Text("No devices linked yet")
-                        .foregroundColor(.gray)
-                        .padding()
-                } else {
-                    List(linkedDevices) { device in
-                        HStack {
-                            Text(device.name)
-                                .font(.headline)
-                            Spacer()
-                            Toggle("", isOn: .constant(device.isOn))
-                                .disabled(true)
+                VStack {
+                    HeaderView(isSidebarOpen: $isSidebarOpen)
+                    
+                    HStack {
+                        TextField("Search for a device...", text: $searchText)
+                            .frame(width: 300, height: 45)
+                            .background(Color.alabaster.opacity(0.9))
+                            .cornerRadius(10)
+                            .shadow(radius: 3)
+                        
+                        Button(action: {
+                            print("Scanning...")
+                        }) {
+                            Image("scanBtn")
+                                .resizable()
+                                .frame(width: 30, height: 30)
+                                .clipShape(Circle())
+                                .shadow(radius: 5)
                         }
                     }
+                    .padding(.top, 10)
+                    
+                    // Show Linked Devices
+                    if linkedDevices.isEmpty {
+                        Text("No devices linked yet")
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else {
+                        List(linkedDevices) { device in
+                            HStack {
+                                Text(device.name)
+                                    .font(.headline)
+                                Spacer()
+                                Toggle("", isOn: .constant(device.isOn))
+                                    .disabled(true)
+                            }
+                        }
+                    }
+                    
+                    BottomNavigationView()
                 }
                 
-                BottomNavigationView()
-            }
-
-            SidebarView(isSidebarOpen: $isSidebarOpen)
-
-            VStack {
-                Spacer()
-                HStack {
+                SidebarView(isSidebarOpen: $isSidebarOpen)
+                
+                VStack {
                     Spacer()
-                    FloatingButton()
+                    HStack {
+                        Spacer()
+                            NavigationLink(destination: AddDeviceView(), isActive: $isNavigatingToAddDevice) { EmptyView() }
+                        FloatingButton(isNavigating: $isNavigatingToAddDevice) // ✅ Pass binding
+                        
+                    }
+                    .padding(.trailing, 30)
+                    .padding(.bottom, 120)
                 }
-                .padding(.trailing, 30)
-                .padding(.bottom, 120)
             }
-        }
-        .onAppear {
-            fetchLinkedDevices()
+            .onAppear {
+                fetchLinkedDevices()
+            }
         }
     }
-    
+
     // Fetch Linked Devices
     func fetchLinkedDevices() {
         guard let token = AuthManager.shared.getToken() else {
@@ -79,7 +84,7 @@ struct HomeView: View {
             return
         }
 
-        guard let url = URL(string: "http://localhost:3000/client/devices/get_link_devices") else {
+        guard let url = URL(string: "https://exhibition-workout-alex-wishlist.trycloudflare.com/client/devices/get_link_devices") else {
             print("Invalid URL")
             return
         }
@@ -92,7 +97,6 @@ struct HomeView: View {
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let data = data {
                 do {
-                    // Print raw JSON response
                     if let jsonString = String(data: data, encoding: .utf8) {
                         print("Raw API Response: \(jsonString)")
                     }
@@ -104,7 +108,7 @@ struct HomeView: View {
                                 id: UUID().uuidString,
                                 name: device.device_name,
                                 deviceID: device.device_id,
-                                isOn: false  // Default value
+                                isOn: false
                             )
                         }
                     }
@@ -116,7 +120,6 @@ struct HomeView: View {
             }
         }.resume()
     }
-
 }
 
 // MARK: - Device Model
@@ -163,6 +166,7 @@ struct HeaderView: View {
     @Binding var isSidebarOpen: Bool
 
     var body: some View {
+        
         HStack {
             Image("logo") // Ensure this image exists in Assets.xcassets
                 .resizable()
@@ -415,21 +419,24 @@ struct WebViewScreen: View {
 
 // Floating Button Component
 struct FloatingButton: View {
+    @Binding var isNavigating: Bool // ✅ Use a binding to control navigation
+
     var body: some View {
         Button(action: {
-            print("Floating Button Tapped!")
+            isNavigating = true // ✅ Trigger navigation
         }) {
             Image(systemName: "plus")
                 .font(.system(size: 30))
-                .foregroundColor(.alabaster)
+                .foregroundColor(.white)
                 .frame(width: 60, height: 60)
-                .background(Color.charlestonGreen)
+                .background(Color.black)
                 .clipShape(Circle())
                 .shadow(radius: 10)
         }
         .padding()
     }
 }
+
 
 // Preview
 struct HomeView_Previews: PreviewProvider {

@@ -4,17 +4,16 @@ struct GetStart: View {
     @State private var selectedRole: Role? = nil
     @State private var isAnimating = false
     @State private var showGetStarted = false
-    @State private var navigateToSignIn = false
 
     enum Role {
-        case deafOrHardOfHearing
-        case signLanguageInterpreter
+        case deafOrHardOfHearing // Installer
+        case signLanguageInterpreter // User
     }
-    
+
     var body: some View {
         ZStack {
             Color.etonBlue.ignoresSafeArea().opacity(0.6)
-            
+
             VStack(spacing: 0) {
                 // Animated Header
                 Text("Choose your role\nbelow")
@@ -26,56 +25,48 @@ struct GetStart: View {
                     .opacity(isAnimating ? 1 : 0)
                     .offset(y: isAnimating ? 0 : 30)
                     .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: isAnimating)
-                
-                ZStack(alignment: .topLeading) {
-                    VStack(spacing: 20) {
-                        // First Role Card
-                        RoleCard(
-                            role: .deafOrHardOfHearing,
-                            isSelected: selectedRole == .deafOrHardOfHearing,
-                            action: {
-                                withAnimation(.spring(response: 0.5, dampingFraction: 0.9)) {
-                                    selectedRole = .deafOrHardOfHearing
-                                    showGetStarted = true
-                                }
+
+                VStack(spacing: 20) {
+                    // Installer Role Card
+                    RoleCard(
+                        role: .deafOrHardOfHearing,
+                        isSelected: selectedRole == .deafOrHardOfHearing,
+                        action: {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.9)) {
+                                selectedRole = .deafOrHardOfHearing
+                                showGetStarted = true
                             }
-                        )
-                        .offset(x: isAnimating ? 0 : -200)
-                        .animation(.spring(response: 0.7, dampingFraction: 0.6).delay(0.2), value: isAnimating)
-                        
-                        // Animated "or" text
-                        Text("or")
-                            .font(.system(size: 16))
-                            .foregroundColor(.black.opacity(0.6))
-                            .padding(.vertical, 4)
-                            .opacity(isAnimating ? 1 : 0)
-                            .scaleEffect(isAnimating ? 1 : 0.5)
-                            .animation(.spring(response: 0.5).delay(0.3), value: isAnimating)
-                        
-                        // Second Role Card
-                        RoleCard(
-                            role: .signLanguageInterpreter,
-                            isSelected: selectedRole == .signLanguageInterpreter,
-                            action: {
-                                withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-                                    selectedRole = .signLanguageInterpreter
-                                    showGetStarted = true
-                                }
+                        }
+                    )
+
+                    // Animated "or" text
+                    Text("or")
+                        .font(.system(size: 16))
+                        .foregroundColor(.black.opacity(0.6))
+                        .padding(.vertical, 4)
+                        .opacity(isAnimating ? 1 : 0)
+                        .scaleEffect(isAnimating ? 1 : 0.5)
+                        .animation(.spring(response: 0.5).delay(0.3), value: isAnimating)
+
+                    // User Role Card
+                    RoleCard(
+                        role: .signLanguageInterpreter,
+                        isSelected: selectedRole == .signLanguageInterpreter,
+                        action: {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                                selectedRole = .signLanguageInterpreter
+                                showGetStarted = true
                             }
-                        )
-                        .offset(x: isAnimating ? 0 : 200)
-                        .animation(.spring(response: 0.7, dampingFraction: 0.6).delay(0.4), value: isAnimating)
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 40)
-                    
-                   
+                        }
+                    )
                 }
-                
+                .padding(.horizontal, 24)
+                .padding(.top, 40)
+
                 Spacer()
-                
+
                 // Get Started Button
-                GetStartedButton(isEnabled: selectedRole != nil, isVisible: showGetStarted)
+                GetStartedButton(isEnabled: selectedRole != nil, isVisible: showGetStarted, selectedRole: selectedRole)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 40)
             }
@@ -88,12 +79,123 @@ struct GetStart: View {
     }
 }
 
+struct GetStartedButton: View {
+    let isEnabled: Bool
+    let isVisible: Bool
+    let selectedRole: GetStart.Role?
+
+    @State private var navigateToSignIn = false
+    @State private var navigateToAddDevice = false
+    @State private var isLoading = false
+
+    var body: some View {
+        Button(action: {
+            if selectedRole == .deafOrHardOfHearing {
+                createInstallerUser()
+            } else {
+                navigateToSignIn = true
+            }
+        }) {
+            HStack {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                } else {
+                    Text("Get started")
+                        .font(.system(size: 16, weight: .medium))
+
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 14, weight: .medium))
+                        .opacity(isEnabled ? 1 : 0)
+                        .scaleEffect(isEnabled ? 1 : 0.7)
+                        .animation(.spring(response: 0.3), value: isEnabled)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isEnabled ? Color.black : Color.gray.opacity(0.3))
+                    .animation(.easeInOut(duration: 0.2), value: isEnabled)
+            )
+            .foregroundColor(.white)
+            .opacity(isVisible ? 1 : 0)
+            .offset(y: isVisible ? 0 : 20)
+            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: isVisible)
+        }
+        .disabled(!isEnabled || isLoading)
+        .fullScreenCover(isPresented: $navigateToAddDevice) {
+            AddDeviceView()
+        }
+        .fullScreenCover(isPresented: $navigateToSignIn) {
+            LoginView()
+        }
+    }
+
+    private func createInstallerUser() {
+        isLoading = true
+        guard let url = URL(string: "https://prevent-dod-dsl-sheet.trycloudflare.com/client/installer_user") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [:] // Add any required request parameters here
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoading = false
+            }
+
+            if let error = error {
+                print("API error:", error.localizedDescription)
+                return
+            }
+
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+
+            do {
+                // Parse JSON response
+                let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+                
+                if let jsonResponse = jsonObject as? [String: Any] {
+                    // Debugging: Print the whole response
+                    print("API Response:", jsonResponse)
+
+                    if let success = jsonResponse["success"] as? Bool, success,
+                       let dataContainer = jsonResponse["data"] as? [String: Any], // First "data" object
+                       let token = dataContainer["token"] as? String { // Extract token directly from "data"
+                        
+                        AuthManager.shared.saveToken(token)
+                        print("Token saved:", token) // Debugging
+
+                        DispatchQueue.main.async {
+                            navigateToAddDevice = true
+                        }
+                    } else {
+                        print("Invalid response format:", jsonResponse)
+                    }
+                } else {
+                    print("Failed to cast JSON response as [String: Any]")
+                }
+            } catch {
+                print("JSON parsing error:", error.localizedDescription)
+            }
+        }.resume()
+    }
+}
+
+
 struct RoleCard: View {
     let role: GetStart.Role
     let isSelected: Bool
     let action: () -> Void
     @State private var isHovered = false
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
@@ -106,15 +208,15 @@ struct RoleCard: View {
                     }
                 }
                 .frame(width: 80, height: 80)
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(role == .deafOrHardOfHearing ? "Installer" : "User")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 20, weight: .medium))
                     Text(role == .deafOrHardOfHearing ? "Install the Electronics Equipment" : "Control the Electronics Equipment")
-                        .font(.system(size: 8, weight: .medium))
+                        .font(.system(size: 12, weight: .medium))
                 }
                 .foregroundColor(.white)
-                
+
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -123,7 +225,7 @@ struct RoleCard: View {
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(Color.emerald.opacity(0.6))
-                    
+
                     // Selection indicator
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(Color.charlestonGreen, lineWidth: isSelected ? 2 : 0)
@@ -138,119 +240,6 @@ struct RoleCard: View {
         .onHover { hovering in
             isHovered = hovering
         }
-    }
-}
-
-struct GetStartedButton: View {
-    let isEnabled: Bool
-    let isVisible: Bool
-    @State private var navigateToSignIn = false
-    @State private var navigateToDemo = false
-
-    var body: some View {
-        Button(action: {
-            navigateToSignIn = true
-        }) {
-            HStack {
-                Text("Get started")
-                    .font(.system(size: 16, weight: .medium))
-                
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .medium))
-                    .opacity(isEnabled ? 1 : 0)
-                    .scaleEffect(isEnabled ? 1 : 0.7)
-                    .animation(.spring(response: 0.3), value: isEnabled)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(isEnabled ? Color.black : Color.gray.opacity(0.3))
-                    .animation(.easeInOut(duration: 0.2), value: isEnabled)
-            )
-            .foregroundColor(.white)
-            .opacity(isVisible ? 1 : 0)
-            .offset(y: isVisible ? 0 : 20)
-            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: isVisible)
-        }
-        .disabled(!isEnabled)
-        .navigationDestination(isPresented: $navigateToDemo) {
-            DemoView()
-        }
-        .fullScreenCover(isPresented: $navigateToSignIn) {
-            AddDeviceView()
- // Replace this with your actual screen
-        }
-    }
-    
-
-}
-
-struct DecorativeElements: View {
-    let isAnimating: Bool
-    @State private var starRotation: Double = 0
-    
-    var body: some View {
-        ZStack {
-            // Stars
-            ForEach(0..<3) { index in
-                AnimatedStar(
-                    delay: Double(index) * 0.2,
-                    offsetX: [-120, 140, 140][index],
-                    offsetY: [40, -180, 140][index],
-                    size: [16, 20, 16][index],
-                    color: index == 1 ? .blue : .yellow
-                )
-            }
-            
-            // Arrows
-            Group {
-                CurvedArrow()
-                    .stroke(Color.black, lineWidth: 1.5)
-                    .frame(width: 60, height: 60)
-                    .rotationEffect(.degrees(180))
-                    .offset(x: -10, y: 30)
-                
-                CurvedArrow()
-                    .stroke(Color.black, lineWidth: 1.5)
-                    .frame(width: 60, height: 60)
-                    .offset(x: -10, y: 220)
-            }
-            .opacity(isAnimating ? 1 : 0)
-            .animation(.easeInOut(duration: 0.6).delay(0.5), value: isAnimating)
-        }
-    }
-}
-
-struct AnimatedStar: View {
-    let delay: Double
-    let offsetX: CGFloat
-    let offsetY: CGFloat
-    let size: CGFloat
-    let color: Color
-    
-    @State private var isAnimating = false
-    @State private var rotation = 0.0
-    
-    var body: some View {
-        Star()
-            .fill(color.opacity(0.8))
-            .frame(width: size, height: size)
-            .offset(x: offsetX, y: offsetY)
-            .opacity(isAnimating ? 1 : 0)
-            .scaleEffect(isAnimating ? 1 : 0.3)
-            .rotationEffect(.degrees(rotation))
-            .onAppear {
-                withAnimation(.spring(response: 0.6).delay(delay)) {
-                    isAnimating = true
-                }
-                withAnimation(
-                    .linear(duration: 4)
-                    .repeatForever(autoreverses: false)
-                ) {
-                    rotation = 360
-                }
-            }
     }
 }
 

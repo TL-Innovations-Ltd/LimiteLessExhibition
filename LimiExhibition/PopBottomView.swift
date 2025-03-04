@@ -56,7 +56,7 @@ struct BottomPopupView: View {
     
     // MARK: - Fetch Devices from API
     func fetchDevices() {
-        guard let url = URL(string: "http://localhost:3000/client/devices/alldevices") else { return }
+        guard let url = URL(string: "https://exhibition-workout-alex-wishlist.trycloudflare.com/client/devices/alldevices") else { return }
         
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let data = data {
