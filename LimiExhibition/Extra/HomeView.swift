@@ -63,9 +63,10 @@ struct HomeView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                            NavigationLink(destination: AddDeviceView(), isActive: $isNavigatingToAddDevice) { EmptyView() }
-                        FloatingButton(isNavigating: $isNavigatingToAddDevice) // ✅ Pass binding
-                        
+                        FloatingButton(isNavigating: $isNavigatingToAddDevice)
+                    }
+                    .fullScreenCover(isPresented: $isNavigatingToAddDevice) {
+                        AddDeviceView()
                     }
                     .padding(.trailing, 30)
                     .padding(.bottom, 120)

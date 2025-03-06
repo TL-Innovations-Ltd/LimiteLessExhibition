@@ -12,7 +12,7 @@ class AuthManager: ObservableObject {
         self.isAuthenticated = isTokenValid()
     }
 
-    func saveToken(_ token: String, expiryInSeconds: TimeInterval = 3600) {
+    func saveToken(_ token: String, expiryInSeconds: TimeInterval = 600) {
         let expiryTime = Date().timeIntervalSince1970 + expiryInSeconds
         
         // Save values

@@ -76,6 +76,22 @@ struct GetStart: View {
                 isAnimating = true
             }
         }
+        .navigationBarBackButtonHidden(true) // Hides the default back button
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            // Go back to the previous screen
+                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                               let window = windowScene.windows.first {
+                                window.rootViewController?.dismiss(animated: true, completion: nil)
+                            }
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .foregroundColor(Color.charlestonGreen) // Change the color here
+                                .font(.system(size: 20, weight: .bold))
+                        }
+                    }
+                }
     }
 }
 
@@ -134,7 +150,7 @@ struct GetStartedButton: View {
 
     private func createInstallerUser() {
         isLoading = true
-        guard let url = URL(string: "https://prevent-dod-dsl-sheet.trycloudflare.com/client/installer_user") else { return }
+        guard let url = URL(string: "https://suzair-backend-limi-project.vercel.app/client/installer_user") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

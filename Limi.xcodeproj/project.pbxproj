@@ -10,7 +10,6 @@
 		9ABFFE3B2D6F20AF00FCA582 /* modela.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */; };
 		9ABFFE502D6F38BC00FCA582 /* Bulbs.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 9ABFFE4F2D6F38BC00FCA582 /* Bulbs.usdz */; };
 		9ACC85E72D731F33009F2DD5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9ACC85E62D731F23009F2DD5 /* README.md */; };
-		9AD3FD5E2D70563900847A51 /* logo animation.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 9AD3FD5D2D70563900847A51 /* logo animation.mp4 */; };
 		9ADA72EC2D6DD73C0044A7CF /* Amenti-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D22D6DD73C0044A7CF /* Amenti-Medium.ttf */; };
 		9ADA72ED2D6DD73C0044A7CF /* Poppins-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E22D6DD73C0044A7CF /* Poppins-Light.ttf */; };
 		9ADA72EE2D6DD73C0044A7CF /* Poppins-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DF2D6DD73C0044A7CF /* Poppins-ExtraLight.ttf */; };
@@ -38,14 +37,14 @@
 		9ADA73042D6DD73C0044A7CF /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72D82D6DD73C0044A7CF /* OFL.txt */; };
 		9ADA73052D6DD73C0044A7CF /* Poppins-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DB2D6DD73C0044A7CF /* Poppins-Bold.ttf */; };
 		9ADA73062D6DD73C0044A7CF /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E42D6DD73C0044A7CF /* Poppins-Medium.ttf */; };
+		9ADC37662D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 9ADC37652D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = modela.usdz; sourceTree = "<group>"; };
 		9ABFFE4F2D6F38BC00FCA582 /* Bulbs.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Bulbs.usdz; sourceTree = "<group>"; };
 		9ACC85E62D731F23009F2DD5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		9AD3FD5D2D70563900847A51 /* logo animation.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "logo animation.mp4"; sourceTree = "<group>"; };
-		9ADA72142D6DD6D80044A7CF /* LimiExhibition.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LimiExhibition.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ADA72142D6DD6D80044A7CF /* Limi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Limi.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9ADA72D02D6DD73C0044A7CF /* Amenti-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Black.ttf"; sourceTree = "<group>"; };
 		9ADA72D12D6DD73C0044A7CF /* Amenti-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Bold.ttf"; sourceTree = "<group>"; };
 		9ADA72D22D6DD73C0044A7CF /* Amenti-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amenti-Medium.ttf"; sourceTree = "<group>"; };
@@ -73,20 +72,21 @@
 		9ADA72E82D6DD73C0044A7CF /* Poppins-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		9ADA72E92D6DD73C0044A7CF /* Poppins-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Thin.ttf"; sourceTree = "<group>"; };
 		9ADA72EA2D6DD73C0044A7CF /* Poppins-ThinItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-ThinItalic.ttf"; sourceTree = "<group>"; };
+		9ADC37652D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "logoanimationupdate - Trim.mp4"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		9ACC85E52D731820009F2DD5 /* Exceptions for "LimiExhibition" folder in "LimiExhibition" target */ = {
+		9ACC85E52D731820009F2DD5 /* Exceptions for "LimiExhibition" folder in "Limi" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 9ADA72132D6DD6D80044A7CF /* LimiExhibition */;
+			target = 9ADA72132D6DD6D80044A7CF /* Limi */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		9ACC85E12D72F151009F2DD5 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "LimiExhibition" target */ = {
+		9ACC85E12D72F151009F2DD5 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "Limi" target */ = {
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			buildPhase = 9ADA72122D6DD6D80044A7CF /* Resources */;
 			membershipExceptions = (
@@ -99,8 +99,8 @@
 		9ADA72162D6DD6D80044A7CF /* LimiExhibition */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				9ACC85E52D731820009F2DD5 /* Exceptions for "LimiExhibition" folder in "LimiExhibition" target */,
-				9ACC85E12D72F151009F2DD5 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "LimiExhibition" target */,
+				9ACC85E52D731820009F2DD5 /* Exceptions for "LimiExhibition" folder in "Limi" target */,
+				9ACC85E12D72F151009F2DD5 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "Limi" target */,
 			);
 			path = LimiExhibition;
 			sourceTree = "<group>";
@@ -142,7 +142,7 @@
 		9ADA72152D6DD6D80044A7CF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9ADA72142D6DD6D80044A7CF /* LimiExhibition.app */,
+				9ADA72142D6DD6D80044A7CF /* Limi.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -150,7 +150,7 @@
 		9ADA72CE2D6DD7310044A7CF /* video */ = {
 			isa = PBXGroup;
 			children = (
-				9AD3FD5D2D70563900847A51 /* logo animation.mp4 */,
+				9ADC37652D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 */,
 			);
 			path = video;
 			sourceTree = "<group>";
@@ -192,9 +192,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9ADA72132D6DD6D80044A7CF /* LimiExhibition */ = {
+		9ADA72132D6DD6D80044A7CF /* Limi */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9ADA72222D6DD6D90044A7CF /* Build configuration list for PBXNativeTarget "LimiExhibition" */;
+			buildConfigurationList = 9ADA72222D6DD6D90044A7CF /* Build configuration list for PBXNativeTarget "Limi" */;
 			buildPhases = (
 				9ADA72102D6DD6D80044A7CF /* Sources */,
 				9ADA72112D6DD6D80044A7CF /* Frameworks */,
@@ -207,11 +207,11 @@
 			fileSystemSynchronizedGroups = (
 				9ADA72162D6DD6D80044A7CF /* LimiExhibition */,
 			);
-			name = LimiExhibition;
+			name = Limi;
 			packageProductDependencies = (
 			);
 			productName = LimiExhibition;
-			productReference = 9ADA72142D6DD6D80044A7CF /* LimiExhibition.app */;
+			productReference = 9ADA72142D6DD6D80044A7CF /* Limi.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -229,7 +229,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 9ADA720F2D6DD6D80044A7CF /* Build configuration list for PBXProject "LimiExhibition" */;
+			buildConfigurationList = 9ADA720F2D6DD6D80044A7CF /* Build configuration list for PBXProject "Limi" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -243,7 +243,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9ADA72132D6DD6D80044A7CF /* LimiExhibition */,
+				9ADA72132D6DD6D80044A7CF /* Limi */,
 			);
 		};
 /* End PBXProject section */
@@ -255,7 +255,6 @@
 			files = (
 				9ADA72EC2D6DD73C0044A7CF /* Amenti-Medium.ttf in Resources */,
 				9ADA72ED2D6DD73C0044A7CF /* Poppins-Light.ttf in Resources */,
-				9AD3FD5E2D70563900847A51 /* logo animation.mp4 in Resources */,
 				9ADA72EE2D6DD73C0044A7CF /* Poppins-ExtraLight.ttf in Resources */,
 				9ADA72EF2D6DD73C0044A7CF /* info.txt in Resources */,
 				9ADA72F02D6DD73C0044A7CF /* Poppins-SemiBold.ttf in Resources */,
@@ -275,6 +274,7 @@
 				9ADA72FC2D6DD73C0044A7CF /* Amenti-Vf.ttf in Resources */,
 				9ADA72FD2D6DD73C0044A7CF /* Poppins-Italic.ttf in Resources */,
 				9ADA72FE2D6DD73C0044A7CF /* Poppins-ExtraBold.ttf in Resources */,
+				9ADC37662D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 in Resources */,
 				9ADA72FF2D6DD73C0044A7CF /* Poppins-ExtraLightItalic.ttf in Resources */,
 				9ABFFE502D6F38BC00FCA582 /* Bulbs.usdz in Resources */,
 				9ADA73002D6DD73C0044A7CF /* Poppins-ThinItalic.ttf in Resources */,
@@ -357,6 +357,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = Limi;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -413,6 +414,7 @@
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = Limi;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
@@ -484,7 +486,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9ADA720F2D6DD6D80044A7CF /* Build configuration list for PBXProject "LimiExhibition" */ = {
+		9ADA720F2D6DD6D80044A7CF /* Build configuration list for PBXProject "Limi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9ADA72202D6DD6D90044A7CF /* Debug */,
@@ -493,7 +495,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9ADA72222D6DD6D90044A7CF /* Build configuration list for PBXNativeTarget "LimiExhibition" */ = {
+		9ADA72222D6DD6D90044A7CF /* Build configuration list for PBXNativeTarget "Limi" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9ADA72232D6DD6D90044A7CF /* Debug */,

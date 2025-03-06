@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HubHomeView: View {
+
     let rooms: [Room] = [
         Room(name: "Hub Controller", icon: "sofa.fill", devices: 4),
 
@@ -15,22 +16,19 @@ struct HubHomeView: View {
     
     var body: some View {
         ZStack {
-            Color.alabaster
+            Color.etonBlue
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
                 HubHeaderView(title: "Smart Hub")
                 
                 ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 160))], spacing: 16) {
-                        ForEach(rooms) { room in
-                            NavigationLink(destination: HomeDetailView(roomName: room.name)) {
-                                RoomCardView(room: room)
-                            }
-                            .buttonStyle(PlainButtonStyle())
+                    ForEach(rooms) { room in
+                        NavigationLink(destination: HomeDetailView(roomName: room.name)) {
+                            HubCardView(room    : room)
                         }
-                    }
-                    .padding()
+                        .buttonStyle(PlainButtonStyle())
+                    }.padding()
                 }
             }
         }
@@ -55,23 +53,29 @@ struct HubHeaderView: View {
             }) {
                 Image(systemName: "gearshape.fill")
                     .font(.title2)
-                    .foregroundColor(.emerald)
+                    .foregroundColor(.charlestonGreen)
             }
         }
         .padding()
-        .background(Color.alabaster)
+        .background(Color.etonBlue)
     }
 }
 
-struct RoomCardView: View {
+struct HubCardView: View {
+    @State private var isExpanded = false
+
     let room: Room
+    var modHub = false
     
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Image(systemName: room.icon)
+                Image("hub")
+                    .resizable()
+                    .frame(width: 80,height: 80)
                     .font(.title)
-                    .foregroundColor(.white)
+                
+                    .foregroundColor(.charlestonGreen)
                 
                 Spacer()
                 
@@ -79,31 +83,57 @@ struct RoomCardView: View {
                     .font(.caption)
                     .fontWeight(.bold)
                     .padding(6)
-                    .background(Color.white.opacity(0.3))
+                    .background(Color.gray.opacity(0.3))
                     .clipShape(Circle())
-                    .foregroundColor(.white)
+                    .foregroundColor(.charlestonGreen)
             }
             
             Spacer()
             
-            Text(room.name)
-                .font(.headline)
-                .foregroundColor(.white)
+            if let connectedDevice = SharedDevice.shared.connectedDevice {
+                VStack { // Wrapping in a VStack ensures the body returns a single View
+                    Text("\(connectedDevice.name) (\(connectedDevice.id))")
+                        .font(.headline)
+                        .foregroundColor(.charlestonGreen)
+                }
+                .onAppear {
+                    print("Connected Device: \(connectedDevice.name) (\(connectedDevice.id))") // ✅ Prints in console when View appears
+                }
+            }
+
+
+
+            HStack {
+                Text("\(room.devices) Devices")
+                    .font(.caption)
+                    .foregroundColor(.charlestonGreen.opacity(0.8))
+                Spacer()
+                Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                .foregroundColor(.white.opacity(0.8))
+                                .transition(.opacity) // Fade effect
+                                .animation(.easeInOut(duration: 0.3), value: isExpanded)
+                                .onTapGesture {
+                                    withAnimation {
+                                        isExpanded.toggle()
+                                    }
+                                }
+                        }
+                        
+                    
             
-            Text("\(room.devices) Devices")
-                .font(.caption)
-                .foregroundColor(.white.opacity(0.8))
-        }
+    }
         .padding()
         .frame(height: 160)
+        .frame(maxWidth: .infinity)
         .background(
             LinearGradient(
-                gradient: Gradient(colors: [.emerald, .etonBlue]),
+                gradient: Gradient(colors: [.alabaster, .white]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
         )
         .cornerRadius(16)
+        
         .shadow(color: Color.charlestonGreen.opacity(0.1), radius: 5, x: 0, y: 2)
     }
 }

@@ -9,7 +9,8 @@ import SwiftUI
 
 @main
 struct LimiExhibitionApp: App {
-    
+    var sharedUsername: String?
+
     init() {
         UINavigationBar.appearance().tintColor = UIColor.black  // ✅ Change back button color globally
     }
@@ -23,6 +24,7 @@ struct LimiExhibitionApp: App {
             } else {
                 SplashScreen()
             }
+
         }
     }
 }

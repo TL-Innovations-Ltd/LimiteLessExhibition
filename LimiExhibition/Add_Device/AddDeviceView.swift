@@ -13,7 +13,7 @@ struct AddDeviceView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
+                Color.etonBlue.edgesIgnoringSafeArea(.all)
                 
                 if currentScreen == .addDevices {
                     AddDevicesView(onOptionSelected: { option in
