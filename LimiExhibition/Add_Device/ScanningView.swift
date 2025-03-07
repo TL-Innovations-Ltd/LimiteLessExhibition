@@ -143,7 +143,8 @@ struct ScanningView: View {
         }
         .edgesIgnoringSafeArea(.all)
         .fullScreenCover(isPresented: $showHubHomeView) {
-            HubHomeView()
+            //HubContentView()
+            HubContentView()
         }
     }
     
@@ -178,7 +179,6 @@ class SharedDevice {
 }
 
 
-// Bluetooth Manager Class
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     @Published var isBluetoothOn = false
     private var centralManager: CBCentralManager?
@@ -200,66 +200,58 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func startScanning(completion: @escaping ([(name: String, id: String)]) -> Void) {
+        guard isBluetoothOn else {
+            print("⚠️ Bluetooth is off. Please enable it to scan.")
+            return
+        }
+
         self.onDevicesUpdated = completion
         discoveredDevices.removeAll()
         centralManager?.scanForPeripherals(withServices: nil, options: nil)
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        let name = peripheral.name ?? "Unknown Device"
+        let name = advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? peripheral.name ?? "Unknown Device"
         let id = peripheral.identifier.uuidString
-        
-        if let name = advertisementData[CBAdvertisementDataLocalNameKey] as? String {
-                print("Device Name: \(name)")
-            } else {
-                print("Unknown Device")
-            }
+
+        print("🔍 Discovered: \(name) | ID: \(id)")
+
         if !discoveredDevices.contains(where: { $0.id == id }) {
             discoveredDevices.append((name: name, id: id))
             onDevicesUpdated?(discoveredDevices)
         }
     }
 
-    // 📌 New Function: Connect to a Selected Device
     func connectToDevice(deviceId: String) {
-        guard let peripheral = centralManager?.retrievePeripherals(withIdentifiers: [UUID(uuidString: deviceId)!]).first else {
+        guard let uuid = UUID(uuidString: deviceId),
+              let peripheral = centralManager?.retrievePeripherals(withIdentifiers: [uuid]).first else {
             print("⚠️ Device not found in retrieved peripherals.")
             return
         }
 
-
         print("🔗 Connecting to \(peripheral.name ?? "Unknown Device")")
         connectedPeripheral = peripheral
+        peripheral.delegate = self
         centralManager?.connect(peripheral, options: nil)
     }
 
-    // 📡 Handle Successful Connection
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("✅ Connected to \(peripheral.name ?? "Unknown Device")")
         SharedDevice.shared.connectedDevice = (name: peripheral.name ?? "Unknown Device", id: peripheral.identifier.uuidString)
         connectedPeripheral = peripheral
         peripheral.delegate = self
-        peripheral.discoverServices(nil) // Discover services to get more details
-
-        // 🔹 Try to read the device name
-        if let name = peripheral.name {
-
-            print("📌 Updated Device Name: \(name)")
-        }
+        peripheral.discoverServices(nil)
     }
 
-
-    // ❌ Handle Failed Connection
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         print("❌ Failed to connect to \(peripheral.name ?? "Unknown Device"): \(error?.localizedDescription ?? "Unknown error")")
     }
 
-    // 🔴 Handle Disconnection
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         print("🔴 Disconnected from \(peripheral.name ?? "Unknown Device")")
+        connectedPeripheral = nil  // Clear reference to prevent stale connections
     }
 
-    // 🔍 Discover Services after Connection
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let error = error {
             print("❌ Error discovering services: \(error.localizedDescription)")
@@ -291,7 +283,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     func sendMessage(_ message: String) {
         guard let peripheral = connectedPeripheral,
               let characteristic = writableCharacteristic else {
-            print("⚠️ No writable characteristic found.")
+            print("\(message)")
             return
         }
 
@@ -299,18 +291,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         peripheral.writeValue(data, for: characteristic, type: .withResponse)
         print("📤 Sent message: \(message)")
     }
-
-
-    // Helper function to find a writable characteristic
-    private func findWritableCharacteristic(for peripheral: CBPeripheral) -> CBCharacteristic? {
-        for service in peripheral.services ?? [] {
-            for characteristic in service.characteristics ?? [] {
-                if characteristic.properties.contains(.write) || characteristic.properties.contains(.writeWithoutResponse) {
-                    return characteristic
-                }
-            }
-        }
-        return nil
-    }
 }
+
 

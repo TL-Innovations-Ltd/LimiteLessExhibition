@@ -15,6 +15,7 @@ struct AddDeviceView: View {
             ZStack {
                 Color.etonBlue.edgesIgnoringSafeArea(.all)
                 
+                
                 if currentScreen == .addDevices {
                     AddDevicesView(onOptionSelected: { option in
                         if option == .nearby {

@@ -472,7 +472,7 @@ struct OTPVerificationView: View {
                     .fill(Color.alabaster.opacity(0.95))
                     .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
             )
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 50)
             .scaleEffect(isAppearing ? 1.0 : 0.9)
             .opacity(isAppearing ? 1.0 : 0.0)
             
@@ -496,7 +496,7 @@ struct OTPVerificationView: View {
     }
     
     func verifyOTP() {
-        guard let url = URL(string: "hhttps://suzair-backend-limi-project.vercel.app/client/verify_otp") else {
+        guard let url = URL(string: "https://suzair-backend-limi-project.vercel.app/client/verify_otp") else {
             errorMessage = "Invalid URL"
             return
         }

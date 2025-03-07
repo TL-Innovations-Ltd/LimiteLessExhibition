@@ -9,6 +9,8 @@ import SwiftUI
 
 struct HomeDetailView: View {
     let roomName: String
+    @Environment(\.presentationMode) var presentationMode
+
     @State private var selectedController: ControllerType = .pwm2LED
     @State private var isTransitioning = false
     
@@ -16,6 +18,25 @@ struct HomeDetailView: View {
         ZStack {
             Color.alabaster
                 .ignoresSafeArea()
+            HStack {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.black)
+                        .font(.title2)
+                        .padding()
+                }
+            
+                Spacer()
+                Text(roomName)
+                    .font(.headline)
+                    .foregroundColor(.black)
+                Spacer()
+                // Placeholder for balancing spacing
+                Spacer().frame(width: 44)
+            }
+            .padding(.horizontal)
             
             VStack(spacing: 0) {
                 HubHeaderView(title: roomName)
@@ -77,7 +98,10 @@ struct HomeDetailView: View {
             }
         }
         .navigationBarHidden(true)
+        .navigationTitle(roomName)
+        .navigationBarTitleDisplayMode(.inline)
     }
+    
 }
 
 struct ControllerButton: View {

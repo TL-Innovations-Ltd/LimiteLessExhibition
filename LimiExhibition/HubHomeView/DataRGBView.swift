@@ -11,7 +11,8 @@ struct DataRGBView: View {
     @State private var selectedColor: Color = .emerald
     @State private var showingColorPicker = false
     @State private var selectedMode: ColorMode = .solid
-    
+    // Bluetooth Color Message send
+    let selectColorObj = BluetoothManager()
     enum ColorMode: String, CaseIterable, Identifiable {
         case solid = "Solid"
         case rainbow = "Rainbow"
@@ -49,18 +50,43 @@ struct DataRGBView: View {
                     )
                     .onTapGesture {
                         showingColorPicker = true
+                        
                     }
                 
                 // Color Presets
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 16) {
-                    ColorPresetButton(color: .red, selectedColor: $selectedColor)
-                    ColorPresetButton(color: .orange, selectedColor: $selectedColor)
-                    ColorPresetButton(color: .yellow, selectedColor: $selectedColor)
-                    ColorPresetButton(color: .green, selectedColor: $selectedColor)
-                    ColorPresetButton(color: .blue, selectedColor: $selectedColor)
-                    ColorPresetButton(color: .purple, selectedColor: $selectedColor)
-                    ColorPresetButton(color: .pink, selectedColor: $selectedColor)
-                    ColorPresetButton(color: .white, selectedColor: $selectedColor)
+                    ColorPresetButton(color: .red, selectedColor: $selectedColor){
+                        selectColorObj.sendMessage("red")
+                    }
+
+                    ColorPresetButton(color: .orange, selectedColor: $selectedColor){
+                        selectColorObj.sendMessage("orange")
+                    }
+
+                    ColorPresetButton(color: .yellow, selectedColor: $selectedColor){
+                        selectColorObj.sendMessage("yellow")
+                    }
+
+                    ColorPresetButton(color: .green, selectedColor: $selectedColor){
+                        selectColorObj.sendMessage("green")
+                    }
+
+                    ColorPresetButton(color: .blue, selectedColor: $selectedColor){
+                        selectColorObj.sendMessage("blue")
+                    }
+
+                    ColorPresetButton(color: .purple, selectedColor: $selectedColor){
+                        selectColorObj.sendMessage("purple")
+                    }
+
+                    ColorPresetButton(color: .pink, selectedColor: $selectedColor){
+                        selectColorObj.sendMessage("pink")
+                    }
+
+                    ColorPresetButton(color: .white, selectedColor: $selectedColor){
+                        selectColorObj.sendMessage("white")
+                    }
+
                 }
                 .padding()
             } else {
@@ -109,6 +135,8 @@ struct DataRGBView: View {
 struct ColorPresetButton: View {
     let color: Color
     @Binding var selectedColor: Color
+    var action: () -> Void  // Explicitly require an action closure
+
     
     var body: some View {
         Button(action: {
@@ -126,6 +154,10 @@ struct ColorPresetButton: View {
                     Circle()
                         .stroke(selectedColor == color ? Color.emerald : Color.clear, lineWidth: 3)
                 )
+                .onTapGesture {
+                    selectedColor = color
+                    action()  // Call the action when the button is tapped
+                }
         }
     }
 }

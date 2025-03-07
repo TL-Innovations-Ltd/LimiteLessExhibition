@@ -11,7 +11,7 @@ import SwiftUI
 struct MiniControllerView: View {
     @State private var selectedPWM: Int? = nil
     @State private var selectedRGB: Int? = nil
-    
+    let selectColorObj = BluetoothManager()
     var body: some View {
         VStack(spacing: 24) {
             Text("Mini Controller")
@@ -99,10 +99,18 @@ struct MiniControllerView: View {
                             .foregroundColor(.charlestonGreen)
                         
                         HStack(spacing: 12) {
-                            ColorPresetButton(color: .red, selectedColor: .constant(.red))
-                            ColorPresetButton(color: .green, selectedColor: .constant(.red))
-                            ColorPresetButton(color: .blue, selectedColor: .constant(.red))
-                            ColorPresetButton(color: .purple, selectedColor: .constant(.red))
+                            ColorPresetButton(color: .red, selectedColor: .constant(.red)){
+                                selectColorObj.sendMessage("orange")
+                            }
+                            ColorPresetButton(color: .green, selectedColor: .constant(.red)){
+                                selectColorObj.sendMessage("orange")
+                            }
+                            ColorPresetButton(color: .blue, selectedColor: .constant(.red)){
+                                selectColorObj.sendMessage("orange")
+                            }
+                            ColorPresetButton(color: .purple, selectedColor: .constant(.red)){
+                                selectColorObj.sendMessage("orange")
+                            }
                         }
                     }
                 }

@@ -6,6 +6,8 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var linkedDevices: [DeviceHome] = []
     @State private var isNavigatingToAddDevice = false // ✅ Navigation State
+    @ObservedObject var bluetoothManager = BluetoothManager() // ✅ Bluetooth Manager Instance
+
 
     var body: some View {
         NavigationStack { // ✅ Wrap inside NavigationStack
@@ -17,6 +19,20 @@ struct HomeView: View {
                 
                 VStack {
                     HeaderView(isSidebarOpen: $isSidebarOpen)
+                    Button(action: {
+                                            bluetoothManager.sendMessage("Hello Device") // Send a test message
+                                        }) {
+                                            Text("Send Message")
+                                                .font(.headline)
+                                                .foregroundColor(.white)
+                                                .padding()
+                                                .frame(width: 200)
+                                                .background(Color.blue)
+                                                .cornerRadius(10)
+                                                .shadow(radius: 5)
+                                        }
+                                        .padding(.top, 20)
+
                     
                     HStack {
                         TextField("Search for a device...", text: $searchText)

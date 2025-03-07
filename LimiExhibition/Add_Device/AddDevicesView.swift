@@ -13,6 +13,7 @@ struct AddDevicesView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
+            
             // Animated title
             VStack(alignment: .leading, spacing: 8) {
                 Text("Add your devices")
