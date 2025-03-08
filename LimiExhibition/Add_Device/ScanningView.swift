@@ -19,6 +19,20 @@ struct ScanningView: View {
         ZStack {
             VStack(spacing: 24) {
                 // Navigation bar
+                HStack {
+                                    Button(action: {
+                                        onBack()
+                                    }) {
+                                        Image(systemName: "chevron.left")
+                                            .foregroundColor(.white)
+                                            .font(.title2)
+                                            .padding()
+                                            .background(Circle().fill(Color.black.opacity(0.3)))
+                                    }
+                                    Spacer()
+                                }
+                                .padding(.top, 50)
+                                .padding(.leading, 20)
                 Spacer()
                 
                 // Title
@@ -144,7 +158,7 @@ struct ScanningView: View {
         .edgesIgnoringSafeArea(.all)
         .fullScreenCover(isPresented: $showHubHomeView) {
             //HubContentView()
-            HubContentView()
+            HomeView()
         }
     }
     
@@ -185,6 +199,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     private var discoveredDevices: [(name: String, id: String)] = []
     private var connectedPeripheral: CBPeripheral?
     private var writableCharacteristic: CBCharacteristic?
+    @Published var connectedDeviceName: String? = nil
+
+        @Published var isConnected: Bool = true
+
 
     var onDevicesUpdated: (([(name: String, id: String)]) -> Void)?
 
@@ -237,6 +255,9 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("✅ Connected to \(peripheral.name ?? "Unknown Device")")
+        DispatchQueue.main.async {
+            self.connectedDeviceName = peripheral.name ?? "Unknown Device"
+        }
         SharedDevice.shared.connectedDevice = (name: peripheral.name ?? "Unknown Device", id: peripheral.identifier.uuidString)
         connectedPeripheral = peripheral
         peripheral.delegate = self
@@ -273,24 +294,49 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         for characteristic in service.characteristics ?? [] {
             print("📡 Characteristic Found: \(characteristic.uuid) | Properties: \(characteristic.properties)")
 
-            if characteristic.properties.contains(.write) || characteristic.properties.contains(.writeWithoutResponse) {
-                print("✅ Found Writable Characteristic: \(characteristic.uuid)")
-                writableCharacteristic = characteristic
+            // Check if it's the writable characteristic 0x2A1A
+            if characteristic.uuid == CBUUID(string: "2A1A") {
+                if characteristic.properties.contains(.write) || characteristic.properties.contains(.writeWithoutResponse) {
+                    print("✅ Found Writable Characteristic: \(characteristic.uuid)")
+                    writableCharacteristic = characteristic
+                    
+
+                }
             }
         }
     }
 
-    func sendMessage(_ message: String) {
+    
+    func connectToDevice() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.isConnected = true
+        }
+    }
+
+    func disconnectDevice() {
+        DispatchQueue.main.async {
+            self.isConnected = false
+        }
+    }
+        
+    func sendMessage(_ byteArray: [UInt8]) {
         guard let peripheral = connectedPeripheral,
               let characteristic = writableCharacteristic else {
-            print("\(message)")
+            print("❌ Peripheral or writable characteristic not found.\(byteArray)")
             return
         }
 
-        let data = message.data(using: .utf8)!
-        peripheral.writeValue(data, for: characteristic, type: .withResponse)
-        print("📤 Sent message: \(message)")
+        // Convert byte array to Data
+        let dataToSend = Data(byteArray)
+
+        // Write the byte data to the Bluetooth peripheral
+        peripheral.writeValue(dataToSend, for: characteristic, type: .withResponse)
+
+        // Debugging: Print byte array in hex format
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+        print("📤 Sent to \(characteristic.uuid): \(hexString)")
     }
+
 }
 
 

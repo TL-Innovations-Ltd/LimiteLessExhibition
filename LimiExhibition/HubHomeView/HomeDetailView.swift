@@ -83,7 +83,7 @@ struct HomeDetailView: View {
                                 )
                             )
                     } else {
-                        MiniControllerView()
+                        MiniControllerPreviewWrapper()
                             .transition(
                                 .asymmetric(
                                     insertion: .opacity.combined(with: .move(edge: .leading)),
@@ -130,5 +130,5 @@ struct ControllerButton: View {
     }
 }
 #Preview {
-    HomeDetailView(roomName: "Master Bedroom")
+    HomeDetailView(roomName: "Limi HUB")
 }

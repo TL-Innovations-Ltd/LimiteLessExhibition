@@ -8,10 +8,20 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct MiniControllerView: View {
+    @Binding var brightness: Double
+    @Binding var warmCold: Double
+    
+    @State private var selectedColor: Color = .emerald
+
     @State private var selectedPWM: Int? = nil
     @State private var selectedRGB: Int? = nil
+    @ObservedObject var miniPwmIntensityObj = BluetoothManager()  // Observing BluetoothManager
+
     let selectColorObj = BluetoothManager()
+    
     var body: some View {
         VStack(spacing: 24) {
             Text("Mini Controller")
@@ -29,15 +39,11 @@ struct MiniControllerView: View {
                 HStack(spacing: 12) {
                     ForEach(1...5, id: \.self) { index in
                         MiniButton(
-                            title: "LED \(index)",
+                            title: "LED\n \(index)",
                             isSelected: selectedPWM == index,
                             color: .emerald,
                             action: {
-                                if selectedPWM == index {
-                                    selectedPWM = nil
-                                } else {
-                                    selectedPWM = index
-                                }
+                                selectedPWM = (selectedPWM == index) ? nil : index
                             }
                         )
                     }
@@ -61,11 +67,7 @@ struct MiniControllerView: View {
                             isSelected: selectedRGB == index,
                             color: .etonBlue,
                             action: {
-                                if selectedRGB == index {
-                                    selectedRGB = nil
-                                } else {
-                                    selectedRGB = index
-                                }
+                                selectedRGB = (selectedRGB == index) ? nil : index
                             }
                         )
                     }
@@ -84,32 +86,75 @@ struct MiniControllerView: View {
                             .font(.headline)
                             .foregroundColor(.charlestonGreen)
                         
+                        // Brightness Slider
                         HStack {
                             Image(systemName: "lightbulb.fill")
                                 .foregroundColor(.emerald)
                             
-                            Slider(value: .constant(0.7), in: 0...1)
-                                .accentColor(.emerald)
+                            Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { _ in
+                                sendIntensity(pwmled: pwm)
+                                            })
                         }
                     }
                     
-                    if let rgb = selectedRGB {
-                        Text("RGB LED \(rgb) Controls")
+                    if let lednumber = selectedRGB {
+                        Text("RGB LED \(lednumber) Controls")
                             .font(.headline)
                             .foregroundColor(.charlestonGreen)
                         
+                        // Color Buttons
                         HStack(spacing: 12) {
-                            ColorPresetButton(color: .red, selectedColor: .constant(.red)){
-                                selectColorObj.sendMessage("orange")
+                            ColorPresetButton(color: .red, selectedColor: $selectedColor) {
+                                var byteArray: [UInt8] = [0x03, 0xFF, 0x00, 0x00] // ✅ Use `var` to modify
+
+                                if let po = UInt8(exactly: lednumber+5) {
+                                    byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
+
+                                    selectColorObj.sendMessage(byteArray)
+                                    print("Sending LED number:", lednumber)
+                                } else {
+                                    print("Error: LED number out of range!")
+                                }
                             }
-                            ColorPresetButton(color: .green, selectedColor: .constant(.red)){
-                                selectColorObj.sendMessage("orange")
+                            ColorPresetButton(color: .green, selectedColor: $selectedColor){
+                                //008000
+                                var byteArray: [UInt8] = [0x03, 0x00, 0x80, 0x00] // ✅ Use `var` to modify
+
+                                if let po = UInt8(exactly: lednumber+5) {
+                                    byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
+
+                                    selectColorObj.sendMessage(byteArray)
+                                    print("Sending LED number:", lednumber)
+                                } else {
+                                    print("Error: LED number out of range!")
+                                }
                             }
-                            ColorPresetButton(color: .blue, selectedColor: .constant(.red)){
-                                selectColorObj.sendMessage("orange")
+                            
+                            ColorPresetButton(color: .blue, selectedColor: $selectedColor){
+                                //0000FF
+                                var byteArray: [UInt8] = [0x03, 0x00, 0x00, 0xFF] // ✅ Use `var` to modify
+
+                                if let po = UInt8(exactly: lednumber+5) {
+                                    byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
+
+                                    selectColorObj.sendMessage(byteArray)
+                                    print("Sending LED number:", lednumber)
+                                } else {
+                                    print("Error: LED number out of range!")
+                                }
                             }
-                            ColorPresetButton(color: .purple, selectedColor: .constant(.red)){
-                                selectColorObj.sendMessage("orange")
+                            ColorPresetButton(color: .purple, selectedColor: $selectedColor){
+                                //800080
+                                var byteArray: [UInt8] = [0x03, 0x80, 0x00, 0x80] // ✅ Use `var` to modify
+
+                                if let po = UInt8(exactly: lednumber+5) {
+                                    byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
+
+                                    selectColorObj.sendMessage(byteArray)
+                                    print("Sending LED number:", lednumber)
+                                } else {
+                                    print("Error: LED number out of range!")
+                                }
                             }
                         }
                     }
@@ -129,7 +174,27 @@ struct MiniControllerView: View {
         .background(Color.alabaster)
         .cornerRadius(16)
     }
+    private func sendIntensity(pwmled: Int) {
+        let brightnessValue = Int(brightness)
+        let ledNumber = Int(pwmled)
+        
+
+        // Construct the byte array
+        let byteArray: [UInt8] = [
+            0x03,  // Assuming a different identifier for intensity (change if needed)
+            UInt8(ledNumber & 0xFF),
+            UInt8(brightnessValue & 0xFF)
+        ]
+
+        // Convert byte values into a hex string format "0x01, 0x2E, 0x4A"
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+
+        // Send the formatted hex string
+        miniPwmIntensityObj.sendMessage(byteArray)
+    }
+
 }
+
 
 struct MiniButton: View {
     let title: String
@@ -155,6 +220,16 @@ struct MiniButton: View {
     }
 }
 
-#Preview {
-    MiniControllerView()
+struct MiniControllerPreviewWrapper: View {
+    @State private var brightness: Double = 0.5
+    @State private var warmCold: Double = 0.5
+
+    var body: some View {
+        MiniControllerView(brightness: $brightness, warmCold: $warmCold)
+    }
 }
+
+#Preview {
+    MiniControllerPreviewWrapper()
+}
+

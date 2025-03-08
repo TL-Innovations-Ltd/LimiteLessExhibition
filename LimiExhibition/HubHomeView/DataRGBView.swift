@@ -13,6 +13,11 @@ struct DataRGBView: View {
     @State private var selectedMode: ColorMode = .solid
     // Bluetooth Color Message send
     let selectColorObj = BluetoothManager()
+    @State private var isOn = false
+
+    
+    @State private var showAlert = false
+    
     enum ColorMode: String, CaseIterable, Identifiable {
         case solid = "Solid"
         case rainbow = "Rainbow"
@@ -22,11 +27,21 @@ struct DataRGBView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            Text("1 Data RGB Controller")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.charlestonGreen)
-                .padding(.top)
+            HStack{
+                Text("1 Data RGB Controller")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.charlestonGreen)
+                    .padding(.top)
+                Spacer()
+                
+                Toggle(isOn: $isOn) {}
+                .toggleStyle(SwitchToggleStyle(tint: .green))
+                .onChange(of: isOn) { newValue in
+                                        sendLampState()
+                                    }
+            }
+
             
             // Mode Selection
             Picker("Mode", selection: $selectedMode) {
@@ -48,77 +63,87 @@ struct DataRGBView: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(Color.white, lineWidth: 2)
                     )
-                    .onTapGesture {
-                        showingColorPicker = true
-                        
-                    }
-                
+                    
                 // Color Presets
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 16) {
                     ColorPresetButton(color: .red, selectedColor: $selectedColor){
-                        selectColorObj.sendMessage("red")
+                        let byteArray: [UInt8] = [0x02, 0xFF, 0x00, 0x00]
+                        selectColorObj.sendMessage(byteArray)
                     }
 
                     ColorPresetButton(color: .orange, selectedColor: $selectedColor){
-                        selectColorObj.sendMessage("orange")
+                        let byteArray: [UInt8] = [0x02, 0xFF, 0x8A, 0x22]
+                        selectColorObj.sendMessage(byteArray)
                     }
 
                     ColorPresetButton(color: .yellow, selectedColor: $selectedColor){
-                        selectColorObj.sendMessage("yellow")
+                        let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00]
+                        selectColorObj.sendMessage(byteArray)
                     }
 
                     ColorPresetButton(color: .green, selectedColor: $selectedColor){
-                        selectColorObj.sendMessage("green")
+                        let byteArray: [UInt8] = [0x02, 0x00, 0x80, 0x00]
+                        selectColorObj.sendMessage(byteArray)
                     }
 
                     ColorPresetButton(color: .blue, selectedColor: $selectedColor){
-                        selectColorObj.sendMessage("blue")
+                        let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0xFF]
+                        selectColorObj.sendMessage(byteArray)
                     }
 
                     ColorPresetButton(color: .purple, selectedColor: $selectedColor){
-                        selectColorObj.sendMessage("purple")
+                        let byteArray: [UInt8] = [0x02, 0x80, 0x00, 0x80]
+                        selectColorObj.sendMessage(byteArray)
                     }
 
                     ColorPresetButton(color: .pink, selectedColor: $selectedColor){
-                        selectColorObj.sendMessage("pink")
+                        //FFC0CB
+                        let byteArray: [UInt8] = [0x02, 0xFF, 0xC0, 0xCB]
+
+                        selectColorObj.sendMessage(byteArray)
                     }
 
                     ColorPresetButton(color: .white, selectedColor: $selectedColor){
-                        selectColorObj.sendMessage("white")
+                        //FFFFFF
+                        let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0xFF]
+
+                        selectColorObj.sendMessage(byteArray)
                     }
 
                 }
                 .padding()
+                .opacity(isOn ? 1.0 : 0.5) // Dim when OFF
+                    .disabled(!isOn)
             } else {
-                // Rainbow Mode
-                RainbowView()
-                    .frame(height: 120)
-                    .cornerRadius(16)
-                    .padding(.horizontal)
-                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
-                
-                // Rainbow Speed Control
-                VStack(alignment: .leading) {
-                    Text("Rainbow Speed")
-                        .font(.headline)
-                        .foregroundColor(.charlestonGreen)
-                    
-                    HStack {
-                        Image(systemName: "tortoise")
-                            .foregroundColor(.gray)
-                        
-                        Slider(value: .constant(0.5), in: 0...1)
-                            .accentColor(.emerald)
-                        
-                        Image(systemName: "hare")
-                            .foregroundColor(.gray)
-                    }
-                }
-                .padding()
-                .background(Color.white)
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-                .padding(.horizontal)
+//                // Rainbow Mode
+//                RainbowView()
+//                    .frame(height: 120)
+//                    .cornerRadius(16)
+//                    .padding(.horizontal)
+//                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+//
+//                // Rainbow Speed Control
+//                VStack(alignment: .leading) {
+//                    Text("Rainbow Speed")
+//                        .font(.headline)
+//                        .foregroundColor(.charlestonGreen)
+//
+//                    HStack {
+//                        Image(systemName: "tortoise")
+//                            .foregroundColor(.gray)
+//
+//                        Slider(value: .constant(0.5), in: 0...1)
+//                            .accentColor(.emerald)
+//
+//                        Image(systemName: "hare")
+//                            .foregroundColor(.gray)
+//                    }
+//                }
+//                .padding()
+//                .background(Color.white)
+//                .cornerRadius(16)
+//                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+//                .padding(.horizontal)
             }
             
             Spacer()
@@ -128,6 +153,29 @@ struct DataRGBView: View {
         .cornerRadius(16)
         .sheet(isPresented: $showingColorPicker) {
             ColorPickerView(selectedColor: $selectedColor)
+        }
+        // 🔹 Show alert when the device disconnects
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Device Disconnected"), message: Text("Please reconnect your device."), dismissButton: .default(Text("OK")))
+        }
+
+        // 🔹 Observe changes in isConnected
+        .onChange(of: selectColorObj.isConnected) { newValue in
+            if !newValue {
+                showAlert = true
+            }
+        }
+    }
+
+    
+    // Function to send lamp state
+    private func sendLampState() {
+        if isOn {
+            let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00]
+            selectColorObj.sendMessage(byteArray)
+        } else {
+            let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0x00]
+            selectColorObj.sendMessage(byteArray)
         }
     }
 }
@@ -152,7 +200,7 @@ struct ColorPresetButton: View {
                 .shadow(color: color.opacity(0.3), radius: 5, x: 0, y: 2)
                 .overlay(
                     Circle()
-                        .stroke(selectedColor == color ? Color.emerald : Color.clear, lineWidth: 3)
+                        .stroke(selectedColor == color ? Color.black : Color.clear, lineWidth: 3)
                 )
                 .onTapGesture {
                     selectedColor = color

@@ -8,11 +8,9 @@
 import SwiftUI
 
 // MARK: - Models
-struct Room: Identifiable {
+struct Hub: Identifiable {
     let id = UUID()
     let name: String
-    let icon: String
-    let devices: Int
 }
 
 enum ControllerType: String, CaseIterable, Identifiable {

@@ -1,12 +1,12 @@
 import SwiftUI
 
 struct PWM2LEDView: View {
-    @State private var led1Brightness: Double = 75
+    @State private var led1warmCold: Double = 75
     @State private var led2Brightness: Double = 50
     
     var body: some View {
         VStack(spacing: 30) {
-            Text("PWM LED Controller")
+            Text("Bela Lamp")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.charlestonGreen)
@@ -15,7 +15,8 @@ struct PWM2LEDView: View {
             // LED 1 Control
             PendantLampControlView(
                 title: "LED",
-                brightness: $led1Brightness,
+                warmCold: $led1warmCold,
+                brightness: $led2Brightness,
                 color: .yellow
             )
             
@@ -31,19 +32,31 @@ struct PWM2LEDView: View {
 
 struct PendantLampControlView: View {
     let title: String
+    @Binding var warmCold: Double
     @Binding var brightness: Double
     let color: Color
-    
-    @State private var isGlowing = false
-    
-    let pwmIntensityObj = BluetoothManager() // Assuming you have this object defined elsewhere
 
+    @State private var isOn = false
+    @State private var isGlowing = false
+    @ObservedObject var pwmIntensityObj = BluetoothManager()  // Observing BluetoothManager
+    @State private var showAlert = false  // State to show alert
+    	
     var body: some View {
         VStack(spacing: 20) {
-            Text(title)
-                .font(.headline)
-                .foregroundColor(.charlestonGreen)
-            
+            HStack{
+                Spacer()
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.charlestonGreen)
+                    .frame(alignment:.center)
+                Spacer()
+                Toggle(isOn: $isOn) {}
+                .toggleStyle(SwitchToggleStyle(tint: .green))
+                .onChange(of: isOn) { newValue in
+                                        sendLampState()
+                                    }
+
+            }
             // Pendant Lamp
             ZStack {
                 // Cord
@@ -63,7 +76,7 @@ struct PendantLampControlView: View {
                         .frame(width: 40, height: 40)
                     // Bulb glow
                     Circle()
-                        .fill(color.opacity(brightness/100))
+                        .fill(color.opacity(warmCold/100))
                         .frame(width: 35, height: 35)
                         .scaleEffect(isGlowing ? 1.05 : 1.0)
                         .animation(
@@ -76,7 +89,7 @@ struct PendantLampControlView: View {
                         .fill(
                             RadialGradient(
                                 gradient: Gradient(colors: [
-                                    color.opacity(brightness / 150),
+                                    color.opacity(warmCold / 150),
                                     color.opacity(0)
                                 ]),
                                 center: .center,
@@ -85,7 +98,7 @@ struct PendantLampControlView: View {
                             )
                         )
                         .frame(width: 120, height: 120)
-                        .opacity(brightness / 100)
+                        .opacity(warmCold / 100)
                         .scaleEffect(isGlowing ? 1.1 : 1.0)
                         .animation(
                             Animation.easeInOut(duration: 1.5)
@@ -120,11 +133,12 @@ struct PendantLampControlView: View {
             .frame(height: 120)
             .onAppear {
                 isGlowing = true
+                
             }
             
-            // Brightness Control Section
+            // warmCold Control Section
             VStack(spacing: 15) {
-                        Text("Adjust Intensity")
+                        Text("Adjust Color")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                         
@@ -134,7 +148,7 @@ struct PendantLampControlView: View {
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(LinearGradient(
                                     gradient: Gradient(colors: [
-                                        Color(hex: "#FFF3DA"),
+                                        Color(hex: "#FFFFFF"),
                                         Color(hex: "#FAE9D5")
                                     ]),
                                     startPoint: .leading,
@@ -144,39 +158,135 @@ struct PendantLampControlView: View {
                                 .shadow(radius: 2)
                             
                             // Slider
-                            Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { _ in
-                                                sendIntensity()
+                            Slider(value: $warmCold, in: 0...100, step: 1, onEditingChanged: { _ in
+                                                sendColor()
                                             })                                .frame(height: 40)
                                 .accentColor(.white) // White slider knob
                                 .padding(.horizontal, 20)
+                                .disabled(!isOn)
                         }
                         .padding(.horizontal, 20)
                         
-                        // Percentage indicators
-                        HStack(spacing: 0) {
-                            ForEach([0, 25, 50, 75, 100], id: \.self) { value in
-                                Text("\(value)%")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                    .frame(maxWidth: .infinity)
-                            }
-                        }
-                        .padding(.horizontal, 10)
+
                     }
             .padding(.top, 20)
-        }
+            
+            VStack(spacing: 15) {
+                        Text("Adjust Brightness")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                        
+                        // Custom Slider with Warm White Gradient Background
+                        ZStack {
+                            // Gradient Background using #FFF3DA and #FAE9D5
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(
+                                    LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(1), Color.clear]),
+                                                                       startPoint: .leading,
+                                                                       endPoint: .trailing)
+                                                    )
+                                                    .frame(height: 40)
+                                                    .shadow(radius: 2)
+                            // Slider
+                            Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { _ in
+                                                sendIntensity()
+                                            })
+                            .frame(height: 40)
+                                .accentColor(.white) // White slider knob
+                                .padding(.horizontal, 20)
+                                .disabled(!isOn)
+                        }
+                        .padding(.horizontal, 20)
+                        
+
+                    }
+            
+            .padding(.top, 20)
+            
+         }
         .padding()
         .background(Color.white)
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        
+        // 🔹 Show alert when the device disconnects
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text("Device Disconnected"), message: Text("Please reconnect your device."), dismissButton: .default(Text("OK")))
+        }
+
+        // 🔹 Observe changes in isConnected
+        .onChange(of: pwmIntensityObj.isConnected) { newValue in
+            if !newValue {
+                showAlert = true
+            }
+        }
+
+    }
+    // Function to send lamp state
+    private func sendLampState() {
+        if isOn {
+            sendColor()
+        } else {
+            sendOff()
+        }
+    }
+    private func sendOff() {
+        let intensityValue: Int = 0
+        let intensityValue2: Int = 0
+        let brightnessValue: Int = 0
+        
+        let byteArray: [UInt8] = [
+            0x01,
+            UInt8(intensityValue & 0xFF),
+            UInt8(intensityValue2 & 0xFF),
+            UInt8(brightnessValue & 0xFF)
+        ]
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+        pwmIntensityObj.sendMessage(byteArray)
     }
     
     // Function to send intensity value
+    private func sendColor() {
+        let intensityValue = Int(warmCold)
+        let intensityValue2: Int = abs(intensityValue - 100)
+        let brightnessValue = Int(brightness)
+
+        // Construct the byte array
+        let byteArray: [UInt8] = [
+            0x01,
+            UInt8(intensityValue & 0xFF),
+            UInt8(intensityValue2 & 0xFF),
+            UInt8(brightnessValue & 0xFF)
+        ]
+
+        // Convert each byte to a hex string with "0x" prefix
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+
+        // Send the formatted string
+        pwmIntensityObj.sendMessage(byteArray)
+    }
+
+    // Function to send intensity value
     private func sendIntensity() {
-            let intensityValue = Int(brightness)
-            let intensityvalue2: Int = abs(intensityValue - 100)
-            pwmIntensityObj.sendMessage("\(intensityValue) : \(intensityvalue2)") // Send integer intensity
-        }
+        let brightnessValue = Int(brightness)
+        let intensityValue = Int(warmCold)
+        let intensityValue2: Int = abs(intensityValue - 100)
+
+        // Construct the byte array
+        let byteArray: [UInt8] = [
+            0x01,  // Assuming a different identifier for intensity (change if needed)
+            UInt8(intensityValue & 0xFF),
+            UInt8(intensityValue2 & 0xFF),
+            UInt8(brightnessValue & 0xFF)
+        ]
+
+        // Convert byte values into a hex string format "0x01, 0x2E, 0x4A"
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+
+        // Send the formatted hex string
+        pwmIntensityObj.sendMessage(byteArray)
+    }
+
 }
 
 struct SliderControl: View {
