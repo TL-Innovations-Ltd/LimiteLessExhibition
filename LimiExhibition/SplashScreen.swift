@@ -22,11 +22,11 @@ struct SplashScreen: View {
                             .shadow(radius: 20)
                     }
                 }
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                        isActive = true
-                    }
-                }
+//                .onAppear {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+//                        isActive = true
+//                    }
+//                }
             }
         }
     }

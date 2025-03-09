@@ -38,6 +38,7 @@
 		9ADA73052D6DD73C0044A7CF /* Poppins-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72DB2D6DD73C0044A7CF /* Poppins-Bold.ttf */; };
 		9ADA73062D6DD73C0044A7CF /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E42D6DD73C0044A7CF /* Poppins-Medium.ttf */; };
 		9ADC37662D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 9ADC37652D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 */; };
+		9AF2B1BC2D7D59A1003D366D /* FLAnimatedImage in Frameworks */ = {isa = PBXBuildFile; productRef = 9AF2B1BB2D7D59A1003D366D /* FLAnimatedImage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -112,6 +113,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AF2B1BC2D7D59A1003D366D /* FLAnimatedImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,6 +211,7 @@
 			);
 			name = Limi;
 			packageProductDependencies = (
+				9AF2B1BB2D7D59A1003D366D /* FLAnimatedImage */,
 			);
 			productName = LimiExhibition;
 			productReference = 9ADA72142D6DD6D80044A7CF /* Limi.app */;
@@ -238,6 +241,9 @@
 			);
 			mainGroup = 9ADA720B2D6DD6D80044A7CF;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9AF2B1BA2D7D59A1003D366D /* XCRemoteSwiftPackageReference "FLAnimatedImage" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9ADA72152D6DD6D80044A7CF /* Products */;
 			projectDirPath = "";
@@ -505,6 +511,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9AF2B1BA2D7D59A1003D366D /* XCRemoteSwiftPackageReference "FLAnimatedImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Flipboard/FLAnimatedImage";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.17;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9AF2B1BB2D7D59A1003D366D /* FLAnimatedImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9AF2B1BA2D7D59A1003D366D /* XCRemoteSwiftPackageReference "FLAnimatedImage" */;
+			productName = FLAnimatedImage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9ADA720C2D6DD6D80044A7CF /* Project object */;
 }

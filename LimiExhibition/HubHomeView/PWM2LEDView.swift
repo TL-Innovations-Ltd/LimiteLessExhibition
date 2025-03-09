@@ -158,9 +158,17 @@ struct PendantLampControlView: View {
                                 .shadow(radius: 2)
                             
                             // Slider
-                            Slider(value: $warmCold, in: 0...100, step: 1, onEditingChanged: { _ in
+                            Slider(value: $warmCold, in: 0...100, step: 1, onEditingChanged: { isEditing in
+                                
+                                if isEditing {
+                                                sendHapticFeedback() // Trigger haptic feedback
+                                            }
                                                 sendColor()
-                                            })                                .frame(height: 40)
+                                            })
+                            .onChange(of: warmCold) { _ in
+                                        sendHapticFeedback() // Continuous feedback as the slider moves
+                                    }
+                            .frame(height: 40)
                                 .accentColor(.white) // White slider knob
                                 .padding(.horizontal, 20)
                                 .disabled(!isOn)
@@ -188,9 +196,16 @@ struct PendantLampControlView: View {
                                                     .frame(height: 40)
                                                     .shadow(radius: 2)
                             // Slider
-                            Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { _ in
-                                                sendIntensity()
+                            Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { isEditing in
+                                                
+                                if isEditing {
+                                                sendHapticFeedback() // Trigger haptic feedback
+                                            }
+                                sendIntensity()
                                             })
+                            .onChange(of: brightness) { _ in
+                                        sendHapticFeedback() // Continuous feedback as the slider moves
+                                    }
                             .frame(height: 40)
                                 .accentColor(.white) // White slider knob
                                 .padding(.horizontal, 20)
@@ -220,8 +235,13 @@ struct PendantLampControlView: View {
                 showAlert = true
             }
         }
+        
 
     }
+    func sendHapticFeedback() {
+            let generator = UIImpactFeedbackGenerator(style: .medium)
+            generator.impactOccurred()
+        }
     // Function to send lamp state
     private func sendLampState() {
         if isOn {
