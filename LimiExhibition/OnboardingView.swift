@@ -6,7 +6,7 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var showGetStarted = false
     @State private var animateBackground = false
-    private let totalPages = 3
+    private let totalPages = 5
     
     
     
@@ -37,19 +37,33 @@ struct OnboardingView: View {
                             
                             OnboardingPageView(
                                 image: "nfcScan",
-                                title: "Energy Efficient",
-                                description: "Save energy and reduce costs with intelligent automation and scheduling."
+                                title: "Seamless Setup & Control",
+                                description: "Scan a QR code, tap NFC, or connect via BLE or Wi-Fi for instant control."
 
                             )
                             .tag(1)
                             
                             OnboardingPageView(
                                 image: "lock.shield.fill",
-                                title: "Secure & Private",
-                                description: "Your data stays private with end-to-end encryption and local processing."
+                                title: "Design & Visualize",
+                                description: "Use AR & 3D tools to create and preview your perfect lighting setup before buying."
 
                             )
                             .tag(2)
+                            OnboardingPageView(
+                                image: "lock.shield.fill",
+                                title: "Smart Scheduling",
+                                description: "Create routines that adapt to your lifestyle."
+
+                            )
+                            .tag(3)
+                            OnboardingPageView(
+                                image: "lock.shield.fill",
+                                title: "You’re All Set!",
+                                description: "Begin exploring, designing, and controlling your lights now."
+
+                            )
+                            .tag(4)
                         }
                         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
                         .animation(.easeInOut, value: currentPage)
@@ -123,6 +137,7 @@ struct OnboardingPageView: View {
                                 GIFView(gifName: "nfcScan") // Ensure you have nfcScan.gif in assets
                                     .frame(width: 300, height: 300)
                                     .scaleEffect(imageScale)
+                                    .padding(.top,80)
                                     .onAppear {
                                         withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
                                             imageScale = 1.0
