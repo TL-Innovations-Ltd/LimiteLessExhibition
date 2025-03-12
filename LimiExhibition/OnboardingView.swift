@@ -2,20 +2,44 @@ import SwiftUI
 import UIKit
 import WebKit
 
+class ImageRotationCeiling: ObservableObject {
+    @Published var currentIndex = 0
+    private var timer: Timer?
+
+    let images = ["ceilingVertical", "ceilingHorizontal"]
+
+    init() {
+        startImageRotation()
+    }
+
+    func startImageRotation() {
+        stopImageRotation() // Stop any existing timer before starting a new one
+        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            DispatchQueue.main.async {
+                self.currentIndex = (self.currentIndex + 1) % self.images.count
+            }
+        }
+    }
+
+    func stopImageRotation() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    deinit {
+        stopImageRotation() // Ensure timer is stopped when the object is deallocated
+    }
+}
+
 struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var showGetStarted = false
     @State private var animateBackground = false
     private let totalPages = 5
     
-    
-    
     var body: some View {
         ZStack {
-            
             VStack {
-                Spacer() // Pushes content below // Pushes everything else below
-                
                 // Main content
                 VStack {
                     if showGetStarted {
@@ -26,42 +50,38 @@ struct OnboardingView: View {
                             ))
                     } else {
                         TabView(selection: $currentPage) {
-                            
                             OnboardingPageView(
-                                image: "ceilingLight",
+                                image: "ceilingHorizaontal",
                                 title: "Welcome to LIMI",
                                 description: "Experience the future of smart lighting—customizable, modular, and effortless."
-
                             )
                             .tag(0)
                             
                             OnboardingPageView(
-                                image: "nfcScan",
+                                image: "second",
                                 title: "Seamless Setup & Control",
                                 description: "Scan a QR code, tap NFC, or connect via BLE or Wi-Fi for instant control."
-
                             )
                             .tag(1)
                             
                             OnboardingPageView(
-                                image: "lock.shield.fill",
+                                image: "third",
                                 title: "Design & Visualize",
                                 description: "Use AR & 3D tools to create and preview your perfect lighting setup before buying."
-
                             )
                             .tag(2)
+                            
                             OnboardingPageView(
-                                image: "lock.shield.fill",
+                                image: "fourth",
                                 title: "Smart Scheduling",
                                 description: "Create routines that adapt to your lifestyle."
-
                             )
                             .tag(3)
+                            
                             OnboardingPageView(
-                                image: "lock.shield.fill",
+                                image: "fifth",
                                 title: "You’re All Set!",
                                 description: "Begin exploring, designing, and controlling your lights now."
-
                             )
                             .tag(4)
                         }
@@ -70,9 +90,9 @@ struct OnboardingView: View {
                         .ignoresSafeArea()
                         
                         // Page indicator and buttons
-                        VStack(spacing: 30) {
-                            CustomPageIndicator(currentPage: currentPage, totalPages: totalPages, activeColor: Color.alabaster)
-                                .padding(.top, 40)
+                        VStack() {
+                            CustomPageIndicator(currentPage: currentPage, totalPages: totalPages, activeColor: Color.charlestonGreen, inactiveColor: Color.charlestonGreen.opacity(0.6))
+                                .padding(.top, 10)
                             
                             HStack {
                                 Button(action: {
@@ -81,28 +101,21 @@ struct OnboardingView: View {
                                             currentPage += 1
                                         }
                                     } else {
-                                        withAnimation(.spring()) {
+                                        withAnimation() {
                                             showGetStarted = true
                                         }
                                     }
                                 }) {
                                     HStack {
                                         Text(currentPage < totalPages - 1 ? "" : "Get Started")
-                                        
-                                        if currentPage == totalPages - 1 {
-                                            Image(systemName: "arrow.right")
-                                                .font(.system(size: 16, weight: .semibold))
-                                        }else{
-                                            Image(systemName: "arrow.right")
-                                                .font(.system(size: 16, weight: .semibold))
-                                        }
+                                        Image(systemName: "arrow.right")
+                                            .font(.system(size: 16, weight: .semibold))
                                     }
-                                    .frame(width: currentPage < totalPages - 1 ? 120 : 150)
+                                    .frame(width: 120)
                                     .padding()
-                                    
-                                    .foregroundColor(.alabaster)
+                                    .foregroundColor(.charlestonGreen)
                                     .cornerRadius(16)
-                                    .shadow(color: Color.alabaster.opacity(0.3), radius: 10, x: 0, y: 5)
+                                    .shadow(color: Color.charlestonGreen.opacity(0.3), radius: 10, x: 0, y: 5)
                                 }
                             }
                             .padding(.horizontal, 40)
@@ -111,60 +124,82 @@ struct OnboardingView: View {
                     }
                 }
             }
-            .background(Color.verticalGradient)
+            .background(Color.etonBlue)
             .edgesIgnoringSafeArea(.all)
+            
+            ZStack(alignment: .topTrailing) {
+                Color.etonBlue
+                    .edgesIgnoringSafeArea(.all)
+                    .opacity(0)
+                
+                Button(action: {
+                    withAnimation {
+                        showGetStarted = true
+                    }
+                }) {
+                    if showGetStarted == true {
+                        Text("")
+                            
+                    }else{
+                        Text("Skip")
+                            .foregroundColor(.charlestonGreen)
+                            .padding(.horizontal, 30)
+                    }
+                    
+                }
+                .padding(.top, 0)
+                .padding(.trailing, 0)
+            }
         }
     }
 }
+
 struct OnboardingPageView: View {
     let image: String
     let title: String
     let description: String
-
     
-    @State private var imageScale: CGFloat = 0.8
+    @State private var imageScale: CGFloat = 0.6
     @State private var textOpacity: Double = 0
     @State private var descriptionOffset: CGFloat = 20
     
     var body: some View {
         VStack {
-
-            
             // Image with animation
             ZStack {
-                if image == "nfcScan" {
-                                // Show GIF when image is "nfcScan"
-                                GIFView(gifName: "nfcScan") // Ensure you have nfcScan.gif in assets
-                                    .frame(width: 300, height: 300)
-                                    .scaleEffect(imageScale)
-                                    .padding(.top,80)
-                                    .onAppear {
-                                        withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
-                                            imageScale = 1.0
-                                        }
-                                    }
-                            } else {
-                                // Show static Image for other values
-                                Image(image)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .foregroundColor(Color.white)
-                                    .scaleEffect(imageScale)
-                                    .onAppear {
-                                        withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
-                                            imageScale = 1.0
-                                        }
-                                    }
+                if image == "ceilingHorizaontal" {
+                    Image(image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .scaleEffect(imageScale)
+                        .onAppear {
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                                imageScale = 1.0
                             }
+                        }
+                } else {
+                    Image(image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .padding(.top, 100)
+                        .frame(width: 400, height: 400)
+                        .scaleEffect(imageScale)
+                        .onAppear {
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                                imageScale = 1.0
+                            }
+                        }
+                }
             }
             .ignoresSafeArea()
             .padding(.bottom, 40)
-            
+            Spacer()
             // Title with animation
             Text(title)
                 .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundColor(Color.alabaster.opacity(0.8))
+                .foregroundColor(Color.charlestonGreen)
                 .padding(.top, 20)
+                .shadow(radius: 20)
                 .opacity(textOpacity)
                 .onAppear {
                     withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
@@ -176,9 +211,9 @@ struct OnboardingPageView: View {
             Text(description)
                 .font(.system(size: 17, weight: .regular, design: .rounded))
                 .multilineTextAlignment(.center)
-                .foregroundColor(Color.alabaster.opacity(0.6))
+                .foregroundColor(Color.charlestonGreen.opacity(0.6))
                 .padding(.horizontal, 40)
-                .padding(.top, 16)
+                .padding(.top, 6)
                 .offset(y: descriptionOffset)
                 .opacity(textOpacity)
                 .onAppear {
@@ -187,11 +222,8 @@ struct OnboardingPageView: View {
                         textOpacity = 1
                     }
                 }
-            
-            Spacer()
         }
-        .ignoresSafeArea()
-
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -199,6 +231,7 @@ struct CustomPageIndicator: View {
     var currentPage: Int
     var totalPages: Int
     var activeColor: Color
+    var inactiveColor: Color
     
     var body: some View {
         HStack(spacing: 12) {
@@ -206,11 +239,11 @@ struct CustomPageIndicator: View {
                 if currentPage == index {
                     Capsule()
                         .fill(activeColor)
-                        .frame(width: 24, height: 8)
+                        .frame(width: 34, height: 8)
                         .transition(.scale)
                 } else {
                     Circle()
-                        .fill(Color.gray.opacity(0.3))
+                        .fill(inactiveColor)
                         .frame(width: 8, height: 8)
                 }
             }
@@ -227,4 +260,3 @@ struct OnboardingView_Previews: PreviewProvider {
         OnboardingView()
     }
 }
-

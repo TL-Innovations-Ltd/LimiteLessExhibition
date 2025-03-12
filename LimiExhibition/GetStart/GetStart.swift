@@ -1,9 +1,20 @@
+//
+//  GetStart 2.swift
+//  Limi
+//
+//  Created by Mac Mini on 11/03/2025.
+//
+
+
 import SwiftUI
 
 struct GetStart: View {
     @State private var selectedRole: Role? = nil
     @State private var isAnimating = false
     @State private var showGetStarted = false
+    @State private var navigateToSignIn = false
+    @State private var navigateToAddDevice = false
+    @State private var isLoading = false
 
     enum Role {
         case deafOrHardOfHearing // Installer
@@ -12,8 +23,8 @@ struct GetStart: View {
 
     var body: some View {
         ZStack {
-            Color.etonBlue.ignoresSafeArea().opacity(0.6)
-
+            Color.etonBlue.ignoresSafeArea()
+            
             VStack(spacing: 0) {
                 // Animated Header
                 Text("Choose your role\nbelow")
@@ -25,7 +36,7 @@ struct GetStart: View {
                     .opacity(isAnimating ? 1 : 0)
                     .offset(y: isAnimating ? 0 : 30)
                     .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: isAnimating)
-
+                
                 VStack(spacing: 20) {
                     // Installer Role Card
                     RoleCard(
@@ -38,7 +49,7 @@ struct GetStart: View {
                             }
                         }
                     )
-
+                    
                     // Animated "or" text
                     Text("or")
                         .font(.system(size: 16))
@@ -47,7 +58,7 @@ struct GetStart: View {
                         .opacity(isAnimating ? 1 : 0)
                         .scaleEffect(isAnimating ? 1 : 0.5)
                         .animation(.spring(response: 0.5).delay(0.3), value: isAnimating)
-
+                    
                     // User Role Card
                     RoleCard(
                         role: .signLanguageInterpreter,
@@ -62,13 +73,13 @@ struct GetStart: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 40)
-
+                
                 Spacer()
-
+                
                 // Get Started Button
-                GetStartedButton(isEnabled: selectedRole != nil, isVisible: showGetStarted, selectedRole: selectedRole)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 40)
+                               GetStartedButton(isEnabled: selectedRole != nil, isVisible: showGetStarted, selectedRole: selectedRole)
+                                   .padding(.horizontal, 24)
+                                   .padding(.bottom, 40)
             }
         }
         .onAppear {
@@ -77,23 +88,87 @@ struct GetStart: View {
             }
         }
         .navigationBarBackButtonHidden(true) // Hides the default back button
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            // Go back to the previous screen
-                            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                               let window = windowScene.windows.first {
-                                window.rootViewController?.dismiss(animated: true, completion: nil)
-                            }
-                        }) {
-                            Image(systemName: "chevron.left")
-                                .foregroundColor(Color.charlestonGreen) // Change the color here
-                                .font(.system(size: 20, weight: .bold))
-                        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    // Go back to the previous screen
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                       let window = windowScene.windows.first {
+                        window.rootViewController?.dismiss(animated: true, completion: nil)
                     }
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(Color.charlestonGreen) // Change the color here
+                        .font(.system(size: 20, weight: .bold))
                 }
+            }
+        }
+        
+        .fullScreenCover(isPresented: $navigateToAddDevice) {
+            AddDeviceView()
+        }
+        .fullScreenCover(isPresented: $navigateToSignIn) {
+            LoginView()
+        }
+    }
+
+    private func createInstallerUser() {
+        isLoading = true
+        guard let url = URL(string: "https://suzair-backend-limi-project.vercel.app/client/installer_user") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [:] // Add any required request parameters here
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isLoading = false
+            }
+
+            if let error = error {
+                print("API error:", error.localizedDescription)
+                return
+            }
+
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+
+            do {
+                // Parse JSON response
+                let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
+                
+                if let jsonResponse = jsonObject as? [String: Any] {
+                    // Debugging: Print the whole response
+                    print("API Response:", jsonResponse)
+
+                    if let success = jsonResponse["success"] as? Bool, success,
+                       let dataContainer = jsonResponse["data"] as? [String: Any], // First "data" object
+                       let token = dataContainer["token"] as? String { // Extract token directly from "data"
+                        
+                        AuthManager.shared.saveToken(token)
+                        print("Token saved:", token) // Debugging
+
+                        DispatchQueue.main.async {
+                            navigateToAddDevice = true
+                        }
+                    } else {
+                        print("Invalid response format:", jsonResponse)
+                    }
+                } else {
+                    print("Failed to cast JSON response as [String: Any]")
+                }
+            } catch {
+                print("JSON parsing error:", error.localizedDescription)
+            }
+        }.resume()
     }
 }
+
 
 struct GetStartedButton: View {
     let isEnabled: Bool
@@ -117,7 +192,7 @@ struct GetStartedButton: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 } else {
-                    Text("Get started")
+                    Text("Continue")
                         .font(.system(size: 16, weight: .medium))
 
                     Image(systemName: "arrow.right")
@@ -131,7 +206,7 @@ struct GetStartedButton: View {
             .padding(.vertical, 16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isEnabled ? Color.black : Color.gray.opacity(0.3))
+                    .fill(isEnabled ? Color.black : Color.gray.opacity(0.2))
                     .animation(.easeInOut(duration: 0.2), value: isEnabled)
             )
             .foregroundColor(.white)
@@ -228,10 +303,10 @@ struct RoleCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(role == .deafOrHardOfHearing ? "Installer" : "User")
                         .font(.system(size: 20, weight: .medium))
-                    Text(role == .deafOrHardOfHearing ? "Install the Electronics Equipment" : "Control the Electronics Equipment")
+                    Text(role == .deafOrHardOfHearing ? "Temporary access to configure your LIMI installation." : "Personalize and transform your LIMI lighting experience.")
                         .font(.system(size: 12, weight: .medium))
                 }
-                .foregroundColor(.white)
+                .foregroundColor(.charlestonGreen)
 
                 Spacer()
             }
@@ -240,7 +315,8 @@ struct RoleCard: View {
             .background(
                 ZStack {
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.emerald.opacity(0.6))
+
+                        .fill(Color.alabaster.opacity(0.8))
 
                     // Selection indicator
                     RoundedRectangle(cornerRadius: 16)
@@ -258,6 +334,7 @@ struct RoleCard: View {
         }
     }
 }
+
 
 #Preview {
     GetStart()

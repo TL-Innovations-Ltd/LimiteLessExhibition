@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - AddDevices View
 
 struct AddDevices: View {
-    @State private var navigateToNearbyDevices = false  // State variable to control navigation
+    @State private var navigatetonBlueearbyDevices = false  // State variable to control navigation
 
     var body: some View {
           
@@ -40,7 +40,7 @@ struct AddDevices: View {
                                    description: "Find nearby devices that you can connect to.",
                                    iconName: "wifi",
                                    gradientColors: [Color.emerald, Color.etonBlue]) {
-                                       navigateToNearbyDevices = true
+                                       navigatetonBlueearbyDevices = true
                                    }
                 // Option 3: Enter Manually
                 CardButtonView(
@@ -56,7 +56,7 @@ struct AddDevices: View {
             .padding()
             .background(Color.alabaster.edgesIgnoringSafeArea(.all))
             .navigationBarHidden(true) // Hide the default navigation title
-            .navigationDestination(isPresented: $navigateToNearbyDevices) {
+            .navigationDestination(isPresented: $navigatetonBlueearbyDevices) {
                          //   NearbyDevicesView() // Navigate to NearbyDevicesView
                         }
         }

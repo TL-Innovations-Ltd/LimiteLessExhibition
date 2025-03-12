@@ -79,8 +79,7 @@ struct ScanningView: View {
                         Circle()
                             .fill(Color.alabaster.opacity(0.5))
                             .frame(width: 100, height: 100)
-                        
-                        Text("\(Int(progress * 100))%")
+                        Text("\(Int(progress))%")
                             .font(.system(size: 36, weight: .medium))
                             .foregroundColor(Color.charlestonGreen)
                     }
@@ -185,7 +184,7 @@ struct ScanningView: View {
 }
 
 class SharedDevice {
-    static let shared = SharedDevice() // Singleton instance
+    static let shared = SharedDevice() // SingletonBlue instance
 
     var connectedDevice: (name: String, id: String)? // Stores connected device info
 
@@ -225,20 +224,26 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         self.onDevicesUpdated = completion
         discoveredDevices.removeAll()
-        centralManager?.scanForPeripherals(withServices: nil, options: nil)
+
+        let serviceUUIDs: [CBUUID] = [CBUUID(string: "180F"), CBUUID(string: "180E")]
+        centralManager?.scanForPeripherals(withServices: serviceUUIDs, options: nil)
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
         let name = advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? peripheral.name ?? "Unknown Device"
         let id = peripheral.identifier.uuidString
 
-        print("🔍 Discovered: \(name) | ID: \(id)")
+        // Filter only the required devices
+        if (name == "1 CH-HUB" || name == "LIMI-CONTROLLER") {
+            print("🔍 Discovered: \(name) | ID: \(id)")
 
-        if !discoveredDevices.contains(where: { $0.id == id }) {
-            discoveredDevices.append((name: name, id: id))
-            onDevicesUpdated?(discoveredDevices)
+            if !discoveredDevices.contains(where: { $0.id == id }) {
+                discoveredDevices.append((name: name, id: id))
+                onDevicesUpdated?(discoveredDevices)
+            }
         }
     }
+
 
     func connectToDevice(deviceId: String) {
         guard let uuid = UUID(uuidString: deviceId),

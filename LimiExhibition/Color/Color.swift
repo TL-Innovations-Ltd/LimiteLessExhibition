@@ -42,7 +42,7 @@ extension Color {
     static let secondaryAccent = Color.etonBlue
     
     static let verticalGradient = LinearGradient(
-        gradient: Gradient(colors: [darkGray.opacity(0.8), charlestonGreen]),
+        gradient: Gradient(colors: [etonBlue.opacity(0.4), emerald]),
         startPoint: .top,
         endPoint: .bottom
     )

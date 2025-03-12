@@ -16,25 +16,14 @@ struct LoginView: View {
             Color.alabaster.edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
-                VStack {
-                    Image(systemName: "person.crop.circle")
-                        .resizable()
-                        .foregroundStyle(Color.emerald)
-                        .frame(width: 80, height: 80)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 150)
-                .background(
-                    Color.alabaster.opacity(0.8)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                )
+                
                 
                 VStack {
                     VStack {
                         Image("logoSplash")
                             .resizable()
-                            .frame(width: 200, height: 150)
-                            .padding(.bottom, 80)
+                            .frame(width: 120, height: 100)
+                            .padding(.bottom, 40)
                             .offset(y: welcomeTextOffset)
                             .opacity(welcomeTextOpacity)
                             .onAppear {
@@ -43,11 +32,12 @@ struct LoginView: View {
                                     welcomeTextOpacity = 1.0
                                 }
                             }
-                        Text("Create a New Account!")
+                        Text("Enter Your Email")
                             .font(.title2)
                             .bold()
                             .foregroundColor(.charlestonGreen)
-                        Text("Join us and start your journey today.")
+                            .padding(.bottom, 10)
+                        Text("We’ll send you a secure login link. Simply click it and start your journey.")
                             .font(.subheadline)
                             .foregroundColor(Color.charlestonGreen)
                             .multilineTextAlignment(.center)
@@ -55,18 +45,23 @@ struct LoginView: View {
                     }
                     .padding()
                     
-                    VStack(spacing: 20) {
-                        TextField("Email Address", text: $email)
+                    VStack(spacing: 60) {
+                        
+                        
+                        TextField("Email Address", text: $email, prompt: Text("Email Address").foregroundColor(.gray))
+                            .foregroundColor(Color.charlestonGreen) // Typed text color
                             .padding()
-                            .background(Color(.systemGray6))
+                            .background(Color.white)
                             .cornerRadius(10)
                             .padding(.horizontal)
-                    }
+
+                        
+                    }.padding(.bottom, 40)
                     
                     Button(action: {
                         generateOTP()
                     }) {
-                        Text("Register")
+                        Text("Send Link")
                             .font(.headline)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -80,14 +75,16 @@ struct LoginView: View {
                     }
                     .keyboardResponsive()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.etonBlue.opacity(0.8))
-                .clipShape(RoundedRectangle(cornerRadius: 50))
-                .padding(.bottom, 0)
-                .edgesIgnoringSafeArea(.bottom)
-                .shadow(color: Color.black.opacity(0.3) ,radius: 20)
+
             }
+
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.etonBlue)
+            .padding(.bottom, 0)
+            .edgesIgnoringSafeArea(.all)
+            .shadow(color: Color.black.opacity(0.3) ,radius: 20)
         }
+
         .fullScreenCover(isPresented: $isOTPVerified) {
             AddDeviceView()
         }
@@ -751,14 +748,22 @@ struct KeyboardResponsiveModifier: ViewModifier {
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         keyboardHeight = keyboardFrame.height - 20
+                        
                     }
                 }
                 
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
                     keyboardHeight = 0
-                }
-            }
-    }
+                  }
+              }
+              .onTapGesture {
+                  hideKeyboard()
+              }
+      }
+      
+      private func hideKeyboard() {
+          UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+      }
 }
 
 extension View {

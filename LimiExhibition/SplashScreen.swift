@@ -17,16 +17,16 @@ struct SplashScreen: View {
                     ZStack {
                         Image("logoSplash") // Static Logo (Touchable)
                             .resizable()
-                            .frame(width: 150, height: 150)
+                            .frame(width: 120, height: 100)
                             .padding()
                             .shadow(radius: 20)
                     }
                 }
-//                .onAppear {
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-//                        isActive = true
-//                    }
-//                }
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        isActive = true
+                    }
+                }
             }
         }
     }

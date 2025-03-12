@@ -36,10 +36,10 @@ class AnimationVideoView: UIViewController {
     }
     
     @objc func videoDidFinishPlaying() {
-        navigateToNextScreen()
+        navigatetonBlueextScreen()
     }
     
-    func navigateToNextScreen() {
+    func navigatetonBlueextScreen() {
         let nextVC = UIHostingController(rootView: OnboardingView()) // Use SwiftUI View
         nextVC.modalPresentationStyle = .fullScreen
         self.present(nextVC, animated: true, completion: nil)
