@@ -211,4 +211,3 @@ struct HandShape: Shape {
         return path
     }
 }
-

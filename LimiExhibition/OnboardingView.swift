@@ -168,15 +168,36 @@ struct OnboardingPageView: View {
             // Image with animation
             ZStack {
                 if image == "ceilingHorizaontal" {
-                    Image(image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .scaleEffect(imageScale)
-                        .onAppear {
-                            withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
-                                imageScale = 1.0
+                    ZStack{
+                        Circle()
+                            .fill(
+                                RadialGradient(gradient: Gradient(colors: [Color.white.opacity(0.7), Color.clear]),
+                                               center: .center,
+                                               startRadius: 0,
+                                               endRadius: 110)
+                            )
+                            .padding(.top, 170)
+                            .frame(width: 400, height: 400)
+                            .scaleEffect(imageScale)
+                            .onAppear {
+                                withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                                    imageScale = 1.0
+                                }
                             }
-                        }
+                        Image(image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .scaleEffect(imageScale)
+                            .onAppear {
+                                withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                                    imageScale = 1.0
+                                }
+                            }
+                        
+
+                    }
+                    
+                    
                 } else {
                     Image(image)
                         .resizable()

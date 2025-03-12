@@ -36,8 +36,11 @@ struct GetStart: View {
                     .opacity(isAnimating ? 1 : 0)
                     .offset(y: isAnimating ? 0 : 30)
                     .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: isAnimating)
+                    .shadow(radius: 1)
+                    .foregroundColor(.charlestonGreen)  // Change the text color here
+
                 
-                VStack(spacing: 20) {
+                VStack(spacing: 40) {
                     // Installer Role Card
                     RoleCard(
                         role: .deafOrHardOfHearing,
@@ -49,15 +52,26 @@ struct GetStart: View {
                             }
                         }
                     )
+                    .shadow(radius: 2)
                     
-                    // Animated "or" text
-                    Text("or")
-                        .font(.system(size: 16))
-                        .foregroundColor(.black.opacity(0.6))
-                        .padding(.vertical, 4)
-                        .opacity(isAnimating ? 1 : 0)
-                        .scaleEffect(isAnimating ? 1 : 0.5)
-                        .animation(.spring(response: 0.5).delay(0.3), value: isAnimating)
+                    ZStack{
+
+                        // Animated "or" text
+                        Text("or")
+                            .font(.custom("Amenti-back", size: 26))
+                            .foregroundColor(.charlestonGreen)
+                            .padding(.vertical, 4)
+                            
+                        Circle()
+                            .fill(Color.alabaster)
+                            .opacity(0.2)
+                            .frame(width: 40, height: 40)
+
+                    }
+                    .opacity(isAnimating ? 1 : 0)
+                    .scaleEffect(isAnimating ? 1 : 0.5)
+                    .animation(.spring(response: 0.5).delay(0.3), value: isAnimating)
+                        
                     
                     // User Role Card
                     RoleCard(
@@ -70,6 +84,7 @@ struct GetStart: View {
                             }
                         }
                     )
+                    .shadow(radius: 2)
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 40)

@@ -11,7 +11,8 @@ struct ScanningView: View {
     @State private var showDevicesList = false
     @State private var discoveredDevices: [(name: String, id: String)] = []
     @State private var showHubHomeView = false // State for fullscreen navigation
-    
+    @State private var currentProgress: Int = 1
+
     // Bluetooth Manager
     @StateObject private var bluetoothManager = BluetoothManager()
 
@@ -20,19 +21,20 @@ struct ScanningView: View {
             VStack(spacing: 24) {
                 // Navigation bar
                 HStack {
-                                    Button(action: {
-                                        onBack()
-                                    }) {
-                                        Image(systemName: "chevron.left")
-                                            .foregroundColor(.white)
-                                            .font(.title2)
-                                            .padding()
-                                            .background(Circle().fill(Color.black.opacity(0.3)))
-                                    }
-                                    Spacer()
-                                }
-                                .padding(.top, 50)
-                                .padding(.leading, 20)
+                    Button(action: {
+                        onBack()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                            .font(.title2)
+                            .padding()
+                            .background(Circle().fill(Color.black.opacity(0.3)))
+                    }
+                    Spacer()
+                }
+                .padding(.top, 50)
+                .padding(.leading, 20)
+                
                 Spacer()
                 
                 // Title
@@ -79,7 +81,7 @@ struct ScanningView: View {
                         Circle()
                             .fill(Color.alabaster.opacity(0.5))
                             .frame(width: 100, height: 100)
-                        Text("\(Int(progress))%")
+                        Text("\(Int(currentProgress))%")
                             .font(.system(size: 36, weight: .medium))
                             .foregroundColor(Color.charlestonGreen)
                     }
@@ -93,6 +95,16 @@ struct ScanningView: View {
             
             .onAppear {
                 checkBluetoothStatus()
+                
+                // Start a timer that updates progress step-by-step
+                Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+                    if currentProgress < 100 {
+                        currentProgress += 1
+                    } else {
+                        timer.invalidate() // Stop the timer when it reaches 100
+                    }
+                }
+                
             }
             .alert(isPresented: $showBluetoothAlert) {
                 Alert(
@@ -105,7 +117,7 @@ struct ScanningView: View {
             
             // Device List Popup
             if showDevicesList {
-                Color.black.opacity(0.5) // Background blur effect
+                Color.charlestonGreen.opacity(0.5) // Background blur effect
                     .edgesIgnoringSafeArea(.all)
                     .onTapGesture {
                         showDevicesList = false
