@@ -19,7 +19,12 @@ struct MiniControllerView: View {
     @State private var selectedPWM: Int? = nil
     @State private var selectedRGB: Int? = nil
     @ObservedObject var miniPwmIntensityObj = BluetoothManager()  // Observing BluetoothManager
-
+    
+    @ObservedObject var sharedDevice = SharedDevice.shared
+    
+    @State private var showPopup = false
+    @State private var navigateToHome = false
+    
     let selectColorObj = BluetoothManager()
     
     var body: some View {
@@ -110,7 +115,7 @@ struct MiniControllerView: View {
                                 if let po = UInt8(exactly: lednumber+5) {
                                     byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
 
-                                    selectColorObj.sendMessage(byteArray)
+                                    selectColorObj.writeDataToFF03(byteArray)
                                     print("Sending LED number:", lednumber)
                                 } else {
                                     print("Error: LED number out of range!")
@@ -123,7 +128,7 @@ struct MiniControllerView: View {
                                 if let po = UInt8(exactly: lednumber+5) {
                                     byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
 
-                                    selectColorObj.sendMessage(byteArray)
+                                    selectColorObj.writeDataToFF03(byteArray)
                                     print("Sending LED number:", lednumber)
                                 } else {
                                     print("Error: LED number out of range!")
@@ -137,7 +142,7 @@ struct MiniControllerView: View {
                                 if let po = UInt8(exactly: lednumber+5) {
                                     byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
 
-                                    selectColorObj.sendMessage(byteArray)
+                                    selectColorObj.writeDataToFF03(byteArray)
                                     print("Sending LED number:", lednumber)
                                 } else {
                                     print("Error: LED number out of range!")
@@ -150,7 +155,7 @@ struct MiniControllerView: View {
                                 if let po = UInt8(exactly: lednumber+5) {
                                     byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
 
-                                    selectColorObj.sendMessage(byteArray)
+                                    selectColorObj.writeDataToFF03(byteArray)
                                     print("Sending LED number:", lednumber)
                                 } else {
                                     print("Error: LED number out of range!")
@@ -173,6 +178,21 @@ struct MiniControllerView: View {
         .padding()
         .background(Color.alabaster)
         .cornerRadius(16)
+        .onChange(of: sharedDevice.connectedDevice) { newValue in
+                    if newValue == nil {
+                        showPopup = true // Show alert if the device is disconnected
+                    }
+                }
+        .alert("Device Disconnected", isPresented: $showPopup) {
+                    Button("Go to Home") {
+                        navigateToHome = true
+                    }
+                } message: {
+                    Text("Your device has been disconnected.")
+                }
+                .fullScreenCover(isPresented: $navigateToHome) {
+                    HomeView()
+                }
     }
     private func sendIntensity(pwmled: Int) {
         let brightnessValue = Int(brightness)
@@ -190,7 +210,7 @@ struct MiniControllerView: View {
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
 
         // Send the formatted hex string
-        miniPwmIntensityObj.sendMessage(byteArray)
+        miniPwmIntensityObj.writeDataToFF03(byteArray)
     }
 
 }

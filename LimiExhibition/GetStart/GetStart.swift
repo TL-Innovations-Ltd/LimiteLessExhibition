@@ -7,6 +7,33 @@
 
 
 import SwiftUI
+struct ElegantGradientBackgroundView: View {
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.charlestonGreen,
+
+                    Color(red: 243/255, green: 235/255, blue: 226/255)  // Alabaster
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            // Soft blur overlay to add depth
+            VisualEffectBlur()
+        }
+    }
+}
+
+struct VisualEffectBlur: View {
+    var body: some View {
+        Color.white.opacity(0.1)
+            .blur(radius: 15)
+            .ignoresSafeArea()
+    }
+}
 
 struct GetStart: View {
     @State private var selectedRole: Role? = nil
@@ -23,8 +50,8 @@ struct GetStart: View {
 
     var body: some View {
         ZStack {
-            Color.etonBlue.ignoresSafeArea()
-            
+            ElegantGradientBackgroundView()
+
             VStack(spacing: 0) {
                 // Animated Header
                 Text("Choose your role\nbelow")
@@ -37,7 +64,7 @@ struct GetStart: View {
                     .offset(y: isAnimating ? 0 : 30)
                     .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: isAnimating)
                     .shadow(radius: 1)
-                    .foregroundColor(.charlestonGreen)  // Change the text color here
+                    .foregroundColor(.alabaster)  // Change the text color here
 
                 
                 VStack(spacing: 40) {

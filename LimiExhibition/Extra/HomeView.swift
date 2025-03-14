@@ -11,8 +11,9 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var linkedDevices: [DeviceHome] = []
     @State private var isNavigatingToAddDevice = false
-    @ObservedObject var bluetoothManager = BluetoothManager()
-    
+    @ObservedObject var bluetoothManager = BluetoothManager.shared
+    @ObservedObject var sharedDevice = SharedDevice.shared
+
     // Animation states
     @State private var isLoaded = false
     @State private var searchFieldFocused = false
@@ -134,7 +135,7 @@ struct HomeView: View {
                                     .foregroundColor(.white)
                                     .frame(width: 22, height: 22)
                                     .scaleEffect(isLoaded ? 1.0 : 0.95)
-                                    .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isLoaded)
+                                    
                             }
                         }
                     }
@@ -149,112 +150,104 @@ struct HomeView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.charlestonGreen)
-                            
-                            // Animated indicator dot
-                            if !hubs.isEmpty {
-                                Circle()
-                                    .fill(Color.green)
-                                    .frame(width: 8, height: 8)
-                                    .opacity(isLoaded ? 1 : 0)
-                                    .scaleEffect(isLoaded ? 1 : 0.5)
-                                    .animation(.easeIn.delay(0.5), value: isLoaded)
-                            }
                         }
                         .padding(.horizontal, 5) // REDUCED TO 5
                         .padding(.top, 15)
                         .opacity(isLoaded ? 1 : 0)
                         .animation(.easeIn.delay(0.3), value: isLoaded)
                         
-                        if hubs.isEmpty {
-                            // MARK: - Enhanced Empty State with Animation
-                            VStack(spacing: 20) {
-                                // Animated illustration
-                                ZStack {
-                                    // Background circles
-                                    ForEach(0..<3) { i in
-                                        Circle()
-                                            .stroke(Color.etonBlue.opacity(0.1), lineWidth: 2)
-                                            .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
-                                            .scaleEffect(isLoaded ? 1.0 : 0.8)
-                                            .opacity(isLoaded ? 1 : 0)
-                                            .animation(
-                                                .easeInOut(duration: 1.0)
-                                                .delay(0.3 + Double(i) * 0.1),
-                                                value: isLoaded
-                                            )
-                                    }
-                                    
-                                    // House icon
-                                    Image(systemName: "house.fill")
-                                        .font(.system(size: 40))
-                                        .foregroundColor(.etonBlue)
-                                        .opacity(isLoaded ? 1 : 0)
-                                        .scaleEffect(isLoaded ? 1 : 0.5)
-                                        .rotationEffect(isLoaded ? .degrees(0) : .degrees(-30))
-                                        .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
-                                }
-                                .frame(height: 150)
-                                .padding(.top, 20)
-                                
-                                VStack(spacing: 10) {
-                                    Text("No devices linked yet")
-                                        .font(.headline)
-                                        .foregroundColor(.charlestonGreen)
-                                        .opacity(isLoaded ? 1 : 0)
-                                        .animation(.easeIn.delay(0.6), value: isLoaded)
-                                    
-                                    Text("Tap + to add your first device")
-                                        .font(.subheadline)
-                                        .foregroundColor(.gray.opacity(0.8))
-                                        .opacity(isLoaded ? 1 : 0)
-                                        .animation(.easeIn.delay(0.8), value: isLoaded)
-                                        .padding(.bottom, 10)
-                                    
-                                    // Add device button
-                                    Button(action: {
-                                        isNavigatingToAddDevice = true
-                                    }) {
-                                        HStack {
-                                            Image(systemName: "plus.circle.fill")
-                                                .font(.system(size: 16))
-                                            Text("Add Device")
-                                                .fontWeight(.medium)
+                        if let _ = sharedDevice.connectedDevice {
+                                        // ✅ Show HubCardView when a device is connected
+                                        ScrollView(showsIndicators: false) {
+                                            ForEach(Array(hubs.enumerated()), id: \.element.id) { index, room in
+                                                NavigationLink(destination: HomeDetailView(roomName: room.name)) {
+                                                    HubCardView(room: room, bluetoothManager: bluetoothManager)
+                                                        .padding(.horizontal, 5)
+                                                        .padding(.vertical, 8)
+                                                        .offset(x: isLoaded ? 0 : 300)
+                                                        .opacity(isLoaded ? 1 : 0)
+                                                        .animation(.spring(response: 0.6, dampingFraction: 0.7)
+                                                            .delay(Double(index) * 0.1 + 0.3),
+                                                            value: isLoaded
+                                                        )
+                                                }
+                                                .buttonStyle(PlainButtonStyle())
+                                            }
+                                            .padding(.vertical, 10)
                                         }
-                                        .foregroundColor(.white)
-                                        .padding(.vertical, 10)
-                                        .padding(.horizontal, 20)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .fill(Color.etonBlue)
-                                        )
-                                        .shadow(color: Color.etonBlue.opacity(0.3), radius: 5, x: 0, y: 3)
+                                    } else {
+                                        // ❌ If no device is connected, show empty state
+                                        VStack(spacing: 20) {
+                                            ZStack {
+                                                ForEach(0..<3) { i in
+                                                    Circle()
+                                                        .stroke(Color.etonBlue.opacity(0.1), lineWidth: 2)
+                                                        .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
+                                                        .scaleEffect(isLoaded ? 1.0 : 0.8)
+                                                        .opacity(isLoaded ? 1 : 0)
+                                                        .animation(.easeInOut(duration: 1.0)
+                                                            .delay(0.3 + Double(i) * 0.1),
+                                                            value: isLoaded
+                                                        )
+                                                }
+                                                Image(systemName: "house.fill")
+                                                    .font(.system(size: 40))
+                                                    .foregroundColor(.etonBlue)
+                                                    .opacity(isLoaded ? 1 : 0)
+                                                    .scaleEffect(isLoaded ? 1 : 0.5)
+                                                    .rotationEffect(isLoaded ? .degrees(0) : .degrees(-30))
+                                                    .animation(.spring(response: 0.6, dampingFraction: 0.6)
+                                                        .delay(0.5),
+                                                        value: isLoaded
+                                                    )
+                                            }
+                                            .frame(height: 150)
+                                            .padding(.top, 20)
+
+                                            VStack(spacing: 10) {
+                                                Text("No devices linked yet")
+                                                    .font(.headline)
+                                                    .foregroundColor(.charlestonGreen)
+                                                    .opacity(isLoaded ? 1 : 0)
+                                                    .animation(.easeIn.delay(0.6), value: isLoaded)
+
+                                                Text("Tap + to add your first device")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.gray.opacity(0.8))
+                                                    .opacity(isLoaded ? 1 : 0)
+                                                    .animation(.easeIn.delay(0.8), value: isLoaded)
+                                                    .padding(.bottom, 10)
+
+                                                Button(action: {
+                                                    isNavigatingToAddDevice = true
+                                                }) {
+                                                    HStack {
+                                                        Image(systemName: "plus.circle.fill")
+                                                            .font(.system(size: 16))
+                                                        Text("Add Device")
+                                                            .fontWeight(.medium)
+                                                    }
+                                                    .foregroundColor(.white)
+                                                    .padding(.vertical, 10)
+                                                    .padding(.horizontal, 20)
+                                                    .background(
+                                                        RoundedRectangle(cornerRadius: 20)
+                                                            .fill(Color.etonBlue)
+                                                    )
+                                                    .shadow(color: Color.etonBlue.opacity(0.3), radius: 5, x: 0, y: 3)
+                                                }
+                                                .opacity(isLoaded ? 1 : 0)
+                                                .animation(.easeIn.delay(1.0), value: isLoaded)
+                                            }
+                                        }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 20)
                                     }
-                                    .opacity(isLoaded ? 1 : 0)
-                                    .animation(.easeIn.delay(1.0), value: isLoaded)
                                 }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 20)
-                        } else {
-                            // MARK: - Enhanced Hub Cards with Staggered Animation
-                            ScrollView(showsIndicators: false) {
-                                ForEach(Array(hubs.enumerated()), id: \.element.id) { index, room in
-                                    NavigationLink(destination: HomeDetailView(roomName: room.name)) {
-                                        HubCardView(room: room, bluetoothManager: bluetoothManager)
-                                            .padding(.horizontal, 5) // REDUCED TO 5
-                                            .padding(.vertical, 8)
-                                            // Animation: Staggered slide-in from right
-                                            .offset(x: isLoaded ? 0 : 300)
-                                            .opacity(isLoaded ? 1 : 0)
-                                            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(Double(index) * 0.1 + 0.3), value: isLoaded)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
+                                .onAppear {
+                                    isLoaded = true
                                 }
-                                .padding(.vertical, 10)
-                            }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Spacer()
                 }

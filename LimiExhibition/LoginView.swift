@@ -475,9 +475,13 @@ struct OTPVerificationView: View {
             
             // Navigation based on showAddDevices state
             if isOTPVerified {
-                NavigationLink(destination: showAddDevices ? AnyView(AddDeviceView()) : AnyView(HomeView()), isActive: $isOTPVerified) {
-                    EmptyView()
-                }
+//                NavigationLink(destination: showAddDevices ? AnyView(AddDeviceView()) : AnyView(HomeView()), isActive: $isOTPVerified)
+//                {
+//                    EmptyView()
+//                }
+                NavigationLink(value: showAddDevices ? "AddDeviceView" : "HomeView") {
+                                   EmptyView()
+                               }
             }
         }
         .onAppear {

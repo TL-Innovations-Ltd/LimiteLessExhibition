@@ -1,8 +1,12 @@
 import SwiftUI
 
 struct PWM2LEDView: View {
-    @State private var led1warmCold: Double = 75
+    @State private var led1warmCold: Double = 50
     @State private var led2Brightness: Double = 50
+    @ObservedObject var sharedDevice = SharedDevice.shared
+    
+    @State private var showPopup = false
+    @State private var navigateToHome = false
     
     var body: some View {
         VStack(spacing: 30) {
@@ -17,7 +21,7 @@ struct PWM2LEDView: View {
                 title: "LED",
                 warmCold: $led1warmCold,
                 brightness: $led2Brightness,
-                color: .yellow
+                color: .emerald
             )
             
 
@@ -27,6 +31,20 @@ struct PWM2LEDView: View {
         .padding()
         .background(Color.alabaster)
         .cornerRadius(16)
+        .onChange(of: sharedDevice.connectedDevice) { newValue in
+                    if newValue == nil {
+                        showPopup = true // Show alert if the device is disconnected
+                    }
+                }
+        .alert("Device Disconnected", isPresented: $showPopup) {
+                    Button("Go to Home") {
+                        navigateToHome = true
+                    }
+                } message: {
+                    Text("Your device has been disconnected.")
+                }
+                .fullScreenCover(isPresented: $navigateToHome) {
+                    HomeView()}
     }
 }
 
@@ -36,9 +54,9 @@ struct PendantLampControlView: View {
     @Binding var brightness: Double
     let color: Color
 
-    @State private var isOn = false
+    @AppStorage("lampState") private var isOn: Bool = false
     @State private var isGlowing = false
-    @ObservedObject var pwmIntensityObj = BluetoothManager()  // Observing BluetoothManager
+    @StateObject private var pwmIntensityObj = BluetoothManager()
     @State private var showAlert = false  // State to show alert
     	
     var body: some View {
@@ -51,10 +69,11 @@ struct PendantLampControlView: View {
                     .frame(alignment:.center)
                 Spacer()
                 Toggle(isOn: $isOn) {}
-                .toggleStyle(SwitchToggleStyle(tint: .green))
-                .onChange(of: isOn) { newValue in
-                                        sendLampState()
-                                    }
+                    .toggleStyle(SwitchToggleStyle(tint: .emerald))
+                    .onChange(of: isOn) { newValue in
+                        sendLampState()
+                    }
+                    
 
             }
             // Pendant Lamp
@@ -131,11 +150,12 @@ struct PendantLampControlView: View {
                 
             }
             .frame(height: 120)
+            
             .onAppear {
                 isGlowing = true
-                
             }
-            
+
+
             // warmCold Control Section
             VStack(spacing: 15) {
                         Text("Adjust Color")
@@ -180,41 +200,39 @@ struct PendantLampControlView: View {
             .padding(.top, 20)
             
             VStack(spacing: 15) {
-                        Text("Adjust Brightness")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                Text("Adjust Brightness")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                
+                // Custom Slider with Warm White Gradient Background
+                ZStack {
+                    // Gradient Background using #FFF3DA and #FAE9D5
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(
+                            LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(1), Color.clear]),
+                                           startPoint: .leading,
+                                           endPoint: .trailing)
+                        )
+                        .frame(height: 40)
+                        .shadow(radius: 2)
+                    // Slider
+                    Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { isEditing in
                         
-                        // Custom Slider with Warm White Gradient Background
-                        ZStack {
-                            // Gradient Background using #FFF3DA and #FAE9D5
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(
-                                    LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(1), Color.clear]),
-                                                                       startPoint: .leading,
-                                                                       endPoint: .trailing)
-                                                    )
-                                                    .frame(height: 40)
-                                                    .shadow(radius: 2)
-                            // Slider
-                            Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { isEditing in
-                                                
-                                if isEditing {
-                                                sendHapticFeedback() // Trigger haptic feedback
-                                            }
-                                sendIntensity()
-                                            })
-                            .onChange(of: brightness) { _ in
-                                        sendHapticFeedback() // Continuous feedback as the slider moves
-                                    }
-                            .frame(height: 40)
-                                .accentColor(.white) // White slider knob
-                                .padding(.horizontal, 20)
-                                .disabled(!isOn)
+                        if isEditing {
+                            sendHapticFeedback() // Trigger haptic feedback
                         }
-                        .padding(.horizontal, 20)
-                        
-
+                        sendIntensity()
+                    })
+                    .onChange(of: brightness) { _ in
+                        sendHapticFeedback() // Continuous feedback as the slider moves
                     }
+                    .frame(height: 40)
+                    .accentColor(.white) // White slider knob
+                    .padding(.horizontal, 20)
+                    .disabled(!isOn)
+                }
+                .padding(.horizontal, 20)
+            }
             
             .padding(.top, 20)
             
@@ -228,6 +246,7 @@ struct PendantLampControlView: View {
         .alert(isPresented: $showAlert) {
             Alert(title: Text("Device Disconnected"), message: Text("Please reconnect your device."), dismissButton: .default(Text("OK")))
         }
+
 
         // 🔹 Observe changes in isConnected
         .onChange(of: pwmIntensityObj.isConnected) { newValue in
@@ -244,25 +263,22 @@ struct PendantLampControlView: View {
         }
     // Function to send lamp state
     private func sendLampState() {
-        if isOn {
-            sendColor()
-        } else {
-            sendOff()
+        DispatchQueue.main.async {
+            if isOn {
+                sendColor()
+            } else {
+                sendOff()
+            }
         }
     }
+    
+    
+    private func sendOn() {
+        pwmIntensityObj.writeDataToFF03([0x01, 0x32, 0x32, 0x32])
+    }
+    
     private func sendOff() {
-        let intensityValue: Int = 0
-        let intensityValue2: Int = 0
-        let brightnessValue: Int = 0
-        
-        let byteArray: [UInt8] = [
-            0x01,
-            UInt8(intensityValue & 0xFF),
-            UInt8(intensityValue2 & 0xFF),
-            UInt8(brightnessValue & 0xFF)
-        ]
-        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
-        pwmIntensityObj.sendMessage(byteArray)
+        pwmIntensityObj.writeDataToFF03([0x00, 0x00, 0x00, 0x00])
     }
     
     // Function to send intensity value
@@ -281,9 +297,11 @@ struct PendantLampControlView: View {
 
         // Convert each byte to a hex string with "0x" prefix
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+        
+        print("Sending Data: \(hexString)") // Debug output
 
         // Send the formatted string
-        pwmIntensityObj.sendMessage(byteArray)
+        pwmIntensityObj.writeDataToFF03(byteArray)
     }
 
     // Function to send intensity value
@@ -302,9 +320,9 @@ struct PendantLampControlView: View {
 
         // Convert byte values into a hex string format "0x01, 0x2E, 0x4A"
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
-
+        print("\(hexString)")
         // Send the formatted hex string
-        pwmIntensityObj.sendMessage(byteArray)
+        pwmIntensityObj.writeDataToFF03(byteArray)
     }
 
 }

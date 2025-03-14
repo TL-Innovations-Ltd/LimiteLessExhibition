@@ -124,7 +124,17 @@ struct OnboardingView: View {
                     }
                 }
             }
-            .background(Color.etonBlue)
+            .background(
+                LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.charlestonGreen, // Eton
+
+                                    Color(red: 243/255, green: 235/255, blue: 226/255)  // Alabaster
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                                )
+            )
             .edgesIgnoringSafeArea(.all)
             
             ZStack(alignment: .topTrailing) {
@@ -142,7 +152,7 @@ struct OnboardingView: View {
                             
                     }else{
                         Text("Skip")
-                            .foregroundColor(.charlestonGreen)
+                            .foregroundColor(.alabaster)
                             .padding(.horizontal, 30)
                     }
                     
@@ -169,31 +179,31 @@ struct OnboardingPageView: View {
             ZStack {
                 if image == "ceilingHorizaontal" {
                     ZStack{
-                        Circle()
-                            .fill(
-                                RadialGradient(gradient: Gradient(colors: [Color.white.opacity(0.7), Color.clear]),
-                                               center: .center,
-                                               startRadius: 0,
-                                               endRadius: 110)
-                            )
-                            .padding(.top, 170)
-                            .frame(width: 400, height: 400)
-                            .scaleEffect(imageScale)
-                            .onAppear {
-                                withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
-                                    imageScale = 1.0
+                        VStack{
+                            Image("wire")
+                                .resizable()
+                                .scaleEffect(imageScale)
+                                .frame(width: 50, height: 250)
+                                .onAppear {
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                                        imageScale = 1.0
+                                    }
                                 }
-                            }
-                        Image(image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .scaleEffect(imageScale)
-                            .onAppear {
-                                withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
-                                    imageScale = 1.0
+                            
+                            Image(image)
+                                .resizable()
+                                .padding(.top, -20)
+                                .aspectRatio(contentMode: .fit)
+                                .scaleEffect(imageScale)
+                                .frame(width: 200, height: 200)
+                                .onAppear {
+                                    withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                                        imageScale = 1.0
+                                    }
                                 }
-                            }
-                        
+                                .shadow(color:.white, radius: 4)
+                            
+                        }
 
                     }
                     

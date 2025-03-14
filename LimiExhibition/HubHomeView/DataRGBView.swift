@@ -8,12 +8,18 @@
 import SwiftUI
 
 struct DataRGBView: View {
+    @AppStorage("lampRGB") private var isOn: Bool = false
     @State private var selectedColor: Color = .emerald
     @State private var showingColorPicker = false
     @State private var selectedMode: ColorMode = .solid
+    
+    
+    @ObservedObject var sharedDevice = SharedDevice.shared
+    
+    @State private var showPopup = false
+    @State private var navigateToHome = false
     // Bluetooth Color Message send
     let selectColorObj = BluetoothManager()
-    @State private var isOn = false
 
     
     @State private var showAlert = false
@@ -40,6 +46,9 @@ struct DataRGBView: View {
                 .onChange(of: isOn) { newValue in
                                         sendLampState()
                                     }
+                .onAppear{
+                    sendLampState()
+                }
             }
 
             
@@ -68,52 +77,52 @@ struct DataRGBView: View {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 16) {
                     ColorPresetButton(color: .red, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0xFF, 0x00, 0x00]
-                        selectColorObj.sendMessage(byteArray)
+                        selectColorObj.writeDataToFF03(byteArray)
                     }
 
                     ColorPresetButton(color: .orange, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0xFF, 0x8A, 0x22]
-                        selectColorObj.sendMessage(byteArray)
+                        selectColorObj.writeDataToFF03(byteArray)
                     }
 
                     ColorPresetButton(color: .yellow, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00]
-                        selectColorObj.sendMessage(byteArray)
+                        selectColorObj.writeDataToFF03(byteArray)
                     }
 
                     ColorPresetButton(color: .green, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0x00, 0x80, 0x00]
-                        selectColorObj.sendMessage(byteArray)
+                        selectColorObj.writeDataToFF03(byteArray)
                     }
 
                     ColorPresetButton(color: .blue, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0xFF]
-                        selectColorObj.sendMessage(byteArray)
+                        selectColorObj.writeDataToFF03(byteArray)
                     }
 
                     ColorPresetButton(color: .purple, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0x80, 0x00, 0x80]
-                        selectColorObj.sendMessage(byteArray)
+                        selectColorObj.writeDataToFF03(byteArray)
                     }
 
                     ColorPresetButton(color: .pink, selectedColor: $selectedColor){
                         //FFC0CB
                         let byteArray: [UInt8] = [0x02, 0xFF, 0xC0, 0xCB]
 
-                        selectColorObj.sendMessage(byteArray)
+                        selectColorObj.writeDataToFF03(byteArray)
                     }
 
                     ColorPresetButton(color: .white, selectedColor: $selectedColor){
                         //FFFFFF
                         let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0xFF]
 
-                        selectColorObj.sendMessage(byteArray)
+                        selectColorObj.writeDataToFF03(byteArray)
                     }
 
                 }
                 .padding()
                 .opacity(isOn ? 1.0 : 0.5) // Dim when OFF
-                    .disabled(!isOn)
+                .disabled(!isOn)
             } else {
 //                // Rainbow Mode
 //                RainbowView()
@@ -165,6 +174,21 @@ struct DataRGBView: View {
                 showAlert = true
             }
         }
+        .onChange(of: sharedDevice.connectedDevice) { newValue in
+                    if newValue == nil {
+                        showPopup = true // Show alert if the device is disconnected
+                    }
+                }
+        .alert("Device Disconnected", isPresented: $showPopup) {
+                    Button("Go to Home") {
+                        navigateToHome = true
+                    }
+                } message: {
+                    Text("Your device has been disconnected.")
+                }
+                .fullScreenCover(isPresented: $navigateToHome) {
+                    HomeView()
+                }
     }
 
     
@@ -172,10 +196,10 @@ struct DataRGBView: View {
     private func sendLampState() {
         if isOn {
             let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00]
-            selectColorObj.sendMessage(byteArray)
+            selectColorObj.writeDataToFF03(byteArray)
         } else {
             let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0x00]
-            selectColorObj.sendMessage(byteArray)
+            selectColorObj.writeDataToFF03(byteArray)
         }
     }
 }
