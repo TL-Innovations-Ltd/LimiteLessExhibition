@@ -380,7 +380,7 @@ struct OTPVerificationView: View {
                     .frame(width: 1, height: 1)
                     .opacity(0.1)
                     .focused($focusedField, equals: 0)
-                    .onChange(of: enteredOTP) { newValue in
+                    .onChange(of: enteredOTP) { oldValue, newValue in
                         // Limit to 6 digits
                         if newValue.count > 6 {
                             enteredOTP = String(newValue.prefix(6))
@@ -398,6 +398,7 @@ struct OTPVerificationView: View {
                             errorMessage = nil
                         }
                     }
+
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             focusedField = 0

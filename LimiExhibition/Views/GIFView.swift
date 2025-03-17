@@ -11,10 +11,14 @@ import FLAnimatedImage
 
 struct GIFView: UIViewRepresentable {
     let gifName: String
+    let width: CGFloat
+    let height: CGFloat
 
     func makeUIView(context: Context) -> FLAnimatedImageView {
         let imageView = FLAnimatedImageView()
         imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        imageView.frame = CGRect(x: 0, y: 0, width: width, height: height) // Set fixed size
         return imageView
     }
 

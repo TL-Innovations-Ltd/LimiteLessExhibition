@@ -331,7 +331,7 @@ struct RoleCard: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 16) {
+            HStack(spacing: 4) {
                 // Role illustration
                 Group {
                     if role == .deafOrHardOfHearing {
@@ -342,9 +342,9 @@ struct RoleCard: View {
                 }
                 .frame(width: 80, height: 80)
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(role == .deafOrHardOfHearing ? "Installer" : "User")
-                        .font(.system(size: 20, weight: .medium))
+                        .font(.system(size: 20, weight: .heavy))
                     Text(role == .deafOrHardOfHearing ? "Temporary access to configure your LIMI installation." : "Personalize and transform your LIMI lighting experience.")
                         .font(.system(size: 12, weight: .medium))
                 }

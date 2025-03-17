@@ -3,8 +3,6 @@ import WebKit
 
 struct HomeView: View {
     // MARK: - Properties
-
-    
     @State private var isSidebarOpen = false
     @State private var searchText = ""
     @State private var linkedDevices: [DeviceHome] = []
@@ -25,9 +23,9 @@ struct HomeView: View {
                 // MARK: - Enhanced Background with Animated Gradient
                 ZStack {
                     // Base gradient
-                    LinearGradient(gradient: Gradient(colors: [Color.alabaster.opacity(0.8), Color.etonBlue.opacity(0.9)]),
-                                   startPoint: .topLeading,
-                                   endPoint: .bottomTrailing)
+                    LinearGradient(gradient: Gradient(colors: [Color.charlestonGreen.opacity(0.8), Color.alabaster.opacity(0.9)]),
+                                   startPoint: .top,
+                                   endPoint: .bottom)
                     
                     // Animated overlay gradient for dynamic effect
                     RadialGradient(
@@ -119,7 +117,7 @@ struct HomeView: View {
                                 Circle()
                                     .fill(
                                         LinearGradient(
-                                            gradient: Gradient(colors: [Color.etonBlue, Color.etonBlue.opacity(0.8)]),
+                                            gradient: Gradient(colors: [Color.charlestonGreen, Color.charlestonGreen.opacity(0.8)]),
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         )
@@ -131,7 +129,7 @@ struct HomeView: View {
                                 Image("scanBtn")
                                     .resizable()
                                     .renderingMode(.template)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.alabaster)
                                     .frame(width: 22, height: 22)
                                     .scaleEffect(isLoaded ? 1.0 : 0.95)
                                     
@@ -155,41 +153,17 @@ struct HomeView: View {
                         .opacity(isLoaded ? 1 : 0)
                         .animation(.easeIn.delay(0.3), value: isLoaded)
                         
-                        if let _ = sharedDevice.connectedDevice {
-                                        // ✅ Show HubCardView when a device is connected
-                            ScrollView(showsIndicators: false) {
-                                        ForEach(Array(bluetoothManager.storedHubs.enumerated()), id: \.element.id) { index, hub in
-                                            NavigationLink(destination: HomeDetailView(roomName: hub.name)) {
-                                                HubCardView(hub: hub, bluetoothManager: bluetoothManager )
-                                                    .padding(.horizontal, 5)
-                                                    .padding(.vertical, 8)
-                                                    .offset(x: isLoaded ? 0 : 300)
-                                                    .opacity(isLoaded ? 1 : 0)
-                                                    .animation(.spring(response: 0.6, dampingFraction: 0.7)
-                                                        .delay(Double(index) * 0.1 + 0.3),
-                                                        value: isLoaded
-                                                    )
-                                            }
-                                            .buttonStyle(PlainButtonStyle())
-                                        }
-                                    }
-                                    .onAppear {
-                                        isLoaded = true
-                                    }
-                                    } else {
-                                        // ❌ If no device is connected, show empty state
+                        if bluetoothManager.storedHubs.isEmpty {
+                                        // ❌ No hubs found → Show Empty State
                                         VStack(spacing: 20) {
                                             ZStack {
-                                                ForEach(0..<3) { i in
+                                                ForEach(0..<3, id: \.self) { i in
                                                     Circle()
                                                         .stroke(Color.etonBlue.opacity(0.1), lineWidth: 2)
                                                         .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
                                                         .scaleEffect(isLoaded ? 1.0 : 0.8)
                                                         .opacity(isLoaded ? 1 : 0)
-                                                        .animation(.easeInOut(duration: 1.0)
-                                                            .delay(0.3 + Double(i) * 0.1),
-                                                            value: isLoaded
-                                                        )
+                                                        .animation(.easeInOut(duration: 1.0).delay(0.3 + Double(i) * 0.1), value: isLoaded)
                                                 }
                                                 Image(systemName: "house.fill")
                                                     .font(.system(size: 40))
@@ -197,10 +171,7 @@ struct HomeView: View {
                                                     .opacity(isLoaded ? 1 : 0)
                                                     .scaleEffect(isLoaded ? 1 : 0.5)
                                                     .rotationEffect(isLoaded ? .degrees(0) : .degrees(-30))
-                                                    .animation(.spring(response: 0.6, dampingFraction: 0.6)
-                                                        .delay(0.5),
-                                                        value: isLoaded
-                                                    )
+                                                    .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
                                             }
                                             .frame(height: 150)
                                             .padding(.top, 20)
@@ -243,6 +214,29 @@ struct HomeView: View {
                                         }
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 20)
+                                    } else {
+                                        // ✅ Hubs Available → Show Hub List
+                                        ScrollView(showsIndicators: false) {
+                                            ForEach(Array(bluetoothManager.storedHubs.enumerated()), id: \.element.id) { index, hub in
+                                                NavigationLink(destination: HomeDetailView(roomName: hub.name)) {
+                                                    HubCardView(hub: hub, bluetoothManager: bluetoothManager)
+                                                        .padding(.horizontal, 5)
+                                                        .padding(.vertical, 8)
+                                                        .offset(x: isLoaded ? 0 : 300)
+                                                        .opacity(isLoaded ? 1 : 0)
+                                                        .animation(
+                                                            .spring(response: 0.6, dampingFraction: 0.7)
+                                                            .delay(Double(index) * 0.1 + 0.3),
+                                                            value: isLoaded
+                                                        )
+                                                }
+                                                .buttonStyle(PlainButtonStyle())
+                                            }
+                                        }
+                                        .onAppear {
+                                            print("📢 Stored Hubs: \(bluetoothManager.storedHubs.map { $0.name })")
+                                            isLoaded = true
+                                        }
                                     }
                                 }
                                 .onAppear {
@@ -654,7 +648,7 @@ struct HeaderView: View {
             // Enhanced header background with depth and animation
             ZStack {
                 // Base color
-                Color.etonBlue
+                Color.charlestonGreen.opacity(0.6)
                 
                 // Animated gradient overlay
                 LinearGradient(

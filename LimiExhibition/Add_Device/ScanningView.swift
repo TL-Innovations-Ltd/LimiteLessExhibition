@@ -214,6 +214,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     @Published var isBluetoothOn = false
 
     @Published var storedHubs: [Hub] = []  // ✅ Store connected Hubs
+    @Published var connectedDevices: [UUID: (peripheral: CBPeripheral, characteristic: CBCharacteristic)] = [:]
 
     private var centralManager: CBCentralManager?
     private var discoveredDevices: [(name: String, id: String)] = []
@@ -313,20 +314,25 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        let disconnectedID = peripheral.identifier.uuidString  // ✅ Define the ID
+
         print("🔴 Disconnected from \(peripheral.name ?? "Unknown Device")")
 
         targetCharacteristic = nil // Reset characteristic
         connectedPeripheral = nil  // Clear connected peripheral
+
         DispatchQueue.main.async {
             SharedDevice.shared.connectedDevice = nil // ✅ Update state
+            self.removeDisconnectedDevice(disconnectedID)  // ✅ Now passing a valid String
         }
 
         // Try to reconnect immediately
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            print("♻️ Attempting to reconnect to \(peripheral.identifier.uuidString)...")
+            print("♻️ Attempting to reconnect to \(disconnectedID)...")
             self.centralManager?.connect(peripheral, options: nil)
         }
     }
+
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
@@ -336,7 +342,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
     }
 
-    // Step 5: Discover Characteristics (Find FF03)
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if let error = error {
             print("❌ Error discovering characteristics: \(error.localizedDescription)")
@@ -350,15 +355,18 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         for characteristic in characteristics {
             print("🔎 Discovered Characteristic: \(characteristic.uuid)")
-
             if characteristic.uuid == CBUUID(string: "FF03") {
                 print("✅ FF03 characteristic found!")
                 self.targetCharacteristic = characteristic
-
+                
+                // Enable notifications if supported
                 if characteristic.properties.contains(.notify) {
                     print("🔔 Enabling notifications for FF03")
                     peripheral.setNotifyValue(true, for: characteristic)
                 }
+                
+                // Save the peripheral and its characteristic in the connectedDevices dictionary
+                connectedDevices[peripheral.identifier] = (peripheral: peripheral, characteristic: characteristic)
             }
         }
     }
@@ -377,6 +385,19 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             }
         }
     }
+    
+    func sendMessage(to deviceID: UUID, message: [UInt8]) {
+        guard let deviceInfo = connectedDevices[deviceID] else {
+            print("⚠️ Device not found!")
+            return
+        }
+        
+        let data = Data(message)
+        let writeType: CBCharacteristicWriteType = deviceInfo.characteristic.properties.contains(.writeWithoutResponse) ? .withoutResponse : .withResponse
+        print("📤 Sending data to \(deviceInfo.peripheral.name ?? "Unknown"): \(data)")
+        deviceInfo.peripheral.writeValue(data, for: deviceInfo.characteristic, type: writeType)
+    }
+    
     // Function to write data to the FF03 characteristic
     func writeDataToFF03(_ bytes: [UInt8]) {
         guard let peripheral = connectedPeripheral else {
@@ -431,4 +452,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         print("⚠️ No known peripheral to reconnect. Start scanning again.")
         startScanning { _ in }
     }
+    
+    func removeDisconnectedDevice(_ deviceID: String) {
+        if let uuid = UUID(uuidString: deviceID) {  // ✅ Convert String to UUID safely
+            DispatchQueue.main.async {
+                self.storedHubs.removeAll { $0.id == uuid }
+            }
+        }
+    }
+    
 }

@@ -43,7 +43,8 @@ struct DataRGBView: View {
                 
                 Toggle(isOn: $isOn) {}
                 .toggleStyle(SwitchToggleStyle(tint: .green))
-                .onChange(of: isOn) { newValue in
+                .onChange(of: isOn) {oldValue, newValue in
+
                                         sendLampState()
                                     }
                 .onAppear{
@@ -169,12 +170,14 @@ struct DataRGBView: View {
         }
 
         // 🔹 Observe changes in isConnected
-        .onChange(of: selectColorObj.isConnected) { newValue in
+        .onChange(of: selectColorObj.isConnected) { oldValue, newValue in
+
             if !newValue {
                 showAlert = true
             }
         }
-        .onChange(of: sharedDevice.connectedDevice) { newValue in
+        .onChange(of: sharedDevice.connectedDevice) { oldValue, newValue in
+
                     if newValue == nil {
                         showPopup = true // Show alert if the device is disconnected
                     }

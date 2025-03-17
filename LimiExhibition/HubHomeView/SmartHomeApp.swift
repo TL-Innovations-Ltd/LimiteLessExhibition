@@ -11,12 +11,23 @@ import CoreBluetooth
 struct Hub: Identifiable {
     let id: UUID
     let name: String
-    let peripheral: CBPeripheral  // Store peripheral reference
+    let peripheral: CBPeripheral?
 
-    init(peripheral: CBPeripheral) {
-        self.id = peripheral.identifier
-        self.name = peripheral.name ?? "Unknown Hub"
+    init(peripheral: CBPeripheral?) {
         self.peripheral = peripheral
+        self.id = peripheral?.identifier ?? UUID()
+        self.name = peripheral?.name ?? "Unknown Hub"
+    }
+    
+    // Convenience initializer for previews/testing.
+    init(name: String) {
+        self.id = UUID()
+        self.name = name
+        self.peripheral = nil
+    }
+    
+    static func == (lhs: Hub, rhs: Hub) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 

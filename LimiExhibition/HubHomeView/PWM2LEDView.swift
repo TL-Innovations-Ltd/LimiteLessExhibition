@@ -31,11 +31,11 @@ struct PWM2LEDView: View {
         .padding()
         .background(Color.alabaster)
         .cornerRadius(16)
-        .onChange(of: sharedDevice.connectedDevice) { newValue in
-                    if newValue == nil {
-                        showPopup = true // Show alert if the device is disconnected
-                    }
-                }
+        .onChange(of: sharedDevice.connectedDevice) { oldValue, newValue in
+            if newValue == nil {
+                showPopup = true // Show alert if the device is disconnected
+            }
+        }
         .alert("Device Disconnected", isPresented: $showPopup) {
                     Button("Go to Home") {
                         navigateToHome = true
@@ -70,7 +70,7 @@ struct PendantLampControlView: View {
                 Spacer()
                 Toggle(isOn: $isOn) {}
                     .toggleStyle(SwitchToggleStyle(tint: .emerald))
-                    .onChange(of: isOn) { newValue in
+                    .onChange(of: isOn) {
                         sendLampState()
                     }
                     
@@ -185,7 +185,7 @@ struct PendantLampControlView: View {
                                             }
                                                 sendColor()
                                             })
-                            .onChange(of: warmCold) { _ in
+                            .onChange(of: warmCold) {
                                         sendHapticFeedback() // Continuous feedback as the slider moves
                                     }
                             .frame(height: 40)
@@ -223,8 +223,8 @@ struct PendantLampControlView: View {
                         }
                         sendIntensity()
                     })
-                    .onChange(of: brightness) { _ in
-                        sendHapticFeedback() // Continuous feedback as the slider moves
+                    .onChange(of: brightness) {
+                        sendHapticFeedback()
                     }
                     .frame(height: 40)
                     .accentColor(.white) // White slider knob
@@ -249,7 +249,7 @@ struct PendantLampControlView: View {
 
 
         // 🔹 Observe changes in isConnected
-        .onChange(of: pwmIntensityObj.isConnected) { newValue in
+        .onChange(of: pwmIntensityObj.isConnected) { _, newValue in
             if !newValue {
                 showAlert = true
             }
@@ -393,7 +393,6 @@ struct LampShade: Shape {
         
         // Top width is narrower than bottom width for the lamp shade
         let topWidth = rect.width * 0.4
-        let bottomWidth = rect.width
         
         // Define the four corners of the trapezoid
         let topLeft = CGPoint(x: rect.midX - topWidth/2, y: rect.minY)

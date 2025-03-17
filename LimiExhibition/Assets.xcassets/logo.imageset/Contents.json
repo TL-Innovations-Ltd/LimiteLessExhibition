@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "__Icon_Wordmark_Black-removebg-preview.png",
+      "filename" : "__Icon_Wordmark_Inverted.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "__Icon_Wordmark_Inverted 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "__Icon_Wordmark_Inverted 2.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

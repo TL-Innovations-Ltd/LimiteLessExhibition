@@ -14,7 +14,8 @@ struct MiniControllerView: View {
     @Binding var brightness: Double
     @Binding var warmCold: Double
     
-    @State private var selectedColor: Color = .emerald
+    @State private var selectedColor: Color = .emerald// Default color
+    @State private var colorValue: Double = 0.0 // Represents position on rainbow slider
 
     @State private var selectedPWM: Int? = nil
     @State private var selectedRGB: Int? = nil
@@ -29,13 +30,13 @@ struct MiniControllerView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.charlestonGreen)
                 .padding(.top)
-            
+
             // PWM LED Buttons
             VStack(alignment: .leading, spacing: 16) {
                 Text("PWM LEDs")
                     .font(.headline)
                     .foregroundColor(.charlestonGreen)
-                
+
                 HStack(spacing: 12) {
                     ForEach(1...5, id: \.self) { index in
                         MiniButton(
@@ -53,13 +54,13 @@ struct MiniControllerView: View {
             .background(Color.white)
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-            
-            // RGB Buttons
+
+            // RGB LED Buttons
             VStack(alignment: .leading, spacing: 16) {
                 Text("RGB LEDs")
                     .font(.headline)
                     .foregroundColor(.charlestonGreen)
-                
+
                 HStack(spacing: 12) {
                     ForEach(1...2, id: \.self) { index in
                         MiniButton(
@@ -77,7 +78,7 @@ struct MiniControllerView: View {
             .background(Color.white)
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-            
+
             // Selected LED Controls
             if selectedPWM != nil || selectedRGB != nil {
                 VStack(alignment: .leading, spacing: 16) {
@@ -85,95 +86,87 @@ struct MiniControllerView: View {
                         Text("PWM LED \(pwm) Controls")
                             .font(.headline)
                             .foregroundColor(.charlestonGreen)
-                        
+
                         // Brightness Slider
                         HStack {
                             Image(systemName: "lightbulb.fill")
                                 .foregroundColor(.emerald)
-                            
-                            Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { _ in
-                                sendIntensity(pwmled: pwm)
-                                            })
+
+                            Slider(value: $brightness, in: 0...100, step: 1)
+                                .onChange(of: brightness) {
+                                    sendIntensity(pwmled: pwm)
+                                }
                         }
                     }
-                    
+
+                    // RGB LED Color Picker
                     if let lednumber = selectedRGB {
-                        Text("RGB LED \(lednumber) Controls")
-                            .font(.headline)
-                            .foregroundColor(.charlestonGreen)
-                        
-                        // Color Buttons
-                        HStack(spacing: 12) {
-                            ColorPresetButton(color: .red, selectedColor: $selectedColor) {
-                                var byteArray: [UInt8] = [0x03, 0xFF, 0x00, 0x00] // ✅ Use `var` to modify
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("RGB LED \(lednumber) Controls")
+                                .font(.headline)
+                                .foregroundColor(.charlestonGreen)
 
-                                if let po = UInt8(exactly: lednumber+5) {
-                                    byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
-
-                                    selectColorObj.writeDataToFF03(byteArray)
-                                    print("Sending LED number:", lednumber)
-                                } else {
-                                    print("Error: LED number out of range!")
+                            // Rainbow Color Picker
+                            RainbowSlider(value: $colorValue)
+                                .frame(height: 20)
+                                .onChange(of: colorValue) { oldValue, newValue in
+                                    let color = getColorFromSlider(newValue)
+                                    selectedColor = color
+                                    sendColorToLED(color, ledNumber: lednumber)
                                 }
-                            }
-                            ColorPresetButton(color: .green, selectedColor: $selectedColor){
-                                //008000
-                                var byteArray: [UInt8] = [0x03, 0x00, 0x80, 0x00] // ✅ Use `var` to modify
-
-                                if let po = UInt8(exactly: lednumber+5) {
-                                    byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
-
-                                    selectColorObj.writeDataToFF03(byteArray)
-                                    print("Sending LED number:", lednumber)
-                                } else {
-                                    print("Error: LED number out of range!")
-                                }
-                            }
-                            
-                            ColorPresetButton(color: .blue, selectedColor: $selectedColor){
-                                //0000FF
-                                var byteArray: [UInt8] = [0x03, 0x00, 0x00, 0xFF] // ✅ Use `var` to modify
-
-                                if let po = UInt8(exactly: lednumber+5) {
-                                    byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
-
-                                    selectColorObj.writeDataToFF03(byteArray)
-                                    print("Sending LED number:", lednumber)
-                                } else {
-                                    print("Error: LED number out of range!")
-                                }
-                            }
-                            ColorPresetButton(color: .purple, selectedColor: $selectedColor){
-                                //800080
-                                var byteArray: [UInt8] = [0x03, 0x80, 0x00, 0x80] // ✅ Use `var` to modify
-
-                                if let po = UInt8(exactly: lednumber+5) {
-                                    byteArray.insert(po, at: 1)  // ✅ Insert `po` at index 1
-
-                                    selectColorObj.writeDataToFF03(byteArray)
-                                    print("Sending LED number:", lednumber)
-                                } else {
-                                    print("Error: LED number out of range!")
-                                }
-                            }
                         }
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                     }
                 }
                 .padding()
                 .background(Color.white)
                 .cornerRadius(16)
                 .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-                .animation(.spring(), value: selectedPWM)
-                .animation(.spring(), value: selectedRGB)
             }
-            
+
             Spacer()
         }
         .padding()
         .background(Color.alabaster)
         .cornerRadius(16)
     }
+
+    
+    // Function to send color to LED
+    func sendColorToLED(_ color: Color, ledNumber: Int) {
+        let uiColor = UIColor(color)
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+
+        let redByte = UInt8(red * 255)
+        let greenByte = UInt8(green * 255)
+        let blueByte = UInt8(blue * 255)
+
+        var byteArray: [UInt8] = [0x03, 0x00, 0x00, 0x00]
+
+        if let po = UInt8(exactly: ledNumber + 5) {
+            byteArray[1] = po
+            byteArray[2] = redByte
+            byteArray[3] = greenByte
+            byteArray.append(blueByte)
+
+            selectColorObj.writeDataToFF03(byteArray)
+            print("Sending LED number:", ledNumber, "Color:", byteArray)
+        } else {
+            print("Error: LED number out of range!")
+        }
+    }
+
+    // Function to map slider value to a color
+    func getColorFromSlider(_ value: Double) -> Color {
+        let hue = value / 100.0
+        return Color(hue: hue, saturation: 1, brightness: 1)
+    }
+    
+    
     private func sendIntensity(pwmled: Int) {
         let brightnessValue = Int(brightness)
         let ledNumber = Int(pwmled)
@@ -188,7 +181,7 @@ struct MiniControllerView: View {
 
         // Convert byte values into a hex string format "0x01, 0x2E, 0x4A"
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
-
+        print("Sending intensity to LED \(ledNumber): \(hexString))")
         // Send the formatted hex string
         miniPwmIntensityObj.writeDataToFF03(byteArray)
     }

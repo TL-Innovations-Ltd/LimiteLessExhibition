@@ -44,8 +44,33 @@ struct ContentView: View {
     }
 }
 
+import SwiftUI
+
+struct PartHomeView: View {
+    @ObservedObject var bluetoothManager = BluetoothManager.shared  // ✅ Use singleton
+
+    var body: some View {
+        VStack {
+            Text("Connected Devices")
+                .font(.headline)
+            
+            List(bluetoothManager.storedHubs, id: \.id) { hub in
+                Button(action: {
+                    removeDevice(hub)
+                }) {
+                    Text(hub.name)
+                }
+            }
+        }
+    }
+
+    func removeDevice(_ hub: Hub) {
+        bluetoothManager.removeDisconnectedDevice(hub.id.uuidString)
+    }
+}
+
 struct MyCustomView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        PartHomeView()
     }
 }

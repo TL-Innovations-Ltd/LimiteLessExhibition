@@ -53,10 +53,14 @@ struct DeafPersonIllustration: View {
                 headAnimation = true
             }
         }
-        .onChange(of: isSelected) { newValue in
-            phoneAnimation = newValue
-            headAnimation = newValue
+        .onChange(of: isSelected) {
+            updateAnimations()
         }
+
+    }
+    func updateAnimations() {
+        phoneAnimation = isSelected
+        headAnimation = isSelected
     }
 }
 
@@ -69,7 +73,7 @@ struct InterpreterIllustration: View {
         ZStack {
             // Animated background
             Circle()
-                .fill(Color.emerald.opacity(0.8))
+                .fill(Color.charlestonGreen.opacity(0.8))
                 .frame(width: 70, height: 70)
                 .scaleEffect(isSelected ? 1.1 : 1.0)
                 .animation(.easeInOut(duration: 0.5), value: isSelected)
@@ -122,7 +126,8 @@ struct InterpreterIllustration: View {
                 bodyAnimation = true
             }
         }
-        .onChange(of: isSelected) { newValue in
+        .onChange(of: isSelected) { oldValue, newValue in
+
             handAnimation = newValue
             bodyAnimation = newValue
         }

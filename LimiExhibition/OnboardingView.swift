@@ -211,9 +211,11 @@ struct OnboardingPageView: View {
                     
                     
                 } else if image == "second"{
-                    GIFView(gifName: "0001-0075")
-                                .frame(width: 200, height: 200)
-                    
+                    GIFView(gifName: "setupControl", width: 200, height: 200) // Adjust as needed
+                        .scaleEffect(imageScale)
+                        .padding(.leading, 10) // `.leading` instead of `.left`
+                        .padding(.trailing, 10) // `.trailing` instead of `.right`
+                        
                 }
                 else {
                     Image(image)
