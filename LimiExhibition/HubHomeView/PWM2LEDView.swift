@@ -7,7 +7,7 @@ struct PWM2LEDView: View {
     
     @State private var showPopup = false
     @State private var navigateToHome = false
-    
+    let peripherals = BluetoothManager.shared.storedPeripherals
     var body: some View {
         VStack(spacing: 30) {
             Text("Bela Lamp")
@@ -274,11 +274,11 @@ struct PendantLampControlView: View {
     
     
     private func sendOn() {
-        pwmIntensityObj.writeDataToFF03([0x01, 0x32, 0x32, 0x32])
+        //pwmIntensityObj.writeDataToFF03([0x01, 0x32, 0x32, 0x32])
     }
     
     private func sendOff() {
-        pwmIntensityObj.writeDataToFF03([0x00, 0x00, 0x00, 0x00])
+        //pwmIntensityObj.writeDataToFF03([0x00, 0x00, 0x00, 0x00])
     }
     
     // Function to send intensity value
@@ -301,7 +301,7 @@ struct PendantLampControlView: View {
         print("Sending Data: \(hexString)") // Debug output
 
         // Send the formatted string
-        pwmIntensityObj.writeDataToFF03(byteArray)
+        //pwmIntensityObj.writeDataToFF03(byteArray)
     }
 
     // Function to send intensity value
@@ -322,7 +322,7 @@ struct PendantLampControlView: View {
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
         print("\(hexString)")
         // Send the formatted hex string
-        pwmIntensityObj.writeDataToFF03(byteArray)
+        //pwmIntensityObj.writeDataToFF03(byteArray)
     }
 
 }

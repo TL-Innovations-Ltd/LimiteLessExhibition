@@ -3,14 +3,13 @@ import WebKit
 
 struct HomeView: View {
     // MARK: - Properties
-    let hubs: [Hub] = [
-        Hub(name: "Hub Controller"),
-    ]
+
     
     @State private var isSidebarOpen = false
     @State private var searchText = ""
     @State private var linkedDevices: [DeviceHome] = []
     @State private var isNavigatingToAddDevice = false
+    
     @ObservedObject var bluetoothManager = BluetoothManager.shared
     @ObservedObject var sharedDevice = SharedDevice.shared
 
@@ -158,23 +157,25 @@ struct HomeView: View {
                         
                         if let _ = sharedDevice.connectedDevice {
                                         // ✅ Show HubCardView when a device is connected
-                                        ScrollView(showsIndicators: false) {
-                                            ForEach(Array(hubs.enumerated()), id: \.element.id) { index, room in
-                                                NavigationLink(destination: HomeDetailView(roomName: room.name)) {
-                                                    HubCardView(room: room, bluetoothManager: bluetoothManager)
-                                                        .padding(.horizontal, 5)
-                                                        .padding(.vertical, 8)
-                                                        .offset(x: isLoaded ? 0 : 300)
-                                                        .opacity(isLoaded ? 1 : 0)
-                                                        .animation(.spring(response: 0.6, dampingFraction: 0.7)
-                                                            .delay(Double(index) * 0.1 + 0.3),
-                                                            value: isLoaded
-                                                        )
-                                                }
-                                                .buttonStyle(PlainButtonStyle())
+                            ScrollView(showsIndicators: false) {
+                                        ForEach(Array(bluetoothManager.storedHubs.enumerated()), id: \.element.id) { index, hub in
+                                            NavigationLink(destination: HomeDetailView(roomName: hub.name)) {
+                                                HubCardView(hub: hub, bluetoothManager: bluetoothManager )
+                                                    .padding(.horizontal, 5)
+                                                    .padding(.vertical, 8)
+                                                    .offset(x: isLoaded ? 0 : 300)
+                                                    .opacity(isLoaded ? 1 : 0)
+                                                    .animation(.spring(response: 0.6, dampingFraction: 0.7)
+                                                        .delay(Double(index) * 0.1 + 0.3),
+                                                        value: isLoaded
+                                                    )
                                             }
-                                            .padding(.vertical, 10)
+                                            .buttonStyle(PlainButtonStyle())
                                         }
+                                    }
+                                    .onAppear {
+                                        isLoaded = true
+                                    }
                                     } else {
                                         // ❌ If no device is connected, show empty state
                                         VStack(spacing: 20) {
@@ -377,7 +378,7 @@ struct WebView: UIViewRepresentable {
     }
 }
 struct HubCardView: View {
-    let room: Hub
+    let hub: Hub
     @State private var isPressed = false
     @State private var isHovered = false
     @State private var pulseAnimation = false
@@ -385,10 +386,11 @@ struct HubCardView: View {
     @State private var showAlert = false
     @State private var isAnimating = true
     @State private var buttonOpacity = 0.2
-    @State private var selectedMode: String? = nil  // Observe BluetoothManager
-    @ObservedObject var bluetoothManager: BluetoothManager // Add Bluetooth Manager
+    @State private var selectedMode: String? = nil
+    @ObservedObject var bluetoothManager: BluetoothManager
 
-    
+    @State private var navigateToMiniController = false
+
     var destinationView: some View {
         switch selectedMode {
         case "PWM":
@@ -401,12 +403,17 @@ struct HubCardView: View {
             return AnyView(EmptyView())
         }
     }
-    
+
     var body: some View {
-        NavigationLink(destination: destinationView, isActive: Binding(
-            get: { selectedMode != nil },
-            set: { if !$0 { selectedMode = nil } }
-        )) {
+        ZStack {
+            // ✅ Direct Navigation Link (Hidden) - Triggers for hubs without a mode button
+            if !hasModeButton {
+                NavigationLink(destination: MiniControllerPreviewWrapper(), isActive: $navigateToMiniController) {
+                    EmptyView()
+                }
+                .opacity(0) // Invisible, but works when `navigateToMiniController = true`
+            }
+
             VStack(alignment: .leading) {
                 HStack(spacing: 15) {
                     ZStack {
@@ -438,7 +445,7 @@ struct HubCardView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(bluetoothManager.connectedDeviceName ?? room.name)
+                        Text(bluetoothManager.connectedDeviceName ?? hub.name)
                             .font(.headline)
                             .fontWeight(.semibold)
                             .foregroundColor(.charlestonGreen)
@@ -460,26 +467,29 @@ struct HubCardView: View {
                     }
                     Spacer()
                     
-                    Button(action: {
-                        showAlert = true
-                    }) {
-                        Text(selectedMode == nil ? "Mode" : "Mode: \(selectedMode!)")
-                            .font(.title)
-                            .foregroundColor(.charlestonGreen)
-                            .opacity(buttonOpacity)
-                            .animation(isAnimating ? .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : .none, value: buttonOpacity)
+                    // ✅ Show Mode Button only when needed
+                    if hasModeButton {
+                        Button(action: {
+                            showAlert = true
+                        }) {
+                            Text(selectedMode == nil ? "Mode" : "Mode: \(selectedMode!)")
+                                .font(.title)
+                                .foregroundColor(.black)
+                                .opacity(buttonOpacity)
+                                .animation(isAnimating ? .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : .none, value: buttonOpacity)
+                        }
+                        .disabled(selectedMode != nil)
+                        .onAppear {
+                            startAnimation()
+                        }
+                        .confirmationDialog("Please Select Your Mode", isPresented: $showAlert, titleVisibility: .visible) {
+                            Button("PWM") { selectMode("PWM") }
+                            Button("RGB") { selectMode("RGB") }
+                            Button("MiniController") { selectMode("MiniController") }
+                            Button("Cancel", role: .cancel) { }
+                        }
                     }
-                    .disabled(selectedMode != nil)
-                    .onAppear {
-                        startAnimation()
-                    }
-                    .confirmationDialog("Please Select Your Mode", isPresented: $showAlert, titleVisibility: .visible) {
-                        Button("PWM") { selectMode("PWM") }
-                        Button("RGB") { selectMode("RGB") }
-                        Button("MiniController") { selectMode("MiniController") }
-                        Button("Cancel", role: .cancel) { }
-                    }
-                    
+
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
                         .foregroundColor(.emerald.opacity(0.8))
@@ -505,16 +515,31 @@ struct HubCardView: View {
             .onTapGesture {
                 let impactMed = UIImpactFeedbackGenerator(style: .light)
                 impactMed.impactOccurred()
+
                 withAnimation {
                     isPressed = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         isPressed = false
                     }
                 }
+                
+                // ✅ Trigger navigation if no mode button
+                if !hasModeButton {
+                    navigateToMiniController = true
+                }
             }
             .onHover { hovering in
                 isHovered = hovering
             }
+
+            // ✅ NavigationLink for hubs WITH mode button
+            NavigationLink(destination: destinationView, isActive: Binding(
+                get: { selectedMode != nil },
+                set: { if !$0 { selectedMode = nil } }
+            )) {
+                EmptyView()
+            }
+            .opacity(0)
         }
     }
     
@@ -537,6 +562,11 @@ struct HubCardView: View {
                 buttonOpacity = 0.8
             }
         }
+    }
+
+    // ✅ Helper function to check if mode button should be shown
+    private var hasModeButton: Bool {
+        return (bluetoothManager.connectedDeviceName ?? hub.name) != "LIMI-CONTROLLER"
     }
 }
 

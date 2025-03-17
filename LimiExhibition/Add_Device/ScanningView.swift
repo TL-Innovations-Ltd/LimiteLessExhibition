@@ -211,9 +211,10 @@ class SharedDevice: ObservableObject {
 }
 
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
-    private var discoveredPeripherals: [UUID: CBPeripheral] = [:]
-
     @Published var isBluetoothOn = false
+
+    @Published var storedHubs: [Hub] = []  // ✅ Store connected Hubs
+
     private var centralManager: CBCentralManager?
     private var discoveredDevices: [(name: String, id: String)] = []
     private var connectedPeripheral: CBPeripheral?
@@ -222,7 +223,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     var storedPeripherals: [CBPeripheral] = [] // Add this in BluetoothManager
     
     var peripheral: CBPeripheral?  // Ensure this is correctly defined
-    
     static let shared = BluetoothManager() // Singleton instance
     
     var targetCharacteristic: CBCharacteristic?
@@ -289,6 +289,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("✅ Connected to \(peripheral.name ?? "Unknown")")
 
+        if !storedHubs.contains(where: { $0.id == peripheral.identifier }) {
+            let hub = Hub(peripheral: peripheral)
+            storedHubs.append(hub)  // ✅ Store Hub objects
+            print("📌 Stored Hub: \(hub.name)")
+        }
         // Store connected peripheral
         connectedPeripheral = peripheral
         SharedDevice.shared.connectedDevice = DeviceInfo(name: peripheral.name ?? "Unknown", id: peripheral.identifier.uuidString)
@@ -298,6 +303,9 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
 
         peripheral.delegate = self
         peripheral.discoverServices(nil)
+        DispatchQueue.main.async {
+               self.objectWillChange.send()  // Notify SwiftUI to update HomeView
+           }
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {

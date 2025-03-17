@@ -129,7 +129,7 @@ struct OnboardingView: View {
                                 gradient: Gradient(colors: [
                                     Color.charlestonGreen, // Eton
 
-                                    Color(red: 243/255, green: 235/255, blue: 226/255)  // Alabaster
+                                    Color.alabaster  // Alabaster
                                 ]),
                                 startPoint: .top,
                                 endPoint: .bottom
@@ -163,6 +163,8 @@ struct OnboardingView: View {
         }
     }
 }
+
+
 
 struct OnboardingPageView: View {
     let image: String
@@ -208,7 +210,12 @@ struct OnboardingPageView: View {
                     }
                     
                     
-                } else {
+                } else if image == "second"{
+                    GIFView(gifName: "0001-0075")
+                                .frame(width: 200, height: 200)
+                    
+                }
+                else {
                     Image(image)
                         .resizable()
                         .aspectRatio(contentMode: .fit)

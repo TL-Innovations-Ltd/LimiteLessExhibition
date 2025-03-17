@@ -8,9 +8,20 @@
 import SwiftUI
 struct ScanQRCodeView: View {
     var body: some View {
-        Text("ScanQRCodeView")
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.charlestonGreen,
+                    Color.alabaster
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .edgesIgnoringSafeArea(.all)
+        }
     }
 }
+    
 #Preview {
     ScanQRCodeView()
 }

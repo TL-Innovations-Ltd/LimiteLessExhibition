@@ -6,12 +6,20 @@
 //
 
 import SwiftUI
+import CoreBluetooth
 
-// MARK: - Models
 struct Hub: Identifiable {
-    let id = UUID()
+    let id: UUID
     let name: String
+    let peripheral: CBPeripheral  // Store peripheral reference
+
+    init(peripheral: CBPeripheral) {
+        self.id = peripheral.identifier
+        self.name = peripheral.name ?? "Unknown Hub"
+        self.peripheral = peripheral
+    }
 }
+
 
 enum ControllerType: String, CaseIterable, Identifiable {
     case pwm2LED = "PWM 2 LED"

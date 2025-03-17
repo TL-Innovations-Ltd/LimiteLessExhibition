@@ -5,15 +5,9 @@
 //  Created by Mac Mini on 04/03/2025.
 //
 
-import SwiftUI
-
 struct HubHomeView: View {
+    @ObservedObject var bluetoothManager = BluetoothManager.shared  // ✅ Observe BluetoothManager
 
-    let hubs: [Hub] = [
-        Hub(name: "Hub Controller"),
-
-    ]
-    
     var body: some View {
         ZStack {
             Color.etonBlue
@@ -23,14 +17,13 @@ struct HubHomeView: View {
                 HubHeaderView(title: "")
                 
                 ScrollView {
-                    ForEach(hubs) { room in
-                        NavigationLink(destination: HomeDetailView(roomName: room.name)) {
-                            
-                           // HubCardView(room: room, bluetoothManager: bluetoothManager)
+                    ForEach(bluetoothManager.storedHubs) { hub in  // ✅ Use storedHubs
+                        NavigationLink(destination: HomeDetailView(roomName: hub.name)) {
+                            HubCardView(hub: hub, bluetoothManager: bluetoothManager)
                         }
                         .buttonStyle(PlainButtonStyle())
-                    
-                    }.padding()
+                    }
+                    .padding()
                 }
             }
         }

@@ -19,12 +19,7 @@ struct MiniControllerView: View {
     @State private var selectedPWM: Int? = nil
     @State private var selectedRGB: Int? = nil
     @ObservedObject var miniPwmIntensityObj = BluetoothManager()  // Observing BluetoothManager
-    
-    @ObservedObject var sharedDevice = SharedDevice.shared
-    
-    @State private var showPopup = false
-    @State private var navigateToHome = false
-    
+
     let selectColorObj = BluetoothManager()
     
     var body: some View {
@@ -178,21 +173,6 @@ struct MiniControllerView: View {
         .padding()
         .background(Color.alabaster)
         .cornerRadius(16)
-        .onChange(of: sharedDevice.connectedDevice) { newValue in
-                    if newValue == nil {
-                        showPopup = true // Show alert if the device is disconnected
-                    }
-                }
-        .alert("Device Disconnected", isPresented: $showPopup) {
-                    Button("Go to Home") {
-                        navigateToHome = true
-                    }
-                } message: {
-                    Text("Your device has been disconnected.")
-                }
-                .fullScreenCover(isPresented: $navigateToHome) {
-                    HomeView()
-                }
     }
     private func sendIntensity(pwmled: Int) {
         let brightnessValue = Int(brightness)
