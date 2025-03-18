@@ -214,35 +214,35 @@ struct HomeView: View {
                                         }
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 20)
-                                    } else {
-                                        // ✅ Hubs Available → Show Hub List
-                                        ScrollView(showsIndicators: false) {
-                                            ForEach(Array(bluetoothManager.storedHubs.enumerated()), id: \.element.id) { index, hub in
-                                                NavigationLink(destination: HomeDetailView(roomName: hub.name)) {
-                                                    HubCardView(hub: hub, bluetoothManager: bluetoothManager)
-                                                        .padding(.horizontal, 5)
-                                                        .padding(.vertical, 8)
-                                                        .offset(x: isLoaded ? 0 : 300)
-                                                        .opacity(isLoaded ? 1 : 0)
-                                                        .animation(
-                                                            .spring(response: 0.6, dampingFraction: 0.7)
-                                                            .delay(Double(index) * 0.1 + 0.3),
-                                                            value: isLoaded
-                                                        )
-                                                }
-                                                .buttonStyle(PlainButtonStyle())
-                                            }
-                                        }
-                                        .onAppear {
-                                            print("📢 Stored Hubs: \(bluetoothManager.storedHubs.map { $0.name })")
-                                            isLoaded = true
-                                        }
+                        } else {
+                            // ✅ Hubs Available → Show Hub List
+                            ScrollView(showsIndicators: false) {
+                                ForEach(Array(bluetoothManager.storedHubs.enumerated()), id: \.element.id) { index, hub in
+                                    NavigationLink(destination: HomeDetailView(hub: hub)) {
+                                        HubCardView(hub: hub, bluetoothManager: bluetoothManager)
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 8)
+                                            .offset(x: isLoaded ? 0 : 300)
+                                            .opacity(isLoaded ? 1 : 0)
+                                            .animation(
+                                                .spring(response: 0.6, dampingFraction: 0.7)
+                                                .delay(Double(index) * 0.1 + 0.3),
+                                                value: isLoaded
+                                            )
                                     }
+                                    .buttonStyle(PlainButtonStyle())
                                 }
-                                .onAppear {
-                                    isLoaded = true
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .onAppear {
+                                isLoaded = true
+                            }
+                        }
+                    }
+                    .onAppear {
+                        isLoaded = true
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                     
                     Spacer()
                 }
@@ -371,6 +371,7 @@ struct WebView: UIViewRepresentable {
         webView.load(request)
     }
 }
+
 struct HubCardView: View {
     let hub: Hub
     @State private var isPressed = false
@@ -382,17 +383,18 @@ struct HubCardView: View {
     @State private var buttonOpacity = 0.2
     @State private var selectedMode: String? = nil
     @ObservedObject var bluetoothManager: BluetoothManager
-
+    @State private var brightness: Double = 0.5
+    @State private var warmCold: Double = 0.5
     @State private var navigateToMiniController = false
 
     var destinationView: some View {
         switch selectedMode {
         case "PWM":
-            return AnyView(PWM2LEDView())
+            return AnyView(PWM2LEDView(hub: hub))
         case "RGB":
             return AnyView(DataRGBView())
         case "MiniController":
-            return AnyView(MiniControllerPreviewWrapper())
+            return AnyView(MiniControllerView(hub: hub, brightness: $brightness, warmCold: $warmCold)) // Pass the hub to MiniControllerView
         default:
             return AnyView(EmptyView())
         }
@@ -400,12 +402,11 @@ struct HubCardView: View {
 
     var body: some View {
         ZStack {
-            // ✅ Direct Navigation Link (Hidden) - Triggers for hubs without a mode button
             if !hasModeButton {
-                NavigationLink(destination: MiniControllerPreviewWrapper(), isActive: $navigateToMiniController) {
+                NavigationLink(destination: MiniControllerView(hub: hub, brightness: $brightness, warmCold: $warmCold), isActive: $navigateToMiniController) {
                     EmptyView()
                 }
-                .opacity(0) // Invisible, but works when `navigateToMiniController = true`
+                .opacity(0)
             }
 
             VStack(alignment: .leading) {
@@ -461,7 +462,6 @@ struct HubCardView: View {
                     }
                     Spacer()
                     
-                    // ✅ Show Mode Button only when needed
                     if hasModeButton {
                         Button(action: {
                             showAlert = true
@@ -517,16 +517,16 @@ struct HubCardView: View {
                     }
                 }
                 
-                // ✅ Trigger navigation if no mode button
                 if !hasModeButton {
                     navigateToMiniController = true
                 }
+                
+                sendMessage(hub: hub)
             }
             .onHover { hovering in
                 isHovered = hovering
             }
 
-            // ✅ NavigationLink for hubs WITH mode button
             NavigationLink(destination: destinationView, isActive: Binding(
                 get: { selectedMode != nil },
                 set: { if !$0 { selectedMode = nil } }
@@ -534,6 +534,19 @@ struct HubCardView: View {
                 EmptyView()
             }
             .opacity(0)
+            .onTapGesture {
+                sendMessage(hub: hub)
+            }
+        }
+    }
+
+    private func sendMessage(hub: Hub) {
+        if let device = bluetoothManager.connectedDevices[hub.id] {
+            let message = "Hello, \(hub.name)!"
+            let data = Array(message.utf8)
+            bluetoothManager.sendMessageToDevice(to: hub.id, message: data)
+        } else {
+            print("Device not connected")
         }
     }
     
@@ -558,7 +571,6 @@ struct HubCardView: View {
         }
     }
 
-    // ✅ Helper function to check if mode button should be shown
     private var hasModeButton: Bool {
         return (bluetoothManager.connectedDeviceName ?? hub.name) != "LIMI-CONTROLLER"
     }
@@ -648,7 +660,7 @@ struct HeaderView: View {
             // Enhanced header background with depth and animation
             ZStack {
                 // Base color
-                Color.charlestonGreen.opacity(0.6)
+                Color.charlestonGreen.opacity(0.8)
                 
                 // Animated gradient overlay
                 LinearGradient(
@@ -675,11 +687,11 @@ struct HeaderView: View {
                     .animation(.easeInOut(duration: 3).repeatForever(autoreverses: true), value: logoScale)
             }
             .clipShape(
-                RoundedCornerShape(cornerRadius: 30, corners: [.bottomLeft, .bottomRight])
+                RoundedCornerShape(cornerRadius: 5, corners: [.bottomLeft, .bottomRight])
             )
         )
         .shadow(
-            color: Color.black.opacity(0.15),
+            color: Color.black.opacity(0.65),
             radius: 10,
             x: 0,
             y: 5

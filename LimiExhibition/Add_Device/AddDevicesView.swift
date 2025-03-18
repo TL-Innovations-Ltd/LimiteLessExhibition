@@ -72,7 +72,7 @@ struct AddDevicesView: View {
                     .foregroundColor(.charlestonGreen.opacity(0.7))
             }
             .padding()
-            .background(Color.alabaster.opacity(0.5))
+            .background(Color.charlestonGreen.opacity(0.1))
             .cornerRadius(12)
             .opacity(animateOptions ? 1 : 0)
             .offset(y: animateOptions ? 0 : 20)
@@ -132,7 +132,7 @@ struct ConnectionOptionCard: View {
                     Circle()
                         .fill(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color.emerald.opacity(0.7), Color.etonBlue.opacity(0.7)]),
+                                gradient: Gradient(colors: [Color.charlestonGreen.opacity(0.7), Color.charlestonGreen.opacity(0.4)]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -159,7 +159,7 @@ struct ConnectionOptionCard: View {
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.emerald)
+                    .foregroundColor(.charlestonGreen)
             }
             .padding()
             .background(Color.white)

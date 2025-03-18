@@ -212,8 +212,7 @@ class SharedDevice: ObservableObject {
 
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     @Published var isBluetoothOn = false
-
-    @Published var storedHubs: [Hub] = []  // ✅ Store connected Hubs
+    @Published var storedHubs: [Hub] = []
     @Published var connectedDevices: [UUID: (peripheral: CBPeripheral, characteristic: CBCharacteristic)] = [:]
 
     private var centralManager: CBCentralManager?
@@ -221,10 +220,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     private var connectedPeripheral: CBPeripheral?
     private var writableCharacteristic: CBCharacteristic?
     @Published var connectedDeviceName: String? = nil
-    var storedPeripherals: [CBPeripheral] = [] // Add this in BluetoothManager
+    var storedPeripherals: [CBPeripheral] = []
     
-    var peripheral: CBPeripheral?  // Ensure this is correctly defined
-    static let shared = BluetoothManager() // Singleton instance
+    var peripheral: CBPeripheral?
+    static let shared = BluetoothManager()
     
     var targetCharacteristic: CBCharacteristic?
     
@@ -258,13 +257,12 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         let name = advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? peripheral.name ?? "Unknown Device"
         let id = peripheral.identifier.uuidString
 
-        // Store the peripheral to maintain a strong reference
         if !storedPeripherals.contains(where: { $0.identifier == peripheral.identifier }) {
             storedPeripherals.append(peripheral)
         }
 
-        self.peripheral = peripheral  // Assign a valid peripheral
-        self.peripheral?.delegate = self  // Set delegate to receive updates
+        self.peripheral = peripheral
+        self.peripheral?.delegate = self
 
         print("🔍 Discovered: \(name) | ID: \(id)")
 
@@ -274,28 +272,16 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
     }
 
-    func connectToDevice(deviceId: String) {
-        guard let uuid = UUID(uuidString: deviceId),
-              let peripheral = centralManager?.retrievePeripherals(withIdentifiers: [uuid]).first else {
-            print("⚠️ Device not found in retrieved peripherals.")
-            return
-        }
-
-        print("🔗 Connecting to \(peripheral.name ?? "Unknown Device")")
-        connectedPeripheral = peripheral
-        peripheral.delegate = self
-        centralManager?.connect(peripheral, options: nil)
-    }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("✅ Connected to \(peripheral.name ?? "Unknown")")
 
         if !storedHubs.contains(where: { $0.id == peripheral.identifier }) {
             let hub = Hub(peripheral: peripheral)
-            storedHubs.append(hub)  // ✅ Store Hub objects
+            storedHubs.append(hub)
             print("📌 Stored Hub: \(hub.name)")
         }
-        // Store connected peripheral
+
         connectedPeripheral = peripheral
         SharedDevice.shared.connectedDevice = DeviceInfo(name: peripheral.name ?? "Unknown", id: peripheral.identifier.uuidString)
         DispatchQueue.main.async {
@@ -305,8 +291,8 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         peripheral.delegate = self
         peripheral.discoverServices(nil)
         DispatchQueue.main.async {
-               self.objectWillChange.send()  // Notify SwiftUI to update HomeView
-           }
+            self.objectWillChange.send()
+        }
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -314,25 +300,23 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        let disconnectedID = peripheral.identifier.uuidString  // ✅ Define the ID
+        let disconnectedID = peripheral.identifier.uuidString
 
         print("🔴 Disconnected from \(peripheral.name ?? "Unknown Device")")
 
-        targetCharacteristic = nil // Reset characteristic
-        connectedPeripheral = nil  // Clear connected peripheral
+        targetCharacteristic = nil
+        connectedPeripheral = nil
 
         DispatchQueue.main.async {
-            SharedDevice.shared.connectedDevice = nil // ✅ Update state
-            self.removeDisconnectedDevice(disconnectedID)  // ✅ Now passing a valid String
+            SharedDevice.shared.connectedDevice = nil
+            self.removeDisconnectedDevice(disconnectedID)
         }
 
-        // Try to reconnect immediately
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             print("♻️ Attempting to reconnect to \(disconnectedID)...")
             self.centralManager?.connect(peripheral, options: nil)
         }
     }
-
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else { return }
@@ -359,13 +343,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
                 print("✅ FF03 characteristic found!")
                 self.targetCharacteristic = characteristic
                 
-                // Enable notifications if supported
                 if characteristic.properties.contains(.notify) {
                     print("🔔 Enabling notifications for FF03")
                     peripheral.setNotifyValue(true, for: characteristic)
                 }
                 
-                // Save the peripheral and its characteristic in the connectedDevices dictionary
                 connectedDevices[peripheral.identifier] = (peripheral: peripheral, characteristic: characteristic)
             }
         }
@@ -377,7 +359,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         } else {
             print("✅ Successfully wrote to FF03: \(characteristic.uuid)")
 
-            // Verify if the peripheral is still connected
             if peripheral.state == .connected {
                 print("✅ Peripheral is still connected after writing!")
             } else {
@@ -386,19 +367,28 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
     }
     
-    func sendMessage(to deviceID: UUID, message: [UInt8]) {
+    func sendMessageToDevice(to deviceID: UUID, message: [UInt8]) {
         guard let deviceInfo = connectedDevices[deviceID] else {
             print("⚠️ Device not found!")
             return
         }
-        
+
+        let peripheral = deviceInfo.peripheral
+        let characteristic = deviceInfo.characteristic
+
+        if peripheral.state != .connected {
+            print("⚠️ Peripheral is disconnected! Attempting to reconnect...")
+            attemptReconnect()
+            return
+        }
+
         let data = Data(message)
-        let writeType: CBCharacteristicWriteType = deviceInfo.characteristic.properties.contains(.writeWithoutResponse) ? .withoutResponse : .withResponse
-        print("📤 Sending data to \(deviceInfo.peripheral.name ?? "Unknown"): \(data)")
-        deviceInfo.peripheral.writeValue(data, for: deviceInfo.characteristic, type: writeType)
+        let writeType: CBCharacteristicWriteType = characteristic.properties.contains(.writeWithoutResponse) ? .withoutResponse : .withResponse
+
+        print("📤 Writing to FF03: \(data)")
+        peripheral.writeValue(data, for: characteristic, type: writeType)
     }
     
-    // Function to write data to the FF03 characteristic
     func writeDataToFF03(_ bytes: [UInt8]) {
         guard let peripheral = connectedPeripheral else {
             print("❌ No connected peripheral found! Reconnecting...")
@@ -418,7 +408,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             return
         }
 
-        let dataToSend = Data(bytes) // Convert byte array to Data
+        let dataToSend = Data(bytes)
         let writeType: CBCharacteristicWriteType = characteristic.properties.contains(.writeWithoutResponse) ? .withoutResponse : .withResponse
 
         print("📤 Writing to FF03: \(dataToSend)")
@@ -454,11 +444,22 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     }
     
     func removeDisconnectedDevice(_ deviceID: String) {
-        if let uuid = UUID(uuidString: deviceID) {  // ✅ Convert String to UUID safely
+        if let uuid = UUID(uuidString: deviceID) {
             DispatchQueue.main.async {
                 self.storedHubs.removeAll { $0.id == uuid }
             }
         }
     }
-    
+    func connectToDevice(deviceId: String) {
+        guard let uuid = UUID(uuidString: deviceId),
+              let peripheral = centralManager?.retrievePeripherals(withIdentifiers: [uuid]).first else {
+            print("⚠️ Device not found in retrieved peripherals.")
+            return
+        }
+
+        print("🔗 Connecting to \(peripheral.name ?? "Unknown Device")")
+        connectedPeripheral = peripheral
+        peripheral.delegate = self
+        centralManager?.connect(peripheral, options: nil)
+    }
 }

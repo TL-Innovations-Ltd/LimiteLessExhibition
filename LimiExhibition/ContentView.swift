@@ -56,17 +56,16 @@ struct PartHomeView: View {
             
             List(bluetoothManager.storedHubs, id: \.id) { hub in
                 Button(action: {
-                    removeDevice(hub)
+                    
                 }) {
                     Text(hub.name)
+                        .foregroundColor(.blue)
+                        .padding()
                 }
             }
         }
     }
 
-    func removeDevice(_ hub: Hub) {
-        bluetoothManager.removeDisconnectedDevice(hub.id.uuidString)
-    }
 }
 
 struct MyCustomView_Previews: PreviewProvider {

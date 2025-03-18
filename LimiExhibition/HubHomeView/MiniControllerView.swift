@@ -11,10 +11,11 @@ import SwiftUI
 import SwiftUI
 
 struct MiniControllerView: View {
+    let hub: Hub
     @Binding var brightness: Double
     @Binding var warmCold: Double
     
-    @State private var selectedColor: Color = .emerald// Default color
+    @State private var selectedColor: Color = .emerald // Default color
     @State private var colorValue: Double = 0.0 // Represents position on rainbow slider
 
     @State private var selectedPWM: Int? = nil
@@ -134,7 +135,6 @@ struct MiniControllerView: View {
         .cornerRadius(16)
     }
 
-    
     // Function to send color to LED
     func sendColorToLED(_ color: Color, ledNumber: Int) {
         let uiColor = UIColor(color)
@@ -165,12 +165,10 @@ struct MiniControllerView: View {
         let hue = value / 100.0
         return Color(hue: hue, saturation: 1, brightness: 1)
     }
-    
-    
+
     private func sendIntensity(pwmled: Int) {
         let brightnessValue = Int(brightness)
         let ledNumber = Int(pwmled)
-        
 
         // Construct the byte array
         let byteArray: [UInt8] = [
@@ -183,11 +181,9 @@ struct MiniControllerView: View {
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
         print("Sending intensity to LED \(ledNumber): \(hexString))")
         // Send the formatted hex string
-        miniPwmIntensityObj.writeDataToFF03(byteArray)
+        miniPwmIntensityObj.sendMessageToDevice(to: hub.id, message: byteArray)
     }
-
 }
-
 
 struct MiniButton: View {
     let title: String
@@ -214,11 +210,13 @@ struct MiniButton: View {
 }
 
 struct MiniControllerPreviewWrapper: View {
-    @State private var brightness: Double = 0.5
-    @State private var warmCold: Double = 0.5
+        @State private var brightness: Double = 0.5
+        @State private var warmCold: Double = 0.5
 
     var body: some View {
-        MiniControllerView(brightness: $brightness, warmCold: $warmCold)
+        // Provide a dummy Hub instance for preview purposes
+        let dummyHub = Hub(name: "Dummy Hub")
+        MiniControllerView(hub: dummyHub, brightness: $brightness, warmCold: $warmCold)
     }
 }
 

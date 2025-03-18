@@ -18,7 +18,7 @@ struct HubHomeView: View {
                 
                 ScrollView {
                     ForEach(bluetoothManager.storedHubs) { hub in  // ✅ Use storedHubs
-                        NavigationLink(destination: HomeDetailView(roomName: hub.name)) {
+                        NavigationLink(destination: HomeDetailView(hub: hub)) {
                             HubCardView(hub: hub, bluetoothManager: bluetoothManager)
                         }
                         .buttonStyle(PlainButtonStyle())
