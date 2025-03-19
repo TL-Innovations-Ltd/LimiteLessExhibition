@@ -22,6 +22,4 @@ struct ScanQRCodeView: View {
     }
 }
     
-#Preview {
-    ScanQRCodeView()
-}
+  

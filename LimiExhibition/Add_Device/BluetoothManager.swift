@@ -125,10 +125,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             self.removeDisconnectedDevice(disconnectedID)
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            print("♻️ Attempting to reconnect to \(disconnectedID)...")
-            self.centralManager?.connect(peripheral, options: nil)
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//            print("♻️ Attempting to reconnect to \(disconnectedID)...")
+//            self.centralManager?.connect(peripheral, options: nil)
+//        }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -274,5 +274,19 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         connectedPeripheral = peripheral
         peripheral.delegate = self
         centralManager?.connect(peripheral, options: nil)
+    }
+    func disconnectAllDevices() {
+        for hub in storedHubs {
+            if let peripheral = hub.peripheral { // Ensure peripheral is not nil
+                centralManager?.cancelPeripheralConnection(peripheral)
+            }
+        }
+        storedHubs.removeAll()
+        connectedDevices.removeAll()
+        connectedPeripheral = nil
+        targetCharacteristic = nil
+        SharedDevice.shared.connectedDevice = nil
+        isConnected = false
+        print("🔌 All devices have been disconnected.")
     }
 }

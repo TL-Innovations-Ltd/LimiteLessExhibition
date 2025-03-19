@@ -4,7 +4,8 @@ struct AddDeviceView: View {
     @State private var currentScreen: Screen = .addDevices
     @State private var scanProgress: Double = 0
     @State private var isAnimating = false
-    
+    @State private var showBackButton = true // Track back button visibility
+
     enum Screen {
         case addDevices
         case scanning
@@ -14,8 +15,7 @@ struct AddDeviceView: View {
         NavigationView {
             ZStack {
                 Color.charlestonGreen.edgesIgnoringSafeArea(.all)
-                
-                
+
                 if currentScreen == .addDevices {
                     AddDevicesView(onOptionSelected: { option in
                         if option == .nearby {
@@ -25,6 +25,7 @@ struct AddDeviceView: View {
                             }
                         }
                     })
+                    .padding(.top, 10)
                 } else {
                     ScanningView(
                         progress: scanProgress,
@@ -36,26 +37,61 @@ struct AddDeviceView: View {
                         }
                     )
                 }
+                
+                VStack {
+                    HStack {
+                        if showBackButton {
+                            Button(action: {
+                                // Navigate to HomeView
+                                if let window = UIApplication.shared.windows.first {
+                                    window.rootViewController = UIHostingController(rootView: HomeView())
+                                    window.makeKeyAndVisible()
+                                }
+                            }) {
+                                Image(systemName: "chevron.left")
+                                    .foregroundColor(.alabaster)
+                                    .font(.title)
+                            }
+                            .padding(.leading, 30)
+                            .padding(.top, -6)
+                        }
+                        
+                        Spacer()
+                    }
+                    
+                    Spacer()
+                }
             }
             .preferredColorScheme(.dark)
+            .onAppear {
+                // Set the visibility of the back button based on the current screen
+                updateBackButtonVisibility()
+            }
+            .onChange(of: currentScreen) { _ in
+                // Update back button visibility whenever the screen changes
+                updateBackButtonVisibility()
+            }
         }
     }
     
     private func startScanningAnimation() {
         isAnimating = true
-        
-        // Simulate progress increasing over time
         scanProgress = 0
         
         withAnimation(.easeInOut(duration: 5)) {
-            scanProgress = 0.18 // 18%
+            scanProgress = 0.18
         }
         
-        // Continue animation to 100% after a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
             withAnimation(.easeInOut(duration: 15)) {
                 scanProgress = 1.0
             }
+        }
+    }
+    
+    private func updateBackButtonVisibility() {
+        withAnimation {
+            showBackButton = (currentScreen == .addDevices)
         }
     }
 }
@@ -65,4 +101,3 @@ struct AddDeviceView_Previews: PreviewProvider {
         AddDeviceView()
     }
 }
-

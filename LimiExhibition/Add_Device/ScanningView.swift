@@ -212,8 +212,11 @@ struct ScanningView: View {
             if bluetoothManager.isBluetoothOn {
                 showBluetoothAlert = false
                 bluetoothManager.startScanning { devices in
-                    self.discoveredDevices = devices
-                    self.showDevicesList = true
+                    let filteredDevices = devices.filter { $0.name == "LIMI-CONTROLLER" || $0.name == "1 CH-HUB" }
+                    self.discoveredDevices = filteredDevices
+                    if !filteredDevices.isEmpty {
+                        self.showDevicesList = true
+                    }
                 }
             } else {
                 showBluetoothAlert = true

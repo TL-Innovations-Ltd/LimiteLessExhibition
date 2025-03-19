@@ -11,7 +11,7 @@ struct SplashScreen: View {
                 .ignoresSafeArea()
         } else {
             ZStack {
-                Color.etonBlue.ignoresSafeArea() // Background color
+                Color.charlestonGreen.ignoresSafeArea() // Background color
                 
                 VStack {
                     ZStack {

@@ -255,11 +255,16 @@ struct HomeView: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        EnhancedFloatingButton(isNavigating: $isNavigatingToAddDevice)
-                            // Animation: Bounce in from bottom
-                            .offset(y: isLoaded ? 0 : 100)
-                            .opacity(isLoaded ? 1 : 0)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
+                        if bluetoothManager.storedHubs.isEmpty {
+                            
+                        }else{
+                            EnhancedFloatingButton(isNavigating: $isNavigatingToAddDevice)
+                                // Animation: Bounce in from bottom
+                                .offset(y: isLoaded ? 0 : 100)
+                                .opacity(isLoaded ? 1 : 0)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
+                        }
+                        
                     }
                     .fullScreenCover(isPresented: $isNavigatingToAddDevice) {
                         AddDeviceView()
@@ -726,7 +731,9 @@ struct EnhancedSidebarView: View {
     ]
     @State private var selectedItem = "Home"
     @State private var animateBackground = false
+    @State private var showGetStartScreen = false // State variable to control the presentation
 
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -894,6 +901,10 @@ struct EnhancedSidebarView: View {
 
                                 Button(action: {
                                     // Logout action
+                                    AuthManager.shared.clearToken()
+                                    showGetStartScreen = true // Set state variable to true
+                                    BluetoothManager.shared.disconnectAllDevices() // Disconnect all devices
+                                    
                                 }) {
                                     HStack {
                                         ZStack {
@@ -936,6 +947,9 @@ struct EnhancedSidebarView: View {
             .cornerRadius(20) // Apply rounded corners
             .clipShape(RoundedRectangle(cornerRadius: 20)) // Clip shape to avoid overflow
             .shadow(color: Color.black.opacity(0.15), radius: 10, x: 5, y: 0)
+            .fullScreenCover(isPresented: $showGetStartScreen) {
+                GetStart() // Replace with your GetStart screen view
+            }
         }
     }
 }
