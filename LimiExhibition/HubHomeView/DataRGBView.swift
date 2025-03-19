@@ -19,9 +19,9 @@ struct DataRGBView: View {
     @State private var showPopup = false
     @State private var navigateToHome = false
     // Bluetooth Color Message send
-    let selectColorObj = BluetoothManager()
+    let selectColorObj = BluetoothManager.shared
+    let hub: Hub
 
-    
     @State private var showAlert = false
     
     enum ColorMode: String, CaseIterable, Identifiable {
@@ -78,17 +78,17 @@ struct DataRGBView: View {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 16) {
                     ColorPresetButton(color: .red, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0xFF, 0x00, 0x00]
-                        selectColorObj.writeDataToFF03(byteArray)
+                        sendMessage(hub: hub, message: byteArray)
                     }
 
                     ColorPresetButton(color: .orange, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0xFF, 0x8A, 0x22]
-                        selectColorObj.writeDataToFF03(byteArray)
+                        sendMessage(hub: hub, message: byteArray)
                     }
 
                     ColorPresetButton(color: .yellow, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00]
-                        selectColorObj.writeDataToFF03(byteArray)
+                        sendMessage(hub: hub, message: byteArray)
                     }
 
                     ColorPresetButton(color: .green, selectedColor: $selectedColor){
@@ -98,26 +98,26 @@ struct DataRGBView: View {
 
                     ColorPresetButton(color: .blue, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0xFF]
-                        selectColorObj.writeDataToFF03(byteArray)
+                        sendMessage(hub: hub, message: byteArray)
                     }
 
                     ColorPresetButton(color: .purple, selectedColor: $selectedColor){
                         let byteArray: [UInt8] = [0x02, 0x80, 0x00, 0x80]
-                        selectColorObj.writeDataToFF03(byteArray)
+                        sendMessage(hub: hub, message: byteArray)
                     }
 
                     ColorPresetButton(color: .pink, selectedColor: $selectedColor){
                         //FFC0CB
                         let byteArray: [UInt8] = [0x02, 0xFF, 0xC0, 0xCB]
 
-                        selectColorObj.writeDataToFF03(byteArray)
+                        sendMessage(hub: hub, message: byteArray)
                     }
 
                     ColorPresetButton(color: .white, selectedColor: $selectedColor){
                         //FFFFFF
                         let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0xFF]
 
-                        selectColorObj.writeDataToFF03(byteArray)
+                        sendMessage(hub: hub, message: byteArray)
                     }
 
                 }
@@ -199,10 +199,22 @@ struct DataRGBView: View {
     private func sendLampState() {
         if isOn {
             let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00]
-            selectColorObj.writeDataToFF03(byteArray)
+            sendMessage(hub: hub, message: byteArray)
+            
         } else {
             let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0x00]
-            selectColorObj.writeDataToFF03(byteArray)
+            sendMessage(hub: hub, message: byteArray)
+            
+        }
+    }
+    
+    private func sendMessage(hub: Hub, message: [UInt8]) {
+        if let device = selectColorObj.connectedDevices[hub.id] {
+            let data = Data(message)
+            selectColorObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
+
+        } else {
+            print("Device not connected")
         }
     }
 }
@@ -288,5 +300,5 @@ struct ColorPickerView: View {
     }
 }
 #Preview {
-    DataRGBView()
+    DataRGBView(hub: Hub(name: "Test Hub"))
 }

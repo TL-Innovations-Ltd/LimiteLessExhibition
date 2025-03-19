@@ -78,7 +78,7 @@ struct HomeDetailView: View {
                                         )
                                     )
                             } else if selectedController == .dataRGB {
-                                DataRGBView()
+                                DataRGBView(hub: hub)
                                     .transition(
                                         .asymmetric(
                                             insertion: .opacity.combined(with: .move(edge: .leading)),

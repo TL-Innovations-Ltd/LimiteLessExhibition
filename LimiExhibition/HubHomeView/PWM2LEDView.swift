@@ -61,7 +61,7 @@ struct PendantLampControlView: View {
 
     @AppStorage("lampState") private var isOn: Bool = false
     @State private var isGlowing = false
-    @StateObject private var pwmIntensityObj = BluetoothManager()
+    @StateObject private var pwmIntensityObj = BluetoothManager.shared
     @State private var showAlert = false  // State to show alert
         
     var body: some View {
@@ -257,11 +257,14 @@ struct PendantLampControlView: View {
     
     
     private func sendOn() {
-        //pwmIntensityObj.writeDataToFF03([0x01, 0x32, 0x32, 0x32])
+        let btyeArray : [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        sendMessage(hub: hub, message: btyeArray)
     }
     
     private func sendOff() {
-        //pwmIntensityObj.writeDataToFF03([0x00, 0x00, 0x00, 0x00])
+        let btyeArray : [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        sendMessage(hub: hub, message: btyeArray)
+
     }
     
     // Function to send intensity value
@@ -281,7 +284,7 @@ struct PendantLampControlView: View {
         
         print("Sending Data: \(hexString)") // Debug output
         
-        pwmIntensityObj.sendMessageToDevice(to: hub.id, message: byteArray)
+        sendMessage(hub: hub, message: byteArray)
     }
 
     // Function to send intensity value
@@ -299,9 +302,18 @@ struct PendantLampControlView: View {
         
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
         print("\(hexString)")
-        pwmIntensityObj.sendMessageToDevice(to: hub.id, message: byteArray)
+        sendMessage(hub: hub, message: byteArray)
     }
 
+    private func sendMessage(hub: Hub, message: [UInt8]) {
+        if let device = pwmIntensityObj.connectedDevices[hub.id] {
+            let data = Data(message)
+            pwmIntensityObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
+
+        } else {
+            print("Device not connected")
+        }
+    }
 }
 
 struct SliderControl: View {

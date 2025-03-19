@@ -20,7 +20,7 @@ struct MiniControllerView: View {
 
     @State private var selectedPWM: Int? = nil
     @State private var selectedRGB: Int? = nil
-    @ObservedObject var miniPwmIntensityObj = BluetoothManager()  // Observing BluetoothManager
+    @ObservedObject var miniPwmIntensityObj = BluetoothManager.shared  // Observing BluetoothManager
 
     let selectColorObj = BluetoothManager()
     
@@ -153,7 +153,8 @@ struct MiniControllerView: View {
             byteArray[3] = greenByte
             byteArray.append(blueByte)
 
-            selectColorObj.writeDataToFF03(byteArray)
+            sendMessage(hub: hub, message: byteArray)
+
             print("Sending LED number:", ledNumber, "Color:", byteArray)
         } else {
             print("Error: LED number out of range!")
@@ -181,7 +182,17 @@ struct MiniControllerView: View {
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
         print("Sending intensity to LED \(ledNumber): \(hexString))")
         // Send the formatted hex string
-        miniPwmIntensityObj.sendMessageToDevice(to: hub.id, message: byteArray)
+        sendMessage(hub: hub, message: byteArray)
+    }
+    
+    private func sendMessage(hub: Hub, message: [UInt8]) {
+        if let device = miniPwmIntensityObj.connectedDevices[hub.id] {
+            let data = Data(message)
+            miniPwmIntensityObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
+
+        } else {
+            print("Device not connected")
+        }
     }
 }
 

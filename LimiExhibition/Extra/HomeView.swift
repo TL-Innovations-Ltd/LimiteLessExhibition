@@ -392,7 +392,7 @@ struct HubCardView: View {
         case "PWM":
             return AnyView(PWM2LEDView(hub: hub))
         case "RGB":
-            return AnyView(DataRGBView())
+            return AnyView(DataRGBView(hub: hub))
         case "MiniController":
             return AnyView(MiniControllerView(hub: hub, brightness: $brightness, warmCold: $warmCold)) // Pass the hub to MiniControllerView
         default:
