@@ -541,7 +541,7 @@ struct HubCardView: View {
     }
 
     private func sendMessage(hub: Hub) {
-        if let device = bluetoothManager.connectedDevices[hub.id] {
+        if bluetoothManager.connectedDevices[hub.id] != nil {
             let message = "Hello, \(hub.name)!"
             let data = Array(message.utf8)
             bluetoothManager.sendMessageToDevice(to: hub.id, message: data)

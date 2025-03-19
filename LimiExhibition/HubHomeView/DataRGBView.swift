@@ -209,7 +209,7 @@ struct DataRGBView: View {
     }
     
     private func sendMessage(hub: Hub, message: [UInt8]) {
-        if let device = selectColorObj.connectedDevices[hub.id] {
+        if selectColorObj.connectedDevices[hub.id] != nil {
             let data = Data(message)
             selectColorObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
 

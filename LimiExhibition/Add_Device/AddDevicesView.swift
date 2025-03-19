@@ -72,7 +72,7 @@ struct AddDevicesView: View {
                     .foregroundColor(.charlestonGreen.opacity(0.7))
             }
             .padding()
-            .background(Color.charlestonGreen.opacity(0.1))
+            .background(Color.charlestonGreen.opacity(0.2))
             .cornerRadius(12)
             .opacity(animateOptions ? 1 : 0)
             .offset(y: animateOptions ? 0 : 20)

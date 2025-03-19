@@ -92,7 +92,7 @@ struct ScanningView: View {
                 Spacer()
             }
             .padding(.horizontal, 24)
-            .background(Color.etonBlue)
+            .background(Color.charlestonGreen)
             
             .onAppear {
                 checkBluetoothStatus()
@@ -133,11 +133,11 @@ struct ScanningView: View {
                     
                     ScrollView {
                         VStack(spacing: 8) {
-                            ForEach(discoveredDevices, id: \.id) { device in
-                                Text("\(device.name) (\(device.id))")
+                            ForEach(discoveredDevices.filter { $0.name == "LIMI-CONTROLLER" || $0.name == "1 CH-HUB" }, id: \.id) { device in
+                                Text("\(device.name)")
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(Color.emerald.opacity(0.2))
+                                    .background(Color.alabaster.opacity(0.9))
                                     .cornerRadius(8)
                                     .foregroundColor(.charlestonGreen)
                                     .onTapGesture {
@@ -150,7 +150,7 @@ struct ScanningView: View {
                         .padding()
                     }
                     .frame(height: 600)
-                    .background(Color.alabaster.opacity(0.8))
+                    .background(Color.charlestonGreen.opacity(0.7))
                     .cornerRadius(12)
                     
                     Button(action: {

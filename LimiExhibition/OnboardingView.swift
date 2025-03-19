@@ -164,6 +164,7 @@ struct OnboardingView: View {
     }
 }
 
+import SDWebImageSwiftUI
 
 
 struct OnboardingPageView: View {
@@ -211,12 +212,19 @@ struct OnboardingPageView: View {
                     
                     
                 } else if image == "second"{
-                    GIFView(gifName: "setupCon", width: 50, height: 100) // Adjust as needed
-                        .scaleEffect(imageScale)
-                        .frame(width: 120, height: 200)
-                        .padding(.top, 150)
-                        .ignoresSafeArea()// `.trailing` instead of `.right`
+                    ZStack(alignment: .center){
                         
+                        WebImage(url: Bundle.main.url(forResource: "stepFinal", withExtension: "gif"))
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 350, height: 800)
+                                    .ignoresSafeArea()
+                                    .padding(.bottom, -400)
+                                    .ignoresSafeArea()
+                    }
+                    .padding(.top, 0)
+                        .ignoresSafeArea()
+
                 }
                 else {
                     Image(image)

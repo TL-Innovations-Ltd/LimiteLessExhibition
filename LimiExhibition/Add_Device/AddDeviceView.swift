@@ -13,11 +13,8 @@ struct AddDeviceView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.charlestonGreen.opacity(0.7), Color.charlestonGreen.opacity(0.4)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                ).edgesIgnoringSafeArea(.all)
+                Color.charlestonGreen.edgesIgnoringSafeArea(.all)
+                
                 
                 if currentScreen == .addDevices {
                     AddDevicesView(onOptionSelected: { option in

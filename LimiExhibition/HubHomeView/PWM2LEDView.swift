@@ -306,7 +306,7 @@ struct PendantLampControlView: View {
     }
 
     private func sendMessage(hub: Hub, message: [UInt8]) {
-        if let device = pwmIntensityObj.connectedDevices[hub.id] {
+        if pwmIntensityObj.connectedDevices[hub.id] != nil {
             let data = Data(message)
             pwmIntensityObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
 
