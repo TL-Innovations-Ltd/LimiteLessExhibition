@@ -886,35 +886,41 @@ struct EnhancedSidebarView: View {
                                 )
                             }
                             
-                            Spacer()
+                            
                             
                             // Enhanced logout button with animation
-                            Button(action: {
-                                // Logout action
-                            }) {
-                                HStack {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.red.opacity(0.1))
-                                            .frame(width: 36, height: 36)
-                                        
-                                        Image(systemName: "arrow.left.square.fill")
-                                            .font(.system(size: 18))
+                            HStack {
+                                Spacer() // Pushes the button to the center
+
+                                Button(action: {
+                                    // Logout action
+                                }) {
+                                    HStack {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.red.opacity(0.1))
+                                                .frame(width: 36, height: 36)
+
+                                            Image(systemName: "arrow.left.square.fill")
+                                                .font(.system(size: 18))
+                                                .foregroundColor(.red.opacity(0.8))
+                                        }
+
+                                        Text("Logout")
+                                            .font(.headline)
                                             .foregroundColor(.red.opacity(0.8))
                                     }
-                                    
-                                    Text("Logout")
-                                        .font(.headline)
-                                        .foregroundColor(.red.opacity(0.8))
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 20)
                                 }
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 20)
+                                .padding(.bottom, 30)
+                                // Enhanced animation: Fade in/out with scale
+                                .opacity(isSidebarOpen ? 1 : 0)
+                                .scaleEffect(isSidebarOpen ? 1 : 0.9)
+                                .animation(.easeIn.delay(isSidebarOpen ? 0.3 : 0), value: isSidebarOpen)
+
+                                Spacer() // Pushes the button to the center
                             }
-                            .padding(.bottom, 30)
-                            // Enhanced animation: Fade in/out with scale
-                            .opacity(isSidebarOpen ? 1 : 0)
-                            .scaleEffect(isSidebarOpen ? 1 : 0.9)
-                            .animation(.easeIn.delay(isSidebarOpen ? 0.3 : 0), value: isSidebarOpen)
                         }
                     }
                     .frame(width: geometry.size.width * 0.7)
@@ -926,6 +932,10 @@ struct EnhancedSidebarView: View {
                     Spacer()
                 }
             }
+            .frame(width: geometry.size.width * 0.7)
+            .cornerRadius(20) // Apply rounded corners
+            .clipShape(RoundedRectangle(cornerRadius: 20)) // Clip shape to avoid overflow
+            .shadow(color: Color.black.opacity(0.15), radius: 10, x: 5, y: 0)
         }
     }
 }

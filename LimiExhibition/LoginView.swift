@@ -13,11 +13,9 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            Color.alabaster.edgesIgnoringSafeArea(.all)
+            Color.charlestonGreen.edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
-                
-                
                 VStack {
                     VStack {
                         Image("logoSplash")
@@ -32,12 +30,15 @@ struct LoginView: View {
                                     welcomeTextOpacity = 1.0
                                 }
                             }
+                            .shadow(color: Color.alabaster.opacity(0.5), radius: 10, x: 0, y: 5)
                         Text("Enter Your Email")
                             .font(.title2)
                             .bold()
                             .foregroundColor(.charlestonGreen)
                             .padding(.bottom, 10)
-                        Text("We’ll send you a secure login link. Simply click it and start your journey.")
+                            .shadow(color: Color.alabaster.opacity(0.5), radius: 10, x: 0, y: 5)
+
+                        Text("We'll send you a secure login link. Simply click it and start your journey.")
                             .font(.subheadline)
                             .foregroundColor(Color.charlestonGreen)
                             .multilineTextAlignment(.center)
@@ -46,16 +47,12 @@ struct LoginView: View {
                     .padding()
                     
                     VStack(spacing: 60) {
-                        
-                        
-                        TextField("Email Address", text: $email, prompt: Text("Email Address").foregroundColor(.gray))
-                            .foregroundColor(Color.charlestonGreen) // Typed text color
+                        TextField("Email Address", text: $email, prompt: Text("Email Address").foregroundColor(.charlestonGreen.opacity(0.6)))
+                            .foregroundColor(Color.charlestonGreen)
                             .padding()
-                            .background(Color.white)
+                            .background(Color.alabaster)
                             .cornerRadius(10)
                             .padding(.horizontal)
-
-                        
                     }.padding(.bottom, 40)
                     
                     Button(action: {
@@ -63,10 +60,10 @@ struct LoginView: View {
                     }) {
                         Text("Send Link")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.alabaster)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color.emerald)
+                            .background(Color.charlestonGreen)
                             .cornerRadius(10)
                     }
                     .padding(.horizontal)
@@ -75,16 +72,23 @@ struct LoginView: View {
                     }
                     .keyboardResponsive()
                 }
-
             }
-
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.etonBlue)
+            .background(
+                LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color.charlestonGreen, // Eton
+
+                                    Color.alabaster  // Alabaster
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                )
+            )
             .padding(.bottom, 0)
             .edgesIgnoringSafeArea(.all)
-            .shadow(color: Color.black.opacity(0.3) ,radius: 20)
+            .shadow(color: Color.charlestonGreen.opacity(0.3), radius: 20)
         }
-
         .fullScreenCover(isPresented: $isOTPVerified) {
             AddDeviceView()
         }
@@ -138,146 +142,6 @@ struct LoginView: View {
     }
 }
 
-//struct OTPVerificationView: View {
-//    var email: String
-//    @Environment(\.presentationMode) var presentationMode  // Access presentation mode
-//    
-//    @State private var showAddDevices = false
-//    
-//    
-//    @EnvironmentObject var authManager: AuthManager
-//    
-//    @Binding var enteredOTP: String
-//    @Binding var isOTPVerified: Bool
-//    
-//    @State private var errorMessage: String?
-//    @State private var isLoading: Bool = false
-//    
-//    var body: some View {
-//        ZStack {
-//            Color.etonBlue.edgesIgnoringSafeArea(.all)
-//            
-//            VStack(spacing: 20) {
-//                Text("Enter OTP")
-//                    .font(.title)
-//                    .bold()
-//                
-//                TextField("OTP", text: $enteredOTP)
-//                    .textFieldStyle(RoundedBorderTextFieldStyle())
-//                    .keyboardType(.numberPad)
-//                    .padding()
-//                
-//                if let errorMessage = errorMessage {
-//                    Text(errorMessage)
-//                        .foregroundColor(.red)
-//                        .font(.footnote)
-//                }
-//                
-//                Button(action: verifyOTP) {
-//                    if isLoading {
-//                        ProgressView()
-//                    } else {
-//                        Text("Verify")
-//                            .bold()
-//                            .frame(maxWidth: .infinity)
-//                            .padding()
-//                            .background(Color.etonBlue)
-//                            .foregroundColor(.white)
-//                            .cornerRadius(10)
-//                    }
-//                }
-//                .padding(.horizontal)
-//            }
-//            .padding()
-//            .background(Color.alabaster.opacity(0.8))
-//            .clipShape(RoundedRectangle(cornerRadius: 20))
-//            .padding()
-//            // Navigation based on showAddDevices state
-//            if isOTPVerified {
-//                NavigationLink(destination: showAddDevices ? AnyView(AddDevices()) : AnyView(HomeView()), isActive: $isOTPVerified) {
-//                    EmptyView()
-//                }
-//            }
-//        }
-//    }
-//        
-//        
-//        
-//        func verifyOTP() {
-//            guard let url = URL(string: "https://exhibition-workout-alex-wishlist.trycloudflare.com/client/verify_otp") else {
-//                errorMessage = "Invalid URL"
-//                return
-//            }
-//            
-//            let parameters: [String: Any] = [
-//                "email": email,
-//                "otp": enteredOTP.trimmingCharacters(in: .whitespacesAndNewlines)
-//            ]
-//            guard let jsonData = try? JSONSerialization.data(withJSONObject: parameters) else {
-//                errorMessage = "Error creating JSON"
-//                return
-//            }
-//            
-//            var request = URLRequest(url: url)
-//            request.httpMethod = "POST"
-//            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-//            request.httpBody = jsonData
-//            
-//            isLoading = true
-//            URLSession.shared.dataTask(with: request) { data, response, error in
-//                DispatchQueue.main.async {
-//                    isLoading = false
-//                    if let error = error {
-//                        errorMessage = "Request failed: \(error.localizedDescription)"
-//                        return
-//                    }
-//                    
-//                    guard let data = data else {
-//                        errorMessage = "No data received"
-//                        return
-//                    }
-//                    
-//                    do {
-//                        if let jsonResponse = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-//                            if let success = jsonResponse["success"] as? Bool, success {
-//                                if let dataDict = jsonResponse["data"] as? [String: Any],
-//                                   let token = dataDict["token"] as? String {
-//                                    AuthManager.shared.saveToken(token)
-//                                    print(dataDict)
-//                                    print("Received Token: \(token)") // This should now print correctly
-//                                    
-//                                    // Checking devices
-//                                    if let userData = dataDict["data"] as? [String: Any],
-//                                       let devices = userData["devices"] as? [[String: Any]] {
-//                                        print("suzair \(devices)")
-//                                        showAddDevices = !devices.isEmpty // Updated logic
-//                                    }
-//                                    
-//                                    
-//                                    
-//                                } else {
-//                                    print("Token not found in response: \(jsonResponse)")
-//                                }
-//                                
-//                                DispatchQueue.main.async {
-//                                    self.isOTPVerified = true
-//                                    self.presentationMode.wrappedValue.dismiss()
-//                                }
-//                            } else {
-//                                errorMessage = jsonResponse["error_message"] as? String ?? "Invalid OTP"
-//                            }
-//                        }
-//                    } catch {
-//                        errorMessage = "Failed to parse response"
-//                    }
-//                }
-//            }.resume()
-//        }
-//        
-//        
-//    }
-///
-
 import SwiftUI
 
 struct OTPVerificationView: View {
@@ -306,7 +170,7 @@ struct OTPVerificationView: View {
         ZStack {
             // Background gradient
             LinearGradient(
-                gradient: Gradient(colors: [Color.etonBlue.opacity(0.7), Color.etonBlue]),
+                gradient: Gradient(colors: [Color.charlestonGreen.opacity(0.7), Color.alabaster]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -315,13 +179,13 @@ struct OTPVerificationView: View {
             // Animated background shapes
             ZStack {
                 Circle()
-                    .fill(Color.white.opacity(0.1))
+                    .fill(Color.charlestonGreen.opacity(0.1))
                     .frame(width: 200, height: 200)
                     .offset(x: -150, y: -250)
                     .scaleEffect(isAppearing ? 1.0 : 0.8)
                 
                 Circle()
-                    .fill(Color.white.opacity(0.1))
+                    .fill(Color.charlestonGreen.opacity(0.1))
                     .frame(width: 300, height: 300)
                     .offset(x: 150, y: 350)
                     .scaleEffect(isAppearing ? 1.0 : 0.8)
@@ -333,12 +197,12 @@ struct OTPVerificationView: View {
                 VStack(spacing: 15) {
                     Image(systemName: "lock.shield.fill")
                         .font(.system(size: 60))
-                        .foregroundColor(.emerald)
+                        .foregroundColor(.charlestonGreen)
                         .padding()
                         .background(
                             Circle()
                                 .fill(Color.alabaster)
-                                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                .shadow(color: Color.charlestonGreen.opacity(0.1), radius: 10, x: 0, y: 5)
                         )
                         .scaleEffect(isAppearing ? 1.0 : 0.8)
                         .opacity(isAppearing ? 1.0 : 0.5)
@@ -398,7 +262,6 @@ struct OTPVerificationView: View {
                             errorMessage = nil
                         }
                     }
-
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             focusedField = 0
@@ -409,7 +272,7 @@ struct OTPVerificationView: View {
                 if let errorMessage = errorMessage {
                     Text(errorMessage)
                         .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundColor(.red)
+                        .foregroundColor(.charlestonGreen)
                         .padding(.horizontal)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
@@ -420,12 +283,12 @@ struct OTPVerificationView: View {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(
                                 LinearGradient(
-                                    gradient: Gradient(colors: [Color.emerald, Color.emerald.opacity(0.8)]),
+                                    gradient: Gradient(colors: [Color.charlestonGreen, Color.charlestonGreen.opacity(0.8)]),
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
-                            .shadow(color: Color.emerald.opacity(0.5), radius: 10, x: 0, y: 5)
+                            .shadow(color: Color.charlestonGreen.opacity(0.5), radius: 10, x: 0, y: 5)
                             .frame(height: 56)
                         
                         if isLoading {
@@ -434,7 +297,7 @@ struct OTPVerificationView: View {
                         } else {
                             Text("Verify")
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
+                                .foregroundColor(.alabaster)
                         }
                     }
                     .scaleEffect(isVerifying ? 0.95 : 1.0)
@@ -456,7 +319,7 @@ struct OTPVerificationView: View {
                     }) {
                         Text("Resend")
                             .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(.emerald)
+                            .foregroundColor(.charlestonGreen)
                     }
                 }
                 .padding(.top, 5)
@@ -468,7 +331,7 @@ struct OTPVerificationView: View {
             .background(
                 RoundedRectangle(cornerRadius: 30)
                     .fill(Color.alabaster.opacity(0.95))
-                    .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+                    .shadow(color: Color.charlestonGreen.opacity(0.1), radius: 20, x: 0, y: 10)
             )
             .padding(.horizontal, 50)
             .scaleEffect(isAppearing ? 1.0 : 0.9)
@@ -476,13 +339,9 @@ struct OTPVerificationView: View {
             
             // Navigation based on showAddDevices state
             if isOTPVerified {
-//                NavigationLink(destination: showAddDevices ? AnyView(AddDeviceView()) : AnyView(HomeView()), isActive: $isOTPVerified)
-//                {
-//                    EmptyView()
-//                }
                 NavigationLink(value: showAddDevices ? "AddDeviceView" : "HomeView") {
-                                   EmptyView()
-                               }
+                    EmptyView()
+                }
             }
         }
         .onAppear {
@@ -660,13 +519,13 @@ struct OTPDigitBox: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isActive ? Color.emerald : Color.charlestonGreen.opacity(0.3), lineWidth: 2)
+                .stroke(isActive ? Color.charlestonGreen : Color.charlestonGreen.opacity(0.3), lineWidth: 2)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.white.opacity(0.8))
+                        .fill(Color.alabaster.opacity(0.8))
                 )
                 .frame(width: 45, height: 55)
-                .shadow(color: isActive ? Color.emerald.opacity(0.3) : Color.clear, radius: 5, x: 0, y: 2)
+                .shadow(color: isActive ? Color.charlestonGreen.opacity(0.3) : Color.clear, radius: 5, x: 0, y: 2)
             
             if !digit.isEmpty {
                 Text(digit)
@@ -688,7 +547,7 @@ struct LottieLoadingView: View {
         ZStack {
             ForEach(0..<3) { index in
                 Circle()
-                    .fill(Color.white)
+                    .fill(Color.alabaster)
                     .frame(width: 8, height: 8)
                     .offset(y: isAnimating ? -10 : 0)
                     .opacity(isAnimating ? 1.0 : 0.5)
@@ -703,7 +562,7 @@ struct LottieLoadingView: View {
             
             ForEach(0..<3) { index in
                 Circle()
-                    .fill(Color.white)
+                    .fill(Color.alabaster)
                     .frame(width: 8, height: 8)
                     .offset(y: isAnimating ? -10 : 0)
                     .opacity(isAnimating ? 1.0 : 0.5)
@@ -731,16 +590,6 @@ struct ShakeEffect: GeometryEffect {
     }
 }
 
-
-
-
-
-
-
-
-///
-///
-
 import SwiftUI
 
 struct KeyboardResponsiveModifier: ViewModifier {
@@ -753,22 +602,21 @@ struct KeyboardResponsiveModifier: ViewModifier {
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification, object: nil, queue: .main) { notification in
                     if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
                         keyboardHeight = keyboardFrame.height - 20
-                        
                     }
                 }
                 
                 NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification, object: nil, queue: .main) { _ in
                     keyboardHeight = 0
-                  }
-              }
-              .onTapGesture {
-                  hideKeyboard()
-              }
-      }
-      
-      private func hideKeyboard() {
-          UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-      }
+                }
+            }
+            .onTapGesture {
+                hideKeyboard()
+            }
+    }
+    
+    private func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 }
 
 extension View {
@@ -777,10 +625,9 @@ extension View {
     }
 }
 
-
-
 struct RegistrationView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
     }
 }
+
