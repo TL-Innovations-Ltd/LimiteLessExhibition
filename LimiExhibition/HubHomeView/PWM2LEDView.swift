@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct PWM2LEDView: View {
     let hub: Hub
     @State private var led1warmCold: Double = 50
@@ -50,20 +49,20 @@ struct PWM2LEDView: View {
     }
 }
 
-
-
 struct PendantLampControlView: View {
     let title: String
     @Binding var warmCold: Double
     @Binding var brightness: Double
     let color: Color
     let hub: Hub
+    @ObservedObject var storeHistory = StoreHistory()
 
     @AppStorage("lampState") private var isOn: Bool = false
     @State private var isGlowing = false
     @StateObject private var pwmIntensityObj = BluetoothManager.shared
     @State private var showAlert = false  // State to show alert
-        
+    @State private var showAIButton = false
+
     var body: some View {
         VStack(spacing: 20) {
             HStack {
@@ -176,8 +175,9 @@ struct PendantLampControlView: View {
                     Slider(value: $warmCold, in: 0...100, step: 1, onEditingChanged: { isEditing in
                         if isEditing {
                             sendHapticFeedback() // Trigger haptic feedback
+                            sendColor()
                         }
-                        sendColor()
+                        
                     })
                     .onChange(of: warmCold) {
                         sendHapticFeedback() // Continuous feedback as the slider moves
@@ -210,9 +210,10 @@ struct PendantLampControlView: View {
                     // Slider
                     Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { isEditing in
                         if isEditing {
-                            sendHapticFeedback() // Trigger haptic feedback
+                            sendHapticFeedback()// Trigger haptic feedback
+                            sendIntensity()
                         }
-                        sendIntensity()
+                        
                     })
                     .onChange(of: brightness) {
                         sendHapticFeedback()
@@ -225,6 +226,11 @@ struct PendantLampControlView: View {
                 .padding(.horizontal, 20)
             }
             .padding(.top, 20)
+            
+            // AI Button
+            if showAIButton {
+                AIButtonView(hub: hub)
+            }
         }
         .padding()
         .background(Color.white)
@@ -237,6 +243,12 @@ struct PendantLampControlView: View {
             if !newValue {
                 showAlert = true
             }
+        }
+        .onAppear {
+            showAIButton = storeHistory.isQueueFull
+        }
+        .onReceive(storeHistory.objectWillChange) {
+            showAIButton = storeHistory.isQueueFull
         }
     }
 
@@ -257,13 +269,16 @@ struct PendantLampControlView: View {
     
     
     private func sendOn() {
-        let btyeArray : [UInt8] = [0x00, 0x00, 0x00, 0x00]
-        sendMessage(hub: hub, message: btyeArray)
+        let byteArray : [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        sendMessage(hub: hub, message: byteArray)
+        storeHistory.addElement(hub: hub, byteArray: byteArray)
+
     }
     
     private func sendOff() {
-        let btyeArray : [UInt8] = [0x00, 0x00, 0x00, 0x00]
-        sendMessage(hub: hub, message: btyeArray)
+        let byteArray : [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        sendMessage(hub: hub, message: byteArray)
+        storeHistory.addElement(hub: hub, byteArray: byteArray)
 
     }
     
@@ -285,6 +300,7 @@ struct PendantLampControlView: View {
         print("Sending Data: \(hexString)") // Debug output
         
         sendMessage(hub: hub, message: byteArray)
+        storeHistory.addElement(hub: hub, byteArray: byteArray)
     }
 
     // Function to send intensity value
@@ -303,12 +319,14 @@ struct PendantLampControlView: View {
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
         print("\(hexString)")
         sendMessage(hub: hub, message: byteArray)
+        storeHistory.addElement(hub: hub, byteArray: byteArray)
     }
 
     private func sendMessage(hub: Hub, message: [UInt8]) {
         if pwmIntensityObj.connectedDevices[hub.id] != nil {
             let data = Data(message)
             pwmIntensityObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
+            
 
         } else {
             print("Device not connected")
@@ -398,7 +416,6 @@ struct LampShade: Shape {
         return path
     }
 }
-
 
 #Preview {
     PWM2LEDView(hub: Hub(name: "Test Hub"))

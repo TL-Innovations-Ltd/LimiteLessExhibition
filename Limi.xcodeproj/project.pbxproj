@@ -78,7 +78,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		9ACC85E52D731820009F2DD5 /* Exceptions for "LimiExhibition" folder in "Limi" target */ = {
+		9A6EFC902D8BB14500272B02 /* Exceptions for "LimiExhibition" folder in "Limi" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -88,7 +88,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		9ACC85E12D72F151009F2DD5 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "Limi" target */ = {
+		9A6EFC912D8BB14500272B02 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "Limi" target */ = {
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			buildPhase = 9ADA72122D6DD6D80044A7CF /* Resources */;
 			membershipExceptions = (
@@ -98,11 +98,11 @@
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9ADA72162D6DD6D80044A7CF /* LimiExhibition */ = {
+		9A6EFC5C2D8BB14500272B02 /* LimiExhibition */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				9ACC85E52D731820009F2DD5 /* Exceptions for "LimiExhibition" folder in "Limi" target */,
-				9ACC85E12D72F151009F2DD5 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "Limi" target */,
+				9A6EFC902D8BB14500272B02 /* Exceptions for "LimiExhibition" folder in "Limi" target */,
+				9A6EFC912D8BB14500272B02 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "Limi" target */,
 			);
 			path = LimiExhibition;
 			sourceTree = "<group>";
@@ -139,7 +139,7 @@
 				9ADA72EB2D6DD73C0044A7CF /* Font */,
 				9ADA72152D6DD6D80044A7CF /* Products */,
 				9ABFFE462D6F26F500FCA582 /* Objects */,
-				9ADA72162D6DD6D80044A7CF /* LimiExhibition */,
+				9A6EFC5C2D8BB14500272B02 /* LimiExhibition */,
 			);
 			sourceTree = "<group>";
 		};
@@ -209,7 +209,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				9ADA72162D6DD6D80044A7CF /* LimiExhibition */,
+				9A6EFC5C2D8BB14500272B02 /* LimiExhibition */,
 			);
 			name = Limi;
 			packageProductDependencies = (

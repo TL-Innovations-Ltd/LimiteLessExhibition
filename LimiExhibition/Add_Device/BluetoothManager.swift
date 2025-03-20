@@ -125,10 +125,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             self.removeDisconnectedDevice(disconnectedID)
         }
 
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//            print("♻️ Attempting to reconnect to \(disconnectedID)...")
-//            self.centralManager?.connect(peripheral, options: nil)
-//        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            print("♻️ Attempting to reconnect to \(disconnectedID)...")
+            self.centralManager?.connect(peripheral, options: nil)
+        }
     }
 
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {

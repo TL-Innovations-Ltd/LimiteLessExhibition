@@ -8,12 +8,13 @@
 
 import SwiftUI
 
-import SwiftUI
+
 
 struct MiniControllerView: View {
     let hub: Hub
     @Binding var brightness: Double
     @Binding var warmCold: Double
+
     
     @State private var selectedColor: Color = .emerald // Default color
     @State private var colorValue: Double = 0.0 // Represents position on rainbow slider

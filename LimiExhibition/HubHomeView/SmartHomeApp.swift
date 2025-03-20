@@ -5,10 +5,9 @@
 //  Created by Mac Mini on 04/03/2025.
 //
 
-import SwiftUI
 import CoreBluetooth
 
-struct Hub: Identifiable {
+struct Hub: Identifiable, Codable {
     let id: UUID
     let name: String
     let peripheral: CBPeripheral?
@@ -28,6 +27,25 @@ struct Hub: Identifiable {
     
     static func == (lhs: Hub, rhs: Hub) -> Bool {
         return lhs.id == rhs.id
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case peripheral
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        peripheral = nil
     }
 }
 

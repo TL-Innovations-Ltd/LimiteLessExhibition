@@ -1,33 +1,6 @@
 import SwiftUI
 
-class ImageRotationManager: ObservableObject {
-    @Published var currentIndex = 0
-    private var timer: Timer?
 
-    let images = ["yellow", "red", "violet"]
-
-    init() {
-        startImageRotation()
-    }
-
-    func startImageRotation() {
-        stopImageRotation() // Stop any existing timer before starting a new one
-        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
-            DispatchQueue.main.async {
-                self.currentIndex = (self.currentIndex + 1) % self.images.count
-            }
-        }
-    }
-
-    func stopImageRotation() {
-        timer?.invalidate()
-        timer = nil
-    }
-
-    deinit {
-        stopImageRotation() // Ensure timer is stopped when the object is deallocated
-    }
-}
 
 struct GetStartView: View {
     @StateObject private var imageRotationManager = ImageRotationManager()
