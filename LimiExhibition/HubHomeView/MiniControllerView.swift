@@ -15,7 +15,6 @@ struct MiniControllerView: View {
     @Binding var brightness: Double
     @Binding var warmCold: Double
 
-    
     @State private var selectedColor: Color = .emerald // Default color
     @State private var colorValue: Double = 0.0 // Represents position on rainbow slider
 
@@ -25,6 +24,9 @@ struct MiniControllerView: View {
 
     let selectColorObj = BluetoothManager()
     
+    // Array to store brightness values for each PWM LED
+    @State private var pwmBrightness: [Double] = Array(repeating: 50.0, count: 5)
+
     var body: some View {
         VStack(spacing: 24) {
             Text("Mini Controller")
@@ -94,10 +96,15 @@ struct MiniControllerView: View {
                             Image(systemName: "lightbulb.fill")
                                 .foregroundColor(.emerald)
 
-                            Slider(value: $brightness, in: 0...100, step: 1)
-                                .onChange(of: brightness) {
-                                    sendIntensity(pwmled: pwm)
+                            Slider(value: $pwmBrightness[pwm - 1], in: 0...100, step: 1, onEditingChanged: { isEditing in
+                                if isEditing {
+                                    sendHapticFeedback() // Trigger haptic feedback
+                                    sendIntensity(pwmled: pwm, brightness: pwmBrightness[pwm - 1])
                                 }
+                            })
+                            .onChange(of: pwmBrightness[pwm - 1]) { newValue in
+                                sendHapticFeedback()
+                            }
                         }
                     }
 
@@ -112,10 +119,16 @@ struct MiniControllerView: View {
                             RainbowSlider(value: $colorValue)
                                 .frame(height: 20)
                                 .onChange(of: colorValue) { oldValue, newValue in
-                                    let color = getColorFromSlider(newValue)
-                                    selectedColor = color
-                                    sendColorToLED(color, ledNumber: lednumber)
+                                    selectedColor = getColorFromSlider(newValue)
+                                    
+                                    // Haptic feedback on value change
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
                                 }
+                                .simultaneousGesture(DragGesture().onEnded { _ in
+                                    // Send color only when user releases the slider
+                                    sendColorToLED(selectedColor, ledNumber: lednumber)
+                                })
                         }
                         .padding()
                         .background(Color.white)
@@ -168,7 +181,7 @@ struct MiniControllerView: View {
         return Color(hue: hue, saturation: 1, brightness: 1)
     }
 
-    private func sendIntensity(pwmled: Int) {
+    private func sendIntensity(pwmled: Int, brightness: Double) {
         let brightnessValue = Int(brightness)
         let ledNumber = Int(pwmled)
 
@@ -188,12 +201,18 @@ struct MiniControllerView: View {
     
     private func sendMessage(hub: Hub, message: [UInt8]) {
         if miniPwmIntensityObj.connectedDevices[hub.id] != nil {
+            
             let data = Data(message)
             miniPwmIntensityObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
 
         } else {
             print("Device not connected")
         }
+    }
+    
+    func sendHapticFeedback() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
     }
 }
 
