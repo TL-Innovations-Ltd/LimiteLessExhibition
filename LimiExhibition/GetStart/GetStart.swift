@@ -46,6 +46,7 @@ struct GetStart: View {
     enum Role {
         case deafOrHardOfHearing // Installer
         case signLanguageInterpreter // User
+        case productionUser // Production User
     }
 
     var body: some View {
@@ -67,7 +68,7 @@ struct GetStart: View {
                     .foregroundColor(.alabaster)  // Change the text color here
 
                 
-                VStack(spacing: 40) {
+                VStack(spacing: 20) {
                     // Installer Role Card
                     RoleCard(
                         role: .deafOrHardOfHearing,
@@ -79,7 +80,7 @@ struct GetStart: View {
                             }
                         }
                     )
-                    .shadow(radius: 2)
+                    .shadow(color: .alabaster , radius: 2)
                     
                     ZStack{
 
@@ -111,7 +112,39 @@ struct GetStart: View {
                             }
                         }
                     )
-                    .shadow(radius: 2)
+                    .shadow(color: .alabaster , radius: 2)
+
+                    ZStack{
+
+                        // Animated "or" text
+                        Text("or")
+                            .font(.custom("Amenti-back", size: 26))
+                            .foregroundColor(.charlestonGreen)
+                            .padding(.vertical, 4)
+                            
+                        Circle()
+                            .fill(Color.alabaster)
+                            .opacity(0.2)
+                            .frame(width: 40, height: 40)
+
+                    }
+                    .opacity(isAnimating ? 1 : 0)
+                    .scaleEffect(isAnimating ? 1 : 0.5)
+                    .animation(.spring(response: 0.5).delay(0.3), value: isAnimating)
+                    
+                    // User Role Card
+                    RoleCard(
+                        role: .productionUser,
+                        isSelected: selectedRole == .productionUser,
+                        action: {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+                                selectedRole = .productionUser
+                                showGetStarted = true
+                            }
+                        }
+                    )
+                    .shadow(color: .alabaster , radius: 2)
+
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 40)
@@ -119,9 +152,10 @@ struct GetStart: View {
                 Spacer()
                 
                 // Get Started Button
-                               GetStartedButton(isEnabled: selectedRole != nil, isVisible: showGetStarted, selectedRole: selectedRole)
-                                   .padding(.horizontal, 24)
-                                   .padding(.bottom, 40)
+                GetStartedButton(isEnabled: selectedRole != nil, isVisible: showGetStarted, selectedRole: selectedRole)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 40)
+                
             }
         }
         .onAppear {
@@ -153,7 +187,9 @@ struct GetStart: View {
             LoginView()
         }
     }
-
+    private func createProductionUser() {
+        navigateToAddDevice = true
+    }
     private func createInstallerUser() {
         isLoading = true
         guard let url = URL(string: "https://suzair-backend-limi-project.vercel.app/client/installer_user") else { return }
@@ -220,13 +256,22 @@ struct GetStartedButton: View {
     @State private var navigateToSignIn = false
     @State private var navigateToAddDevice = false
     @State private var isLoading = false
+    @StateObject private var roleManager = UserRoleManager.shared
 
     var body: some View {
         Button(action: {
-            if selectedRole == .deafOrHardOfHearing {
+            switch selectedRole {
+            case .deafOrHardOfHearing:
+                roleManager.setRole(.installer)
                 createInstallerUser()
-            } else {
+            case .signLanguageInterpreter:
+                roleManager.setRole(.user)
                 navigateToSignIn = true
+            case .productionUser:
+                roleManager.setRole(.productionUser)
+                createProductionUser()
+            case .none:
+                break
             }
         }) {
             HStack {
@@ -264,7 +309,9 @@ struct GetStartedButton: View {
             LoginView()
         }
     }
-
+    private func createProductionUser() {
+        navigateToAddDevice = true // Navigate to AddDeviceView instead of sign-in
+    }
     private func createInstallerUser() {
         isLoading = true
         guard let url = URL(string: "https://suzair-backend-limi-project.vercel.app/client/installer_user") else { return }
@@ -334,18 +381,21 @@ struct RoleCard: View {
             HStack(spacing: 4) {
                 // Role illustration
                 Group {
-                    if role == .deafOrHardOfHearing {
+                    switch role {
+                    case .deafOrHardOfHearing:
                         DeafPersonIllustration(isSelected: isSelected)
-                    } else {
+                    case .signLanguageInterpreter:
                         InterpreterIllustration(isSelected: isSelected)
+                    case .productionUser:
+                        ProductionIllustration(isSelected: isSelected)
                     }
                 }
                 .frame(width: 80, height: 80)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(role == .deafOrHardOfHearing ? "Installer" : "User")
+                    Text(getRoleTitle(role))
                         .font(.system(size: 20, weight: .heavy))
-                    Text(role == .deafOrHardOfHearing ? "Temporary access to configure your LIMI installation." : "Personalize and transform your LIMI lighting experience.")
+                    Text(getRoleDescription(role))
                         .font(.system(size: 12, weight: .medium))
                 }
                 .foregroundColor(.charlestonGreen)
@@ -373,6 +423,24 @@ struct RoleCard: View {
         .buttonStyle(PlainButtonStyle())
         .onHover { hovering in
             isHovered = hovering
+        }
+    }
+    private func getRoleTitle(_ role: GetStart.Role) -> String {
+        switch role {
+        case .deafOrHardOfHearing: return "Installer"
+        case .signLanguageInterpreter: return "User"
+        case .productionUser: return "Production User"
+        }
+    }
+    
+    private func getRoleDescription(_ role: GetStart.Role) -> String {
+        switch role {
+        case .deafOrHardOfHearing:
+            return "Temporary access to configure your LIMI installation."
+        case .signLanguageInterpreter:
+            return "Personalize and transform your LIMI lighting experience."
+        case .productionUser:
+            return "Manage and monitor production environment settings."
         }
     }
 }

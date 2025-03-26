@@ -7,231 +7,218 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct DataRGBView: View {
     @AppStorage("lampRGB") private var isOn: Bool = false
     @State private var selectedColor: Color = .emerald
     @State private var showingColorPicker = false
     @State private var selectedMode: ColorMode = .solid
     @State private var colorValue: Double = 0.0 // Represents position on rainbow slider
+    @State private var redValue: Int = 0
+    @State private var greenValue: Int = 0
+    @State private var blueValue: Int = 0
 
-    
     @ObservedObject var sharedDevice = SharedDevice.shared
     
+    @State private var wireHeight: CGFloat = 300 // Initial height of the wire image
+    @State private var led2Brightness: Double = 50
+
     @State private var showPopup = false
     @State private var navigateToHome = false
-    // Bluetooth Color Message send
     let selectColorObj = BluetoothManager.shared
     let hub: Hub
 
     @State private var showAlert = false
-    
+
     enum ColorMode: String, CaseIterable, Identifiable {
         case solid = "Solid"
         case rainbow = "Rainbow"
-        
+
         var id: String { self.rawValue }
     }
-    
+
     var body: some View {
-        VStack(spacing: 24) {
-            HStack{
-                Text("1 Data RGB Controller")
-                    .font(.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.charlestonGreen)
-                    .padding(.top)
-                Spacer()
+        ZStack{
+            VStack{
+                Image("wire")
+                    .resizable()
+                    .frame(width: 50, height: wireHeight)
+                    .onAppear {
+                        withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                        }
+                    }
                 
-                Toggle(isOn: $isOn) {}
-                .toggleStyle(SwitchToggleStyle(tint: .green))
-                .onChange(of: isOn) {oldValue, newValue in
+                ZStack {
 
-                                        sendLampState()
-                                    }
-                .onAppear{
-                    sendLampState()
-                }
-            }
+                    Ellipse()
+                        .fill(selectedColor)
+                        .frame(width: 180, height: 45)
+                        .opacity(isOn ? 0.1 : 0.0) // Adjust opacity based on brightness
+                        .blur(radius: 10)
+                        .padding(.top, 160)
+                    Image("ceilingHorizaontal")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 150, height: 150)
+                        .onAppear {
+                            withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                            }
+                        }
+                        .shadow(color:.white, radius: 6)
+                    Ellipse()
+                        .fill(selectedColor)
+                        .frame(width: 120, height: 45)
+                        .opacity(isOn ? 0.4 : 0.0) // Adjust opacity based on brightness
+                        .blur(radius: 10)
+                        .padding(.top, 100)
 
-            // Rainbow Color Picker
-            RainbowSlider(value: $colorValue)
-                .frame(height: 20)
-                .onChange(of: colorValue) { oldValue, newValue in
-                    selectedColor = getColorFromSlider(newValue)
+  
                     
-                    // Haptic feedback on value change
-                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                    generator.impactOccurred()
                 }
-                .simultaneousGesture(DragGesture().onEnded { _ in
-                    // Send color only when user releases the slider
-                    sendColorToLED(selectedColor)
-                })
-            
-            // Mode Selection
-//            Picker("Mode", selection: $selectedMode) {
-//                ForEach(ColorMode.allCases) { mode in
-//                    Text(mode.rawValue).tag(mode)
-//                }
-//            }
-//            .pickerStyle(SegmentedPickerStyle())
-//            .padding(.horizontal)
-//            
-//            if selectedMode == .solid {
-//                // Color Display
-//                RoundedRectangle(cornerRadius: 16)
-//                    .fill(selectedColor)
-//                    .frame(height: 120)
-//                    .padding(.horizontal)
-//                    .shadow(color: selectedColor.opacity(0.3), radius: 10, x: 0, y: 0)
-//                    .overlay(
-//                        RoundedRectangle(cornerRadius: 16)
-//                            .stroke(Color.white, lineWidth: 2)
-//                    )
-//                    
-//                // Color Presets
-//                LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 16) {
-//                    ColorPresetButton(color: .red, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0xFF, 0x00, 0x00] // Red
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .green, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0x00, 0xFF, 0x00] // Green
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .blue, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0xFF] // Blue
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .yellow, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00] // Yellow
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .purple, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0x80, 0x00, 0x80] // Purple
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .orange, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0xFF, 0xA5, 0x00] // Orange
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .cyan, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0x00, 0xFF, 0xFF] // Cyan
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: Color(red: 1.0, green: 0.0, blue: 1.0), selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0xFF, 0x00, 0xFF] // Magenta
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .brown, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0xA5, 0x2A, 0x2A] // Brown
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .gray, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0x80, 0x80, 0x80] // Gray
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .white, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0xFF] // White
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//                    ColorPresetButton(color: .black, selectedColor: $selectedColor) {
-//                        let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0x00] // Black
-//                        sendMessage(hub: hub, message: byteArray)
-//                    }
-//
-//
-//                }
-//                .padding()
-//                .opacity(isOn ? 1.0 : 0.5) // Dim when OFF
-//                .disabled(!isOn)
-//            } else {
-////                // Rainbow Mode
-////                RainbowView()
-////                    .frame(height: 120)
-////                    .cornerRadius(16)
-////                    .padding(.horizontal)
-////                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
-////
-////                // Rainbow Speed Control
-////                VStack(alignment: .leading) {
-////                    Text("Rainbow Speed")
-////                        .font(.headline)
-////                        .foregroundColor(.charlestonGreen)
-////
-////                    HStack {
-////                        Image(systemName: "tortoise")
-////                            .foregroundColor(.gray)
-////
-////                        Slider(value: .constant(0.5), in: 0...1)
-////                            .accentColor(.emerald)
-////
-////                        Image(systemName: "hare")
-////                            .foregroundColor(.gray)
-////                    }
-////                }
-////                .padding()
-////                .background(Color.white)
-////                .cornerRadius(16)
-////                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-////                .padding(.horizontal)
-//            }
-            
-            Spacer()
-        }
-        .padding()
-        .background(Color.alabaster)
-        .cornerRadius(16)
-        .sheet(isPresented: $showingColorPicker) {
-            ColorPickerView(selectedColor: $selectedColor)
-        }
-        // 🔹 Show alert when the device disconnects
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Device Disconnected"), message: Text("Please reconnect your device."), dismissButton: .default(Text("OK")))
-        }
+                .padding(.top, -50)
 
-        // 🔹 Observe changes in isConnected
-        .onChange(of: selectColorObj.isConnected) { oldValue, newValue in
+            }
+            .offset(y: -UIScreen.main.bounds.height / 2 + 125) // Adjust this value to
+            
+            VStack{
+                HStack {
+                    Text("RGB Led")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.alabaster)
+                        .padding(.top)
+                        .shadow(color:.white, radius: 6)
+                    Spacer()
 
-            if !newValue {
-                showAlert = true
+                    Toggle(isOn: $isOn) {}
+                    .toggleStyle(SwitchToggleStyle(tint: .green))
+                    .onChange(of: isOn) { oldValue, newValue in
+                        withAnimation {
+                            wireHeight = newValue ? 500 : 300 // Animate height change
+                        }
+                        sendLampState()
+                    }
+                    .onAppear {
+                        withAnimation {
+                            wireHeight = isOn ? 500 : 300 // Animate height change
+                        }
+                        sendLampState()
+                    }
+                }
+                Spacer()
+
+                // Rainbow Color Picker
+                RainbowSlider(value: $colorValue, selectedColor: $selectedColor)
+                    .frame(height: 20)
+                    .onChange(of: colorValue) { oldValue, newValue in
+                        selectedColor = getColorFromSlider(newValue)
+
+                        // Haptic feedback on value change
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                    }
+                    .simultaneousGesture(DragGesture().onEnded { _ in
+                        // Send color only when user releases the slider
+                        sendColorToLED(selectedColor)
+                    })
+
+                HStack {
+                    VStack {
+                        HStack {
+                            Text("Red")
+                                .foregroundColor(.charlestonGreen)
+                                .bold(true)
+                            TextField("0", value: $redValue, formatter: NumberFormatter())
+                                .keyboardType(.numberPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(width: 50)
+                                .onChange(of: redValue) { oldValue, newValue in
+                                    checkAndSendColor()
+                                }
+                        }
+                    }
+                    VStack {
+                        HStack {
+                            Text("Green")
+                                .foregroundColor(.charlestonGreen)
+                                .bold(true)
+                            TextField("0", value: $greenValue, formatter: NumberFormatter())
+                                .keyboardType(.numberPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(width: 50)
+                                .onChange(of: redValue) { oldValue, newValue in
+                                    checkAndSendColor()
+                                }
+                        }
+                    }
+                    VStack {
+                        HStack {
+                            Text("Blue")
+                                .foregroundColor(.charlestonGreen)
+                                .bold(true)
+                            TextField("0", value: $blueValue, formatter: NumberFormatter())
+                                .keyboardType(.numberPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(width: 50)
+                                .onChange(of: redValue) { oldValue, newValue in
+                                    checkAndSendColor()
+                                }
+                        }
+                    } // rgb(214,23,210)
+                }
+                .padding(.top)
+
+            }
+            .padding()
+
+            .sheet(isPresented: $showingColorPicker) {
+                ColorPickerView(selectedColor: $selectedColor)
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Device Disconnected"), message: Text("Please reconnect your device."), dismissButton: .default(Text("OK")))
+            }
+            .onChange(of: selectColorObj.isConnected) { oldValue, newValue in
+                if !newValue {
+                    showAlert = true
+                }
+            }
+            .onChange(of: sharedDevice.connectedDevice) { oldValue, newValue in
+                if newValue == nil {
+                    showPopup = true // Show alert if the device is disconnected
+                }
+            }
+            .alert("Device Disconnected", isPresented: $showPopup) {
+                Button("Go to Home") {
+                    navigateToHome = true
+                }
+            } message: {
+                Text("Your device has been disconnected.")
+            }
+            .fullScreenCover(isPresented: $navigateToHome) {
+                HomeView()
             }
         }
-        .onChange(of: sharedDevice.connectedDevice) { oldValue, newValue in
+        .background(
+            LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.charlestonGreen, // Eton
 
-                    if newValue == nil {
-                        showPopup = true // Show alert if the device is disconnected
-                    }
-                }
-        .alert("Device Disconnected", isPresented: $showPopup) {
-                    Button("Go to Home") {
-                        navigateToHome = true
-                    }
-                } message: {
-                    Text("Your device has been disconnected.")
-                }
-                .fullScreenCover(isPresented: $navigateToHome) {
-                    HomeView()
-                }
+                                Color.alabaster  // Alabaster
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                            )
+        )
+
     }
-    
+
     // Function to map slider value to a color
     func getColorFromSlider(_ value: Double) -> Color {
         let hue = value / 100.0
         return Color(hue: hue, saturation: 1, brightness: 1)
     }
-    
+
     func sendColorToLED(_ color: Color) {
         let uiColor = UIColor(color)
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
@@ -246,25 +233,38 @@ struct DataRGBView: View {
 
         sendMessage(hub: hub, message: byteArray)
     }
-    
-    // Function to send lamp state
+
+    func sendColorToLED(red: Int, green: Int, blue: Int) {
+        let redByte = UInt8(red)
+        let greenByte = UInt8(green)
+        let blueByte = UInt8(blue)
+
+        // Create byte array with correct length and protocol format
+        let byteArray: [UInt8] = [0x02, redByte, greenByte, blueByte]
+
+        sendMessage(hub: hub, message: byteArray)
+    }
+
+    private func checkAndSendColor() {
+        if redValue > 0 && greenValue > 0 && blueValue > 0 {
+            sendColorToLED(red: redValue, green: greenValue, blue: blueValue)
+        }
+    }
+
     private func sendLampState() {
         if isOn {
             let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00]
             sendMessage(hub: hub, message: byteArray)
-            
         } else {
             let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0x00]
             sendMessage(hub: hub, message: byteArray)
-            
         }
     }
-    
+
     private func sendMessage(hub: Hub, message: [UInt8]) {
         if selectColorObj.connectedDevices[hub.id] != nil {
             let data = Data(message)
             selectColorObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
-
         } else {
             print("Device not connected")
         }

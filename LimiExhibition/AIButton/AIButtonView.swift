@@ -5,21 +5,29 @@ struct AIButtonView: View {
     @State private var showPopup = false
     @ObservedObject var storeHistory = StoreHistory()
     let hub: Hub
-
+    
+    // Timer for replaying actions
+    @State private var replayTimer: Timer?
+    @State private var currentReplayIndex = 0
+  
     var body: some View {
         ZStack {
             if isAIModeActive {
+                // Overlay to dim other controls
                 Color.black.opacity(0.5)
                     .edgesIgnoringSafeArea(.all)
+                    .transition(.opacity)
             }
 
             VStack {
-                Spacer()
-
                 Button(action: {
-                    withAnimation {
+                    withAnimation(.easeInOut(duration: 0.3)) {
                         isAIModeActive.toggle()
-                        showPopup = true
+                        if isAIModeActive {
+                            startReplaySequence()
+                        } else {
+                            stopReplaySequence()
+                        }
                     }
                 }) {
                     Image("aiButton")
@@ -27,16 +35,48 @@ struct AIButtonView: View {
                         .frame(width: 50, height: 50)
                         .foregroundColor(isAIModeActive ? .blue : .gray)
                         .scaleEffect(isAIModeActive ? 1.2 : 1.0)
-                        .shadow(color: isAIModeActive ? .blue : .gray, radius: isAIModeActive ? 10 : 5)
-                        .opacity(isAIModeActive ? 1.0 : 0.7)
+                        // Glowing halo effect
+                        .background(
+                            Circle()
+                                .fill(Color.blue)
+                                .blur(radius: 15)
+                                .opacity(isAIModeActive ? 0.5 : 0)
+                                .scaleEffect(1.5)
+                        )
+                        .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isAIModeActive)
                 }
-                .animation(Animation.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isAIModeActive)
-                .sheet(isPresented: $showPopup) {
-                    AIButtonPopupView(storeHistory: storeHistory, hub: hub)
-                }
-
-                Spacer()
             }
+        }
+        .onDisappear {
+            stopReplaySequence()
+        }
+    }
+    
+    private func startReplaySequence() {
+        guard let queueElements = storeHistory.queues[hub.id] else { return }
+        currentReplayIndex = 0
+        
+        replayTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            guard currentReplayIndex < queueElements.count else {
+                stopReplaySequence()
+                return
+            }
+            
+            let element = queueElements[currentReplayIndex]
+            sendMessage(hub: hub, message: element.byteArray)
+            currentReplayIndex += 1
+        }
+    }
+    
+    private func stopReplaySequence() {
+        replayTimer?.invalidate()
+        replayTimer = nil
+        currentReplayIndex = 0
+    }
+    
+    private func sendMessage(hub: Hub, message: [UInt8]) {
+        if let connectedDevice = BluetoothManager.shared.connectedDevices[hub.id] {
+            BluetoothManager.shared.sendMessageToDevice(to: hub.id, message: message)
         }
     }
 }

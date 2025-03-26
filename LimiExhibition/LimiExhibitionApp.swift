@@ -8,23 +8,39 @@
 import SwiftUI
 
 @main
-struct LimiExhibitionApp: App {
-    var sharedUsername: String?
-
-    init() {
-        UINavigationBar.appearance().tintColor = UIColor.black  // ✅ Change back button color globally
-    }
+struct YourApp: App {
+    @AppStorage("hasLaunchedBefore") private var hasLaunchedBefore = false
     
-    @StateObject private var authManager = AuthManager.shared
-
     var body: some Scene {
         WindowGroup {
-            if authManager.isAuthenticated {
-                HomeView()
+            if !hasLaunchedBefore {
+                StartView()
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            hasLaunchedBefore = true
+                        }
+                    }
             } else {
                 SplashScreen()
             }
-
         }
     }
 }
+
+
+
+struct StartView: View {
+    @State private var isActive = false
+    
+    var body: some View {
+        if isActive {
+            HomeView()
+        } else {
+            VStack {
+                Text("Start View")
+                Text("First Time Launch")
+            }
+        }
+    }
+}
+

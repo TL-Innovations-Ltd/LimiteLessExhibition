@@ -4,19 +4,16 @@
 //
 //  Created by Mac Mini on 17/03/2025.
 //
-
 import SwiftUI
 
 struct RainbowSlider: View {
     @Binding var value: Double
-    @State private var selectedColor: Color = .red
+    @Binding var selectedColor: Color
     
-    // Make these static to avoid recreating the array
     private static let gradientColors: [Color] = [
         .red, .orange, .yellow, .green, .blue, .indigo, .purple, .pink
     ]
     
-    // Add haptic feedback
     private let haptic = UIImpactFeedbackGenerator(style: .light)
     
     var body: some View {
@@ -35,18 +32,23 @@ struct RainbowSlider: View {
                 .frame(height: 40)
                 
                 Circle()
-                    .frame(width: 30, height: 30)
+                    .frame(width: 25, height: 25)
                     .foregroundColor(selectedColor)
                     .shadow(color: Color.black.opacity(0.3), radius: 5)
                     .overlay(
                         Circle()
                             .stroke(Color.white.opacity(0.7), lineWidth: 2)
                     )
-                    .offset(x: geometry.size.width * CGFloat(value / 100) - 15)
+                    .position(
+                        x: max(10, min(geometry.size.width - 10, geometry.size.width * CGFloat(value / 100))),
+                        y: 20 // Half of the frame height (40/2)
+                    )
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { gesture in
-                                let newValue = min(max(gesture.location.x / geometry.size.width * 100, 0), 100)
+                                let width = geometry.size.width - 20 // Accounting for circle width
+                                let rawPosition = gesture.location.x - 10
+                                let newValue = (min(max(rawPosition, 0), width) / width) * 100
                                 if abs(newValue - value) > 1 {
                                     haptic.impactOccurred()
                                 }
@@ -57,7 +59,6 @@ struct RainbowSlider: View {
             }
         }
         .frame(height: 40)
-        .padding(.horizontal)
     }
     
     private func getColorAt(position: Double) -> Color {

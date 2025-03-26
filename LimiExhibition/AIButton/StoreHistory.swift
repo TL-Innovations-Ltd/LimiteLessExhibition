@@ -20,14 +20,21 @@ struct QueueElement: Codable {
 }
 
 class StoreHistory: ObservableObject {
-    @AppStorage("storeHistoryQueue") private var storedQueueData: Data = Data()
     @Published private(set) var queues: [UUID: [QueueElement]] = [:]
     private let maxQueueSize = 5
-
+    private let storageKey = "storeHistoryQueues"
+    
     init() {
         loadQueues()
     }
+    
+    var isQueueFull: Bool {
+        guard let queue = queues.values.first else { return false }
+        return queue.count >= maxQueueSize
+    }
+    
 
+    
     func addElement(hub: Hub, byteArray: ByteArray) {
         let newElement = QueueElement(hub: hub, byteArray: byteArray)
         var queue = queues[hub.id] ?? []
@@ -38,20 +45,20 @@ class StoreHistory: ObservableObject {
         queues[hub.id] = queue
         saveQueues()
     }
+    
 
-    var isQueueFull: Bool {
-        return queues.values.contains { $0.count >= maxQueueSize }
-    }
-
+    
     private func saveQueues() {
-        if let data = try? JSONEncoder().encode(queues) {
-            storedQueueData = data
+        if let encoded = try? JSONEncoder().encode(queues) {
+            UserDefaults.standard.set(encoded, forKey: storageKey)
         }
     }
-
+    
     private func loadQueues() {
-        if let loadedQueues = try? JSONDecoder().decode([UUID: [QueueElement]].self, from: storedQueueData) {
-            queues = loadedQueues
+        guard let data = UserDefaults.standard.data(forKey: storageKey),
+              let loadedQueues = try? JSONDecoder().decode([UUID: [QueueElement]].self, from: data) else {
+            return
         }
+        queues = loadedQueues
     }
 }

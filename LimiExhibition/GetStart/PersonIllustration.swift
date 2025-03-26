@@ -61,6 +61,22 @@ struct PersonIllustration: View {
     }
 }
 
+struct ProductionIllustration: View {
+    let isSelected: Bool
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.charlestonGreen)
+
+                .frame(width: 60, height: 60)
+            
+            Image(systemName: "building.2")
+                .font(.system(size: 40))
+                .foregroundColor(Color.alabaster)
+        }
+    }
+}
 struct PersonIllustration_Previews: PreviewProvider {
     static var previews: some View {
         VStack {

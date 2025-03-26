@@ -13,6 +13,9 @@ struct ScanningView: View {
     @State private var discoveredDevices: [(name: String, id: String)] = []
     @State private var showHubHomeView = false // State for fullscreen navigation
     @State private var currentProgress: Int = 1
+    @State private var showOfflineAlert = false // Add this state variable
+    @State private var showDeveloperModeAlert = false
+    @StateObject private var sharedDevice = SharedDevice.shared
 
     // Bluetooth Manager
     @StateObject private var bluetoothManager = BluetoothManager.shared
@@ -142,8 +145,23 @@ struct ScanningView: View {
                                     .foregroundColor(.charlestonGreen)
                                     .onTapGesture {
                                         bluetoothManager.connectToDevice(deviceId: device.id)
-                                        showDevicesList = false // Hide popup after selection
-                                        showHubHomeView = true // Trigger fullscreen navigation
+                                        
+                                        
+                                        if UserRoleManager.shared.currentRole == .productionUser {
+                                            showDevicesList = false
+                                            showDeveloperModeAlert = true
+                                        } else {
+                                            if SharedDevice.shared.lastReceivedFF02Value == "1CH-HUB-Online" {
+                                                print("\(String(describing: sharedDevice.lastReceivedFF02Value))")
+                                                showDevicesList = false
+                                                showHubHomeView = true
+                                            } else {
+                                                print("\(String(describing: sharedDevice.lastReceivedFF02Value))")
+
+                                                showDevicesList = false
+                                                showOfflineAlert = true
+                                            }
+                                        }
                                     }
                             }
                         }
@@ -173,6 +191,25 @@ struct ScanningView: View {
         .fullScreenCover(isPresented: $showHubHomeView) {
             //HubContentView()
             HomeView()
+        }
+        .alert(isPresented: $showDeveloperModeAlert) {
+            Alert(
+                title: Text("Developer Mode"),
+                message: nil,
+                dismissButton: .default(Text("OK")) {
+                    // Navigate to ContentView
+                    let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+                    let window = windowScene?.windows.first
+                    window?.rootViewController = UIHostingController(rootView: ContentView())
+                }
+            )
+        }
+        .alert(isPresented: $showOfflineAlert) {
+            Alert(
+                title: Text("Device Offline"),
+                message: Text("The selected device is not responding. Please try again."),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
     

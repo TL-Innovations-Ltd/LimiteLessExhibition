@@ -526,7 +526,6 @@ struct HubCardView: View {
                     navigateToMiniController = true
                 }
                 
-                sendMessage(hub: hub)
             }
             .onHover { hovering in
                 isHovered = hovering
@@ -540,20 +539,11 @@ struct HubCardView: View {
             }
             .opacity(0)
             .onTapGesture {
-                sendMessage(hub: hub)
             }
         }
     }
 
-    private func sendMessage(hub: Hub) {
-        if bluetoothManager.connectedDevices[hub.id] != nil {
-            let message = "Hello, \(hub.name)!"
-            let data = Array(message.utf8)
-            bluetoothManager.sendMessageToDevice(to: hub.id, message: data)
-        } else {
-            print("Device not connected")
-        }
-    }
+
     
     private func startAnimation() {
         DispatchQueue.main.async {

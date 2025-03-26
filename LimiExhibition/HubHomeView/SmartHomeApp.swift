@@ -11,7 +11,7 @@ struct Hub: Identifiable, Codable {
     let id: UUID
     let name: String
     let peripheral: CBPeripheral?
-
+    
     init(peripheral: CBPeripheral?) {
         self.peripheral = peripheral
         self.id = peripheral?.identifier ?? UUID()
