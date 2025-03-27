@@ -7,7 +7,43 @@
 
 import SwiftUI
 
+class LEDStateManager: ObservableObject {
+    @Published var visiblePWMLEDs: Set<Int> = []
+    @Published var visibleRGBLEDs: Set<Int> = []
+    
+    func processDeviceMessage(_ bytes: [UInt8]) {
+        guard bytes.count == 2 else { return }
+        
+        let controlByte = bytes[1]
+        updateLEDVisibility(fromByte: controlByte)
+    }
+    
+    private func updateLEDVisibility(fromByte byte: UInt8) {
+        visiblePWMLEDs.removeAll()
+        visibleRGBLEDs.removeAll()
+        
+        // Process last 7 bits (5 PWM + 2 RGB LEDs)
+        for i in 0..<7 {
+            let isOn = (byte & (1 << i)) != 0
+            
+            if isOn {
+                if i < 5 {
+                    // PWM LEDs (0-4 indices map to LEDs 1-5)
+                    visiblePWMLEDs.insert(i + 1)
+                } else {
+                    // RGB LEDs (5-6 indices map to LEDs 1-2)
+                    visibleRGBLEDs.insert(i - 4)
+                }
+            }
+        }
+    }
+}
+
+
 struct MiniControllerView: View {
+    @StateObject private var ledStateManager = LEDStateManager()
+
+    
     // Add this property to track active PWM LED ellipses
     @State private var activePWMLEDs: Set<Int> = []
     @AppStorage("lampPWM") private var isOn: Bool = false
@@ -245,8 +281,8 @@ struct MiniControllerView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 5) {
                                     ForEach(1...5, id: \.self) { index in
-                                        
-                                        MiniButton(
+                                        if ledStateManager.visiblePWMLEDs.contains(index) {
+                                            MiniButton(
                                             title: "LED \(index)",
                                             isSelected: selectedPWM == index,
                                             color: .emerald,
@@ -255,8 +291,9 @@ struct MiniControllerView: View {
                                                     selectedPWM = (selectedPWM == index) ? nil : index
                                                 }
                                             }
-                                        )
-                                        .transition(.scale)
+                                            )
+                                            .transition(.scale)
+                                        }
                                     }
                                 }
                             }
@@ -271,18 +308,20 @@ struct MiniControllerView: View {
                             
                             HStack(spacing: 16) {
                                 ForEach(1...2, id: \.self) { index in
-                                    MiniButton(
-                                        title: "RGB \(index)",
-                                        isSelected: selectedRGB == index,
-                                        color: .etonBlue,
-                                        selectedColor: selectedRGB == index ? selectedColor : nil,
-                                        action: {
-                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                selectedRGB = (selectedRGB == index) ? nil : index
+                                    if ledStateManager.visibleRGBLEDs.contains(index) {
+                                        MiniButton(
+                                            title: "RGB \(index)",
+                                            isSelected: selectedRGB == index,
+                                            color: .etonBlue,
+                                            selectedColor: selectedRGB == index ? selectedColor : nil,
+                                            action: {
+                                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                    selectedRGB = (selectedRGB == index) ? nil : index
+                                                }
                                             }
-                                        }
-                                    )
-                                    .frame(maxWidth: .infinity)
+                                        )
+                                        .frame(maxWidth: .infinity)
+                                    }
                                 }
                             }
                         }
@@ -302,6 +341,9 @@ struct MiniControllerView: View {
                     isAppearing = true
                 }
             }
+        }
+        .onReceive(SharedDevice.shared.$lastReceivedBytes) { bytes in
+            ledStateManager.processDeviceMessage(bytes)
         }
     }
 

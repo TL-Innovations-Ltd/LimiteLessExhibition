@@ -13,15 +13,41 @@ import Combine
 struct DeviceInfo: Equatable {
     let name: String
     let id: String
-    var ff02Value: String? // Add this property
-
+    var receivedBytes: [UInt8] = []
+    
+    var isNormalMode: Bool {
+        return receivedBytes.first == 91
+    }
+    
+    var isDeveloperMode: Bool {
+        return receivedBytes.first == 90
+    }
 }
 
 class SharedDevice: ObservableObject {
     static let shared = SharedDevice()
-
-    @Published var connectedDevice: DeviceInfo? // ✅ Now using a struct
-    @Published var lastReceivedFF02Value: String? // Add a published property
+    
+    @Published var connectedDevice: DeviceInfo?
+    @Published var lastReceivedFF02Value: String?
+    @Published var lastReceivedBytes: [UInt8] = [] {
+        didSet {
+            if lastReceivedBytes.count == 2 {
+                let mode = lastReceivedBytes[0]
+                let flags = lastReceivedBytes[1]
+                print("📊 Received Mode: \(mode == 91 ? "Normal" : mode == 90 ? "Developer" : "Unknown")")
+                print("📊 Flags Byte: \(String(format: "%08b", flags))")
+            }
+        }
+    }
+    
+    var isNormalMode: Bool {
+        return lastReceivedBytes.first == 91
+    }
+    
+    var isDeveloperMode: Bool {
+        return lastReceivedBytes.first == 90
+    }
+    
     private init() {}
 }
 
@@ -41,8 +67,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     static let shared = BluetoothManager()
     
     var targetCharacteristic: CBCharacteristic?
-    let ff02Value = SharedDevice.shared.lastReceivedFF02Value
-    
+    let ff02Value = SharedDevice.shared.lastReceivedFF02Value ?? ""
     @Published var isConnected: Bool = false
     
     var onDevicesUpdated: (([(name: String, id: String)]) -> Void)?
@@ -128,11 +153,6 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         DispatchQueue.main.async {
             SharedDevice.shared.connectedDevice = nil
             self.removeDisconnectedDevice(disconnectedID)
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            print("♻️ Attempting to reconnect to \(disconnectedID)...")
-            self.centralManager?.connect(peripheral, options: nil)
         }
     }
     
@@ -314,22 +334,69 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         }
         
         if characteristic.uuid == CBUUID(string: "FF02") {
-            if let stringValue = String(data: data, encoding: .utf8) {
-                print("📥 FF02 Data: \(stringValue)")
+            let bytes = [UInt8](data)  // Convert Data to byte array
+            print("📥 FF02 Raw bytes: \(bytes)")
+            
+            DispatchQueue.main.async {
+                // Store raw bytes directly
+                SharedDevice.shared.lastReceivedBytes = bytes
                 
-                // Update the global value
-                DispatchQueue.main.async {
-                    SharedDevice.shared.lastReceivedFF02Value = stringValue
-                    
-                    // Also update the value in connected device if exists
-                    if var device = SharedDevice.shared.connectedDevice {
-                        device.ff02Value = stringValue
-                        SharedDevice.shared.connectedDevice = device
-                    }
+                if var device = SharedDevice.shared.connectedDevice {
+                    device.receivedBytes = bytes
+                    SharedDevice.shared.connectedDevice = device
                 }
-            } else {
-                print("❌ Could not convert FF02 data to string")
             }
         }
+    }
+    func disconnectCurrentDevice() {
+        if let peripheral = connectedPeripheral {
+            print("🔌 Disconnecting current device: \(peripheral.name ?? "Unknown Device")")
+            centralManager?.cancelPeripheralConnection(peripheral)
+            connectedPeripheral = nil
+            targetCharacteristic = nil
+            SharedDevice.shared.connectedDevice = nil
+            isConnected = false
+        }
+    }
+    func writeValue(_ bytes: [UInt8]) {
+        guard let peripheral = connectedPeripheral else {
+            print("❌ No connected peripheral found! Reconnecting...")
+            attemptReconnect()
+            return
+        }
+        
+        if peripheral.state != .connected {
+            print("⚠️ Peripheral is disconnected! Attempting to reconnect...")
+            attemptReconnect()
+            return
+        }
+        
+        writeDataToFF03(bytes)
+    }
+    func readValue() {
+        guard let peripheral = connectedPeripheral else {
+            print("❌ No connected peripheral found!")
+            return
+        }
+        
+        if peripheral.state != .connected {
+            print("⚠️ Peripheral is disconnected! Attempting to reconnect...")
+            attemptReconnect()
+            return
+        }
+        
+        // Find FF02 characteristic in all services
+        for service in peripheral.services ?? [] {
+            for characteristic in service.characteristics ?? [] {
+                if characteristic.uuid == CBUUID(string: "FF02") {
+                    print("📥 Sending read request for FF02")
+                    peripheral.readValue(for: characteristic)
+                    return
+                }
+            }
+        }
+        
+        print("⚠️ FF02 characteristic not found! Rediscovering services...")
+        peripheral.discoverServices(nil)
     }
 }

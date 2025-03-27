@@ -144,22 +144,35 @@ struct ScanningView: View {
                                     .cornerRadius(8)
                                     .foregroundColor(.charlestonGreen)
                                     .onTapGesture {
+                                        print("Starting device connection...")
                                         bluetoothManager.connectToDevice(deviceId: device.id)
                                         
-                                        
-                                        if UserRoleManager.shared.currentRole == .productionUser {
+                                        // Wait longer for BLE connection and message
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                            let receivedBytes = SharedDevice.shared.lastReceivedBytes
+                                            print("⚡️ Checking received bytes: \(receivedBytes)")
+                                            
                                             showDevicesList = false
-                                            showDeveloperModeAlert = true
-                                        } else {
-                                            if SharedDevice.shared.lastReceivedFF02Value == "1CH-HUB-Online" {
-                                                print("\(String(describing: sharedDevice.lastReceivedFF02Value))")
-                                                showDevicesList = false
-                                                showHubHomeView = true
+                                            if UserRoleManager.shared.currentRole == .productionUser {
+                                                showDeveloperModeAlert = true
+                                                // Navigate to developer mode
+                                                let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+                                                let window = windowScene?.windows.first
+                                                window?.rootViewController = UIHostingController(rootView: ContentView())
+                                                
                                             } else {
-                                                print("\(String(describing: sharedDevice.lastReceivedFF02Value))")
-
-                                                showDevicesList = false
-                                                showOfflineAlert = true
+                                                if !SharedDevice.shared.lastReceivedBytes.isEmpty &&
+                                                   SharedDevice.shared.lastReceivedBytes[0] == 91 {
+                                                    print("✅ Normal mode detected: \(SharedDevice.shared.lastReceivedBytes)")
+                                                    print("Regular user - showing hub home")
+                                                    showHubHomeView = true
+                                                } else {
+                                                    print("❌ Invalid mode")
+                                                    print("Expected: Normal mode (91)")
+                                                    print("Received: \(SharedDevice.shared.lastReceivedBytes)")
+                                                    bluetoothManager.disconnectCurrentDevice()
+                                                    showOfflineAlert = true
+                                                }
                                             }
                                         }
                                     }
@@ -196,19 +209,19 @@ struct ScanningView: View {
             Alert(
                 title: Text("Developer Mode"),
                 message: nil,
-                dismissButton: .default(Text("OK")) {
-                    // Navigate to ContentView
-                    let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-                    let window = windowScene?.windows.first
-                    window?.rootViewController = UIHostingController(rootView: ContentView())
-                }
+                dismissButton: .default(Text("OK"))
             )
         }
         .alert(isPresented: $showOfflineAlert) {
             Alert(
-                title: Text("Device Offline"),
+                title: Text("Please Set Normal MOde "),
                 message: Text("The selected device is not responding. Please try again."),
-                dismissButton: .default(Text("OK"))
+                dismissButton: .default(Text("OK")){
+                    // Navigate to ContentView
+                    let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+                    let window = windowScene?.windows.first
+                    window?.rootViewController = UIHostingController(rootView: GetStart())
+                }
             )
         }
     }
