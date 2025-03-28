@@ -42,6 +42,7 @@ struct GetStart: View {
     @State private var navigateToSignIn = false
     @State private var navigateToAddDevice = false
     @State private var isLoading = false
+    @State private var navigateToSignInPU = false
 
     enum Role {
         case deafOrHardOfHearing // Installer
@@ -186,9 +187,12 @@ struct GetStart: View {
         .fullScreenCover(isPresented: $navigateToSignIn) {
             LoginView()
         }
+        .fullScreenCover(isPresented: $navigateToSignInPU) {
+            PULoginView()
+        }
     }
     private func createProductionUser() {
-        navigateToAddDevice = true
+        navigateToSignInPU = true
     }
     private func createInstallerUser() {
         isLoading = true
@@ -252,7 +256,8 @@ struct GetStartedButton: View {
     let isEnabled: Bool
     let isVisible: Bool
     let selectedRole: GetStart.Role?
-
+    
+    @State private var navigateToSignInPU = false
     @State private var navigateToSignIn = false
     @State private var navigateToAddDevice = false
     @State private var isLoading = false
@@ -308,9 +313,13 @@ struct GetStartedButton: View {
         .fullScreenCover(isPresented: $navigateToSignIn) {
             LoginView()
         }
+        .fullScreenCover(isPresented: $navigateToSignInPU) {
+            PULoginView()
+        }
+
     }
     private func createProductionUser() {
-        navigateToAddDevice = true // Navigate to AddDeviceView instead of sign-in
+        navigateToSignInPU = true // Navigate to AddDeviceView instead of sign-in
     }
     private func createInstallerUser() {
         isLoading = true

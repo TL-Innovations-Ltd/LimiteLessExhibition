@@ -12,21 +12,40 @@ struct ContentView: View {
             // First Tab - LED Control View
             MainLEDView(toggles: $toggles, sharedDevice: sharedDevice)
                 .tabItem {
-                    Text("Setting")
-                        .bold(true)
-                        .font(.title)
+                    VStack {
+                        Image(systemName: "slider.horizontal.3")
+                            .environment(\.symbolVariants, .fill)
+                        Text("Setting")
+                    }
                 }
                 .tag(0)
             
             // Second Tab - Testing View
             TestingView()
                 .tabItem {
-                    Text("Testing")
-                        .bold(true)
+                    VStack {
+                        Image(systemName: "gear")
+                            .environment(\.symbolVariants, .fill)
+                        Text("Testing")
+                    }
                 }
                 .tag(1)
         }
         .accentColor(.charlestonGreen)
+        .onAppear {
+            let appearance = UITabBarAppearance()
+            appearance.configureWithOpaqueBackground()
+            appearance.backgroundColor = UIColor.systemGray6
+            
+            appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.charlestonGreen.opacity(0.6))
+            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.charlestonGreen)]
+            
+            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.gray
+            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.gray]
+            
+            UITabBar.appearance().standardAppearance = appearance
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
     }
 }
 
@@ -34,7 +53,10 @@ struct ContentView: View {
 struct MainLEDView: View {
     @Binding var toggles: [Bool]
     @ObservedObject var sharedDevice: SharedDevice
-    
+    @State private var showGetStartScreen = false // State variable to control the presentation
+    // Bluetooth Manager
+    @StateObject private var bluetoothManager = BluetoothManager.shared
+
     var byteRepresentation: String {
         let byte = createByte(from: toggles)
         return String(byte, radix: 2).leftPadding(toLength: 8, withPad: "0")
@@ -44,7 +66,7 @@ struct MainLEDView: View {
         if sharedDevice.lastReceivedBytes.count == 2 {
             let flagsByte = sharedDevice.lastReceivedBytes[1]
             for i in 0..<7 {
-                toggles[i] = (flagsByte & (1 << (6 - i))) != 0
+                toggles[i] = (flagsByte & (1 << i)) != 0  // Ascending order (right to left)
             }
         }
     }
@@ -54,23 +76,12 @@ struct MainLEDView: View {
             ElegantGradientBackgroundView()
             
             VStack(spacing: 20) {
-                Text("Welcome to My App")
+                Text("Mini Controller Setting")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.alabaster)
                     .shadow(color:.alabaster, radius: 5)
-                
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.charlestonGreen)
-                    .opacity(0.3)
-                    .frame(width: 300, height: 100)
-                    .shadow(radius: 5)
-                    .overlay(
-                        Text("Byte: \(byteRepresentation)")
-                            .foregroundColor(.alabaster)
-                            .font(.title2)
-                            .bold()
-                    )
+
                 
                 VStack(spacing: 16) {
                     ForEach(0..<7, id: \.self) { index in
@@ -80,6 +91,38 @@ struct MainLEDView: View {
                 .padding()
                 
                 SendButton(toggles: toggles, byteRepresentation: byteRepresentation)
+                    .padding()
+                HStack {
+                    Spacer() // Pushes the button to the center
+
+                    Button(action: {
+                        bluetoothManager.disconnectCurrentDevice()
+                        showGetStartScreen = true // Set state variable to true
+                        
+                    }) {
+                        HStack {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.charlestonGreen.opacity(0.1))
+                                    .frame(width: 36, height: 36)
+
+                                Image(systemName: "arrow.left.square.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(.charlestonGreen.opacity(0.8))
+                            }
+
+                            Text("Logout")
+                                .font(.headline)
+                                .foregroundColor(.charlestonGreen.opacity(0.8))
+                        }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 20)
+                    }
+                    .padding(.bottom, 20)
+
+
+                    Spacer() // Pushes the button to the center
+                }
             }
             .padding()
         }
@@ -89,17 +132,19 @@ struct MainLEDView: View {
         .onChange(of: sharedDevice.lastReceivedBytes) { oldValue, newValue in
             updateTogglesFromByte()
         }
+        .fullScreenCover(isPresented: $showGetStartScreen) {
+            GetStart() // Replace with your GetStart screen view
+        }
     }
     
     func createByte(from toggles: [Bool]) -> UInt8 {
         guard toggles.count == 7 else {
             fatalError("Exactly 7 toggle states are required.")
         }
-        
         var byte: UInt8 = 0
         for (index, isEnabled) in toggles.enumerated() {
             if isEnabled {
-                byte |= (1 << (6 - index))
+                byte |= (1 << index)  // Ascending order (right to left)
             }
         }
         return byte
@@ -142,13 +187,21 @@ struct LEDToggleButton: View {
     let index: Int
     @Binding var toggles: [Bool]
     
+    private var buttonLabel: String {
+        if index < 5 {
+            return "PWM \(index + 1)"
+        } else {
+            return "RGB \(index - 4)"
+        }
+    }
+    
     var body: some View {
         Button(action: {
             toggles[index].toggle()
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
         }) {
             HStack {
-                Text("LED \(index + 1)")
+                Text(buttonLabel)
                     .foregroundColor(.charlestonGreen)
                     .font(.headline)
                     .frame(width: 60, alignment: .leading)
@@ -177,41 +230,72 @@ struct LEDToggleButton: View {
         )
     }
 }
-
 struct SendButton: View {
     let toggles: [Bool]
     let byteRepresentation: String
-    
+    @State private var showingSaveMessage = false
+    @State private var isInteractionDisabled = false
+
     var body: some View {
-        Button(action: {
-            let firstByte: UInt8 = 91
-            let secondByte = createByte(from: toggles)
-            let messageBytes: [UInt8] = [firstByte, secondByte]
+        ZStack {
+            Button(action: {
+                let firstByte: UInt8 = 91
+                let secondByte = createByte(from: toggles)
+                let messageBytes: [UInt8] = [firstByte, secondByte]
+                
+                print("Sending bytes: \(messageBytes)")
+                print("Generated Byte: \(byteRepresentation)")
+                
+                BluetoothManager.shared.writeValue(messageBytes)
+                BluetoothManager.shared.readValue()
+                
+                // Disable interaction and show save message
+                isInteractionDisabled = true
+                showingSaveMessage = true
+                
+                // Re-enable interaction and hide message after delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    isInteractionDisabled = false
+                    showingSaveMessage = false
+                }
+            }) {
+                Text("Save")
+                    .font(.headline)
+                    .foregroundColor(.alabaster)
+                    .padding()
+                    .frame(width: 200)
+                    .background(
+                        LinearGradient(gradient: Gradient(colors: [.gray, .charlestonGreen]), startPoint: .leading, endPoint: .trailing)
+                    )
+                    .cornerRadius(15)
+                    .shadow(color: .alabaster, radius: 5)
+            }
+            .allowsHitTesting(!isInteractionDisabled)
             
-            print("Sending bytes: \(messageBytes)")
-            print("Generated Byte: \(byteRepresentation)")
-            
-            BluetoothManager.shared.writeValue(messageBytes)
-            BluetoothManager.shared.readValue()
-        }) {
-            Text("Save")
-                .font(.headline)
-                .foregroundColor(.alabaster)
-                .padding()
-                .frame(width: 200)
-                .background(
-                    LinearGradient(gradient: Gradient(colors: [.gray, .charlestonGreen]), startPoint: .leading, endPoint: .trailing)
-                )
-                .cornerRadius(15)
-                .shadow(color: .alabaster, radius: 5)
+            if showingSaveMessage {
+                Text("Setting Saved")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.charlestonGreen.opacity(0.8))
+                    .cornerRadius(10)
+                    .offset(y: -220)
+                    .transition(.opacity)
+                    .animation(.easeInOut, value: showingSaveMessage)
+            }
         }
+        .allowsHitTesting(!isInteractionDisabled)
     }
     
     private func createByte(from toggles: [Bool]) -> UInt8 {
-        guard toggles.count == 7 else { fatalError("Exactly 7 toggle states are required.") }
+        guard toggles.count == 7 else {
+            fatalError("Exactly 7 toggle states are required.")
+        }
         var byte: UInt8 = 0
         for (index, isEnabled) in toggles.enumerated() {
-            if isEnabled { byte |= (1 << (6 - index)) }
+            if isEnabled {
+                byte |= (1 << index)
+            }
         }
         return byte
     }

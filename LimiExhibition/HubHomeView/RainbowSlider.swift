@@ -32,7 +32,7 @@ struct RainbowSlider: View {
                 .frame(height: 40)
                 
                 Circle()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 38, height: 38)
                     .foregroundColor(selectedColor)
                     .shadow(color: Color.black.opacity(0.3), radius: 5)
                     .overlay(

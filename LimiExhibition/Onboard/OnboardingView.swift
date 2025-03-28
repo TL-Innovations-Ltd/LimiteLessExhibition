@@ -168,10 +168,14 @@ import SDWebImageSwiftUI
 
 
 struct OnboardingPageView: View {
+    
+    @AppStorage("hasLaunchedBefore") private var hasLaunchedBefore = false
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    
     let image: String
     let title: String
     let description: String
-    
+
     @State private var imageScale: CGFloat = 0.6
     @State private var textOpacity: Double = 0
     @State private var descriptionOffset: CGFloat = 20
@@ -256,32 +260,35 @@ struct OnboardingPageView: View {
                     }.padding(.bottom, -200)
                 }
                 else {
-                    Image(image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(.top, 0)
-                        .frame(width: 250, height: 250)
-                        .scaleEffect(imageScale)
-                        .foregroundStyle(.white)
-                        .shadow(color:.charlestonGreen, radius: 6)
-
-                        .onAppear {
-                            withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
-                                imageScale = 1.0
-                            }
-                        }
-                    ZStack(alignment: .center){
-                        
-                        
-                        WebImage(url: Bundle.main.url(forResource: "LOGO animation_00061", withExtension: "gif"))
+                    if image == "fifth" {
+                        Image(image)
                             .resizable()
-                            .scaledToFit()
-                            .padding(.top, 200)
-                            .frame(width: 400, height: 400)
+                            .aspectRatio(contentMode: .fit)
+                            .padding(.top, 0)
+                            .frame(width: 250, height: 250)
+                            .scaleEffect(imageScale)
+                            .foregroundStyle(.white)
+                            .shadow(color:.charlestonGreen, radius: 6)
+
+                            .onAppear {
+                                withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
+                                    imageScale = 1.0
+                                    hasLaunchedBefore = true
+                                    hasCompletedOnboarding = true
+                                }
+                            }
+                        ZStack(alignment: .center){
+                            WebImage(url: Bundle.main.url(forResource: "LOGO animation_00061", withExtension: "gif"))
+                                .resizable()
+                                .scaledToFit()
+                                .padding(.top, 200)
+                                .frame(width: 400, height: 400)
                         
-                    }.padding(.top,200)
+                        }
+                        .padding(.top,200)
                         .padding(.bottom, -200)
                     
+                }
                 }
             }
             .ignoresSafeArea()

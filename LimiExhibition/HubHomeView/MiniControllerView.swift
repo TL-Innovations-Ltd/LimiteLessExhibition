@@ -55,6 +55,7 @@ struct MiniControllerView: View {
 
     @State private var selectedColor: Color = .emerald // Default color
     @State private var colorValue: Double = 0.0 // Represents position on rainbow slider
+    @State private var backgroundImage: String = "name3"
 
     @State private var selectedPWM: Int? = nil
     @State private var selectedRGB: Int? = nil
@@ -71,9 +72,13 @@ struct MiniControllerView: View {
     var body: some View {
         ZStack {
             
-            // Background gradient
-            ElegantGradientBackgroundView()
-                .ignoresSafeArea()
+            //Background image
+           Image(backgroundImage)
+               .resizable()
+               .aspectRatio(contentMode: .fill)
+               .blur(radius: 20) // Adjust the blur radius as needed (1-20)
+               .edgesIgnoringSafeArea(.all)
+
             
             VStack{
                 Image("wire")
@@ -140,9 +145,11 @@ struct MiniControllerView: View {
                         .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(.alabaster)
                         .padding(.top)
+                        .padding(.horizontal)
                         .scaleEffect(isAppearing ? 1.0 : 0.9)
                         .opacity(isAppearing ? 1.0 : 0.0)
                         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: isAppearing)
+                        .shadow(color:.gray.opacity(0.2), radius: 5)
                     Spacer()
                 }
                 Spacer()
@@ -217,7 +224,7 @@ struct MiniControllerView: View {
                                         // Rainbow Color Picker
                                         VStack(spacing: 8) {
                                             RainbowSlider(value: $colorValue, selectedColor: $selectedColor)
-                                                .frame(height: 24)
+                                                .frame(height: 40)
                                                 .cornerRadius(12)
                                                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white, lineWidth: 2))
                                                 .shadow(color: Color.black.opacity(0.1), radius: 3, x: 0, y: 2)
@@ -326,7 +333,6 @@ struct MiniControllerView: View {
                             }
                         }
                         .padding(.vertical, 20)
-                        .padding(.horizontal, 16)
                         .transition(.opacity)
                     }
                 }
@@ -334,6 +340,7 @@ struct MiniControllerView: View {
             .padding()
 
         }
+        .padding(.horizontal, 16)
         .onAppear {
             // Trigger animations when view appears
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -380,21 +387,43 @@ struct MiniControllerView: View {
     }
 
     private func sendIntensity(pwmled: Int, brightness: Double) {
-        let brightnessValue = Int(brightness)
+        let targetBrightness = Int(brightness)
         let ledNumber = Int(pwmled)
-
-        // Construct the byte array
-        let byteArray: [UInt8] = [
-            0x03,  // Assuming a different identifier for intensity (change if needed)
-            UInt8(ledNumber & 0xFF),
-            UInt8(brightnessValue & 0xFF)
-        ]
-
-        // Convert byte values into a hex string format "0x01, 0x2E, 0x4A"
-        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
-        print("Sending intensity to LED \(ledNumber): \(hexString))")
-        // Send the formatted hex string
-        sendMessage(hub: hub, message: byteArray)
+        
+        // Get previous brightness from UserDefaults using LED number as key
+        let key = "previousBrightness_LED\(ledNumber)"
+        let previousBrightness = UserDefaults.standard.integer(forKey: key)
+        
+        // Calculate steps
+        let steps = 4
+        let difference = targetBrightness - previousBrightness
+        let stepSize = difference / steps
+        
+        // Send values gradually with delay
+        for i in 1...steps {
+            let delayTime = Double(i - 1) * 0.15 // 150ms delay between steps
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delayTime) {
+                let intermediateValue = previousBrightness + (stepSize * i)
+                
+                // Construct the byte array
+                let byteArray: [UInt8] = [
+                    0x03,
+                    UInt8(ledNumber & 0xFF),
+                    UInt8(intermediateValue & 0xFF)
+                ]
+                
+                // Convert byte values into hex string format
+                let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+                print("Step \(i) - LED \(ledNumber): \(hexString) (\(intermediateValue)%)")
+                
+                // Send the message
+                self.sendMessage(hub: self.hub, message: byteArray)
+            }
+        }
+        
+        // Store current brightness as previous for next time
+        UserDefaults.standard.set(targetBrightness, forKey: key)
     }
     
     private func sendMessage(hub: Hub, message: [UInt8]) {
@@ -458,6 +487,7 @@ struct MiniControllerPreviewWrapper: View {
         // Provide a dummy Hub instance for preview purposes
         let dummyHub = Hub(name: "Dummy Hub")
         MiniControllerView(hub: dummyHub, brightness: $brightness, warmCold: $warmCold)
+            .padding(.horizontal)
     }
 }
 

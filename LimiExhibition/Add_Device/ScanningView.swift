@@ -16,6 +16,7 @@ struct ScanningView: View {
     @State private var showOfflineAlert = false // Add this state variable
     @State private var showDeveloperModeAlert = false
     @StateObject private var sharedDevice = SharedDevice.shared
+    @State private var isLoading = false
 
     // Bluetooth Manager
     @StateObject private var bluetoothManager = BluetoothManager.shared
@@ -144,18 +145,21 @@ struct ScanningView: View {
                                     .cornerRadius(8)
                                     .foregroundColor(.charlestonGreen)
                                     .onTapGesture {
+                                        isLoading = true
                                         print("Starting device connection...")
                                         bluetoothManager.connectToDevice(deviceId: device.id)
                                         
-                                        // Wait longer for BLE connection and message
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                        // First wait 2 seconds to show loading
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                            isLoading = false
+                                            
+                                            // Then handle the connection logic
                                             let receivedBytes = SharedDevice.shared.lastReceivedBytes
                                             print("⚡️ Checking received bytes: \(receivedBytes)")
                                             
                                             showDevicesList = false
                                             if UserRoleManager.shared.currentRole == .productionUser {
                                                 showDeveloperModeAlert = true
-                                                // Navigate to developer mode
                                                 let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
                                                 let window = windowScene?.windows.first
                                                 window?.rootViewController = UIHostingController(rootView: ContentView())
@@ -223,6 +227,20 @@ struct ScanningView: View {
                     window?.rootViewController = UIHostingController(rootView: GetStart())
                 }
             )
+        }
+        // Inside the main ZStack, after all other views and alerts
+        if isLoading {
+            Color.black.opacity(0.5)
+                .edgesIgnoringSafeArea(.all)
+            VStack {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(2)
+                Text("Connecting with Device")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .padding(.top, 20)
+            }
         }
     }
     

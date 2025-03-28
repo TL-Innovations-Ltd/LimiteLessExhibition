@@ -28,6 +28,8 @@ struct DataRGBView: View {
     @State private var navigateToHome = false
     let selectColorObj = BluetoothManager.shared
     let hub: Hub
+    @State private var backgroundImage: String = "name2"
+
 
     @State private var showAlert = false
 
@@ -40,6 +42,13 @@ struct DataRGBView: View {
 
     var body: some View {
         ZStack{
+            //Background image
+           Image(backgroundImage)
+               .resizable()
+               .aspectRatio(contentMode: .fill)
+               .blur(radius: 20) // Adjust the blur radius as needed (1-20)
+               .edgesIgnoringSafeArea(.all)
+            
             VStack{
                 Image("wire")
                     .resizable()
@@ -51,12 +60,14 @@ struct DataRGBView: View {
                 
                 ZStack {
 
-                    Ellipse()
+
+                    Circle()
                         .fill(selectedColor)
-                        .frame(width: 180, height: 45)
-                        .opacity(isOn ? 0.1 : 0.0) // Adjust opacity based on brightness
+                        .frame(width: 220, height: 220)
+                        .opacity(isOn ? 0.15 : 0.0) // Adjust opacity based on brightness
                         .blur(radius: 10)
-                        .padding(.top, 160)
+                        .padding(.top, 60)
+
                     Image("ceilingHorizaontal")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -66,17 +77,13 @@ struct DataRGBView: View {
                             }
                         }
                         .shadow(color:.white, radius: 6)
-                    Ellipse()
-                        .fill(selectedColor)
-                        .frame(width: 120, height: 45)
-                        .opacity(isOn ? 0.4 : 0.0) // Adjust opacity based on brightness
-                        .blur(radius: 10)
-                        .padding(.top, 100)
+                    
+ 
 
   
                     
                 }
-                .padding(.top, -50)
+                .padding(.top, -80)
 
             }
             .offset(y: -UIScreen.main.bounds.height / 2 + 125) // Adjust this value to
@@ -88,12 +95,17 @@ struct DataRGBView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.alabaster)
                         .padding(.top)
-                        .shadow(color:.white, radius: 6)
+                        
+                        .shadow(color:.gray, radius: 6)
                     Spacer()
 
                     Toggle(isOn: $isOn) {}
+                        .shadow(color:.gray, radius: 6)
+
                     .toggleStyle(SwitchToggleStyle(tint: .green))
                     .onChange(of: isOn) { oldValue, newValue in
+                        backgroundImage = newValue ? "name2" : "name3"  // Switch between name1 and name2
+
                         withAnimation {
                             wireHeight = newValue ? 500 : 300 // Animate height change
                         }
@@ -106,70 +118,104 @@ struct DataRGBView: View {
                         sendLampState()
                     }
                 }
+                .padding(.horizontal)
                 Spacer()
-
-                // Rainbow Color Picker
-                RainbowSlider(value: $colorValue, selectedColor: $selectedColor)
-                    .frame(height: 20)
-                    .onChange(of: colorValue) { oldValue, newValue in
-                        selectedColor = getColorFromSlider(newValue)
-
-                        // Haptic feedback on value change
-                        let generator = UIImpactFeedbackGenerator(style: .medium)
-                        generator.impactOccurred()
-                    }
-                    .simultaneousGesture(DragGesture().onEnded { _ in
-                        // Send color only when user releases the slider
-                        sendColorToLED(selectedColor)
-                    })
-
-                HStack {
-                    VStack {
-                        HStack {
-                            Text("Red")
-                                .foregroundColor(.charlestonGreen)
-                                .bold(true)
-                            TextField("0", value: $redValue, formatter: NumberFormatter())
-                                .keyboardType(.numberPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(width: 50)
-                                .onChange(of: redValue) { oldValue, newValue in
-                                    checkAndSendColor()
-                                }
+                
+                VStack {
+                    Text("Select Color")
+                        .font(.title2)
+                        .foregroundColor(.alabaster)
+                        .padding(.top)
+                    
+                    ColorCircleSlider(selectedColor: $selectedColor)
+                        .frame(height: 30)
+                        .onChange(of: selectedColor) { oldValue, newValue in
+                            // Haptic feedback
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
+                            
+                            // Send color to LED
+                            sendColorToLED(selectedColor)
                         }
-                    }
-                    VStack {
-                        HStack {
-                            Text("Green")
-                                .foregroundColor(.charlestonGreen)
-                                .bold(true)
-                            TextField("0", value: $greenValue, formatter: NumberFormatter())
-                                .keyboardType(.numberPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(width: 50)
-                                .onChange(of: redValue) { oldValue, newValue in
-                                    checkAndSendColor()
-                                }
+                        .padding(.top, 30)
+                        .padding(.bottom, 50)
+                        .disabled(!isOn)
+                        .opacity(isOn ? 1.0 : 0.4)
+                    
+                    // Rainbow Color Picker
+                    RainbowSlider(value: $colorValue, selectedColor: $selectedColor)
+                        .frame(height: 20)
+                        .onChange(of: colorValue) { oldValue, newValue in
+                            selectedColor = getColorFromSlider(newValue)
+                            sendHapticFeedback()
+                            // Haptic feedback on value change
+                            let generator = UIImpactFeedbackGenerator(style: .medium)
+                            generator.impactOccurred()
                         }
-                    }
-                    VStack {
-                        HStack {
-                            Text("Blue")
-                                .foregroundColor(.charlestonGreen)
-                                .bold(true)
-                            TextField("0", value: $blueValue, formatter: NumberFormatter())
-                                .keyboardType(.numberPad)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .frame(width: 50)
-                                .onChange(of: redValue) { oldValue, newValue in
-                                    checkAndSendColor()
-                                }
-                        }
-                    } // rgb(214,23,210)
+                        .simultaneousGesture(DragGesture().onEnded { _ in
+                            // Send color only when user releases the slider
+                            sendColorToLED(selectedColor)
+                        })
+                        .padding(.bottom, 30)
+                        .disabled(!isOn)
+                        .opacity(isOn ? 1.0 : 0.4)
                 }
-                .padding(.top)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.alabaster.opacity(0.2))
+                )
+                .padding(.bottom, 20)
+
+                
+//                HStack {
+//                    VStack {
+//                        HStack {
+//                            Text("Red")
+//                                .foregroundColor(.charlestonGreen)
+//                                .bold(true)
+//                            TextField("0", value: $redValue, formatter: NumberFormatter())
+//                                .keyboardType(.numberPad)
+//                                .textFieldStyle(RoundedBorderTextFieldStyle())
+//                                .frame(width: 50)
+//                                .onChange(of: redValue) { oldValue, newValue in
+//                                    checkAndSendColor()
+//                                }
+//                        }
+//                    }
+//                    VStack {
+//                        HStack {
+//                            Text("Green")
+//                                .foregroundColor(.charlestonGreen)
+//                                .bold(true)
+//                            TextField("0", value: $greenValue, formatter: NumberFormatter())
+//                                .keyboardType(.numberPad)
+//                                .textFieldStyle(RoundedBorderTextFieldStyle())
+//                                .frame(width: 50)
+//                                .onChange(of: redValue) { oldValue, newValue in
+//                                    checkAndSendColor()
+//                                }
+//                        }
+//                    }
+//                    VStack {
+//                        HStack {
+//                            Text("Blue")
+//                                .foregroundColor(.charlestonGreen)
+//                                .bold(true)
+//                            TextField("0", value: $blueValue, formatter: NumberFormatter())
+//                                .keyboardType(.numberPad)
+//                                .textFieldStyle(RoundedBorderTextFieldStyle())
+//                                .frame(width: 50)
+//                                .onChange(of: redValue) { oldValue, newValue in
+//                                    checkAndSendColor()
+//                                }
+//                        }
+//                    } // rgb(214,23,210)
+//                }
+//                .padding(.top)
 
             }
+            .padding(.horizontal)
             .padding()
 
             .sheet(isPresented: $showingColorPicker) {
@@ -199,6 +245,7 @@ struct DataRGBView: View {
                 HomeView()
             }
         }
+    
         .background(
             LinearGradient(
                             gradient: Gradient(colors: [
@@ -212,7 +259,11 @@ struct DataRGBView: View {
         )
 
     }
-
+    
+    func sendHapticFeedback() {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
+    }
     // Function to map slider value to a color
     func getColorFromSlider(_ value: Double) -> Color {
         let hue = value / 100.0
@@ -270,7 +321,41 @@ struct DataRGBView: View {
         }
     }
 }
+struct ColorCircleSlider: View {
+    @Binding var selectedColor: Color
+    let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .indigo, .purple, .pink]
+    @State private var selectedIndex: Int = 0
+    
+    let circleSize: CGFloat = 30
+    let selectedScale: CGFloat = 1.3
+    let spacing: CGFloat = 10
+    
+    var body: some View {
+        HStack(spacing: spacing) {
+            ForEach(colors.indices, id: \.self) { index in
+                Circle()
+                    .fill(colors[index])
+                    .frame(width: circleSize, height: circleSize)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white, lineWidth: 2)
+                            .opacity(index == selectedIndex ? 1 : 0.6)
+                    )
+                    .scaleEffect(index == selectedIndex ? selectedScale : 1.0)
+                    .shadow(color: colors[index].opacity(0.5), radius: 4)
+                    .animation(.spring(response: 0.3), value: selectedIndex)
+                    .onTapGesture {
+                        selectedIndex = index
+                        selectedColor = colors[index]
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                    }
+            }
+        }
+        .padding(.horizontal)
 
+    }
+}
 struct ColorPresetButton: View {
     let color: Color
     @Binding var selectedColor: Color

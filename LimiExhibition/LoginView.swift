@@ -6,13 +6,14 @@ struct LoginView: View {
     @State private var generatedOTP: String = ""
     @State private var enteredOTP: String = ""
     @State private var isOTPVerified: Bool = false
-    
+    @Environment(\.dismiss) private var dismiss
+
     // Animation states
     @State private var welcomeTextOffset: CGFloat = 100
     @State private var welcomeTextOpacity: Double = 0.0
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) {
             Color.charlestonGreen.edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
@@ -88,6 +89,20 @@ struct LoginView: View {
             .padding(.bottom, 0)
             .edgesIgnoringSafeArea(.all)
             .shadow(color: Color.charlestonGreen.opacity(0.3), radius: 20)
+            HStack {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.alabaster)
+                        .font(.system(size: 24))
+                        .bold()
+                }
+                .padding(.leading)
+                Spacer()
+            }
+            .padding(.top, 10)
+            .padding(.horizontal)
         }
         .fullScreenCover(isPresented: $isOTPVerified) {
             AddDeviceView()

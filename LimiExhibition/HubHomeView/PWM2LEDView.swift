@@ -7,7 +7,7 @@ struct PWM2LEDView: View {
     @AppStorage("lampPWM") private var isOn: Bool = false
     @ObservedObject var sharedDevice = SharedDevice.shared
     @State private var isAIModeActive = false
-    @State private var backgroundImage: String = "name3"
+    @State private var backgroundImage: String = "name2"
     @State private var showPopup = false
     @State private var navigateToHome = false
     @State private var wireHeight: CGFloat = 300 // Initial height of the wire image
@@ -15,14 +15,14 @@ struct PWM2LEDView: View {
 
     var body: some View {
         ZStack{
-            // Background image
-//            Image(backgroundImage)
-//                .resizable()
-//                .aspectRatio(contentMode: .fill)
-//                .blur(radius: 5) // Adjust the blur radius as needed (1-20)
-//                .edgesIgnoringSafeArea(.all)
+             //Background image
+            Image(backgroundImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .blur(radius: 20) // Adjust the blur radius as needed (1-20)
+                .edgesIgnoringSafeArea(.all)
 
-            ElegantGradientBackgroundView()
+//            ElegantGradientBackgroundView()
 
             VStack{
                 Image("wire")
@@ -155,12 +155,14 @@ struct PendantLampControlView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.alabaster)
                     .padding(.top)
-                    .shadow(color:.white, radius: 6)
+                    .shadow(color:.gray, radius: 6)
                 Spacer()
                 Toggle(isOn: $isOn) {}
+                    .shadow(color:.gray, radius: 6)
                     .toggleStyle(SwitchToggleStyle(tint: .emerald))
                     .onChange(of: isOn) { oldValue, newValue in
-                        
+                        backgroundImage = newValue ? "name2" : "name3"  // Switch between name1 and name2
+
                         withAnimation {
                             wireHeight = newValue ? 500 : 300 // Animate height change
                         }
@@ -174,8 +176,9 @@ struct PendantLampControlView: View {
             VStack{
                 VStack(spacing: 15) {
                     Text("\(Int(brightness))%")
-                        .font(.subheadline)
-                        .foregroundColor(.charlestonGreen)
+                        .bold()
+                        .font(.title2)
+                        .foregroundColor(.alabaster)
                     // Custom Slider with Warm White Gradient Background
                     ZStack {
                         Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { isEditing in
@@ -202,8 +205,9 @@ struct PendantLampControlView: View {
                 // warmCold Control Section
                 VStack(spacing: 15) {
                     Text("Adjust Color")
-                        .font(.subheadline)
-                        .foregroundColor(.charlestonGreen)
+                        .bold()
+                        .font(.title2)
+                        .foregroundColor(.alabaster)
                     
                     // Custom Slider with Warm White Gradient Background
                     ZStack {
@@ -333,21 +337,37 @@ struct PendantLampControlView: View {
 
     // Function to send intensity value
     private func sendIntensity() {
-        let brightnessValue = Int(brightness)
+        let currentBrightness = Int(brightness)
+        let previousBrightness = UserDefaults.standard.integer(forKey: "previousBrightness")
         let intensityValue = Int(warmCold)
         let intensityValue2: Int = abs(intensityValue - 100)
         
-        let byteArray: [UInt8] = [
-            0x01,
-            UInt8(intensityValue & 0xFF),
-            UInt8(intensityValue2 & 0xFF),
-            UInt8(brightnessValue & 0xFF)
-        ]
+        // Calculate step size (divide difference into 4 parts)
+        let steps = 4
+        let difference = currentBrightness - previousBrightness
+        let stepSize = difference / steps
         
-        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
-        print("\(hexString)")
-        sendMessage(hub: hub, message: byteArray)
-        storeHistory.addElement(hub: hub, byteArray: byteArray)
+        // Send values gradually with delay
+        for i in 1...steps {
+            let delayTime = Double(i - 1) * 0.15 // 150ms delay between steps
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delayTime) {
+                let intermediateValue = previousBrightness + (stepSize * i)
+                
+                let byteArray: [UInt8] = [
+                    0x01,
+                    UInt8(intensityValue & 0xFF),
+                    UInt8(intensityValue2 & 0xFF),
+                    UInt8(intermediateValue & 0xFF)
+                ]
+                
+                let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+                print("Step \(i): \(hexString)")
+                
+                self.sendMessage(hub: self.hub, message: byteArray)
+                self.storeHistory.addElement(hub: self.hub, byteArray: byteArray)
+            }
+        }
     }
 
     private func sendMessage(hub: Hub, message: [UInt8]) {

@@ -9,20 +9,12 @@ import SwiftUI
 
 @main
 struct YourApp: App {
-    @AppStorage("hasLaunchedBefore") private var hasLaunchedBefore = false
     
     var body: some Scene {
         WindowGroup {
-            if !hasLaunchedBefore {
-                StartView()
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            hasLaunchedBefore = true
-                        }
-                    }
-            } else {
+
                 SplashScreen()
-            }
+            
         }
     }
 }
@@ -37,10 +29,9 @@ struct StartView: View {
             HomeView()
         } else {
             VStack {
-                Text("Start View")
+                Text("Limi")
                 Text("First Time Launch")
             }
         }
     }
 }
-
