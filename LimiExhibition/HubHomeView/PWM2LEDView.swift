@@ -77,7 +77,7 @@ struct PWM2LEDView: View {
             }
             .offset(y: -UIScreen.main.bounds.height / 2 + 125) // Adjust this value to fine-tune the position
             
-            VStack(spacing: 30) {
+            VStack{
                 // LED 1 Control
                 PendantLampControlView(
                     title: "Bela Lampe",
@@ -92,7 +92,6 @@ struct PWM2LEDView: View {
 
                 )
             }
-            .padding()
             .cornerRadius(16)
             .onChange(of: sharedDevice.connectedDevice) { oldValue, newValue in
                 if newValue == nil {
@@ -113,18 +112,20 @@ struct PWM2LEDView: View {
             .allowsHitTesting(!isAIModeActive) // Disable controls during AI mode
             .opacity(isAIModeActive ? 0.5 : 1.0) // Fade controls during AI mode
             
-            if storeHistory.isQueueFull {
-                AIButtonView(hub: hub)
-                    .onChange(of: isAIModeActive) { _, newValue in
-                        withAnimation {
-                            self.isAIModeActive = newValue
-                        }
-                    }
-            }
+//            if storeHistory.isQueueFull {
+//                AIButtonView(hub: hub)
+//                    .onChange(of: isAIModeActive) { _, newValue in
+//                        withAnimation {
+//                            self.isAIModeActive = newValue
+//                        }
+//                    }
+//            }
 
         }
     }
 }
+
+import SwiftUI
 
 struct PendantLampControlView: View {
     let title: String
@@ -132,9 +133,9 @@ struct PendantLampControlView: View {
     @Binding var brightness: Double
     let color: Color
     let hub: Hub
-    @Binding var wireHeight: CGFloat // Add wireHeight binding
+    @Binding var wireHeight: CGFloat
     @Binding var backgroundImage: String
-    @Binding var isOn: Bool // Add this line
+    @Binding var isOn: Bool
     @Binding var isAIModeActive: Bool
 
     @State private var isEditingSliderBrightness = false
@@ -144,7 +145,7 @@ struct PendantLampControlView: View {
 
     @State private var isGlowing = false
     @StateObject private var pwmIntensityObj = BluetoothManager.shared
-    @State private var showAlert = false  // State to show alert
+    @State private var showAlert = false
     @State private var showAIButton = false
 
     var body: some View {
@@ -155,109 +156,97 @@ struct PendantLampControlView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.alabaster)
                     .padding(.top)
-                    .shadow(color:.gray, radius: 6)
+                    .shadow(color: .gray, radius: 6)
                 Spacer()
                 Toggle(isOn: $isOn) {}
-                    .shadow(color:.gray, radius: 6)
+                    .shadow(color: .gray, radius: 6)
                     .toggleStyle(SwitchToggleStyle(tint: .emerald))
                     .onChange(of: isOn) { oldValue, newValue in
-                        backgroundImage = newValue ? "name2" : "name3"  // Switch between name1 and name2
-
+                        backgroundImage = newValue ? "name2" : "name3"
                         withAnimation {
-                            wireHeight = newValue ? 500 : 300 // Animate height change
+                            wireHeight = newValue ? 500 : 300
                         }
                         sendLampState()
                     }
             }
-
-
-            
-            Spacer()
-            VStack{
-                VStack(spacing: 15) {
+            .padding(.horizontal)
+            // Modified Brightness Control Section
+            HStack {
+                VStack {
                     Text("\(Int(brightness))%")
                         .bold()
                         .font(.title2)
                         .foregroundColor(.alabaster)
-                    // Custom Slider with Warm White Gradient Background
+                        .padding(.bottom, 5)
+
                     ZStack {
+                        // Background Gradient (White to Transparent)
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(width: 60, height: 200) // Adjust width and height
+                        .cornerRadius(20) // Smooth corners
+                        .opacity(0.8) // Adjust transparency
+                        .shadow(color:.black  ,radius: 5)
+                        // Vertical Slider
                         Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { isEditing in
                             if isEditing {
                                 isEditingSliderBrightness = true
-                                sendHapticFeedback() // Trigger haptic feedback
+                                sendHapticFeedback()
                             } else if isEditingSliderBrightness {
-                                sendIntensity() // Only call when slider is released
+                                sendIntensity()
                                 isEditingSliderBrightness = false
                             }
                         })
-                        .frame(height: 5)
-                        .accentColor(.white) // White slider knob
-                        .padding(.horizontal, 10)
+                        .rotationEffect(.degrees(-90)) // Rotate to vertical
+                        .frame(width: 120, height: 120) // Adjust size
+                        .accentColor(.white) // Customize knob color
                         .disabled(!isOn)
                     }
-                    
+
                 }
-                .padding(.top, 20)
-                .onChange(of: brightness) {
-                    sendHapticFeedback() // Continuous feedback as the slider moves
-                }
-                .padding(.horizontal, 20)
-                // warmCold Control Section
+                
+                Spacer() // Push the VStack to the left
+            }
+            .padding(.top, 20)
+            Spacer()
+            VStack {
                 VStack(spacing: 15) {
+                    ZStack {
+                        CurvedSlider(
+                            value: $warmCold,
+                            in: 0...100,
+                            step: 1,
+                            onEditingChanged: { isEditing in
+                                if isEditing {
+                                    isEditingSliderColor = true
+                                    sendHapticFeedback()
+                                } else if isEditingSliderColor {
+                                    sendColor()
+                                    isEditingSliderColor = false
+                                }
+                            },
+                            disabled: !isOn
+                        )
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 250)
                     Text("Adjust Color")
                         .bold()
                         .font(.title2)
                         .foregroundColor(.alabaster)
-                    
-                    // Custom Slider with Warm White Gradient Background
-                    ZStack {
-                        // Gradient Background using #FFF3DA and #FAE9D5
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(LinearGradient(
-                                gradient: Gradient(colors: [
-                                    Color(hex: "#FFFFFF"),
-                                    Color(hex: "#FAE9D5")
-                                ]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            ))
-                            .frame(height: 40)
-                            .shadow(radius: 2)
-                        
-                        // Slider
-                        Slider(value: $warmCold, in: 0...100, step: 1, onEditingChanged: {
-                            isEditing in
-                            if isEditing {
-                                isEditingSliderColor = true
-                                sendHapticFeedback() // Trigger haptic feedback
-                            } else if isEditingSliderColor {
-                                sendColor() // Call only when user releases the slider
-                                isEditingSliderColor = false
-                            }
-                        })
-
-                        .onChange(of: warmCold) {
-                            sendHapticFeedback() // Continuous feedback as the slider moves
-                        }
-                        .frame(height: 40)
-                        .accentColor(.white) // White slider knob
-                        .padding(.horizontal, 20)
-                        .disabled(!isOn)
-                    }
-                    .padding(.horizontal, 20)
                 }
                 .padding(.top, 20)
-                .padding(.bottom, 20)
-            }
-//            .background(.gray.opacity(0.2))
-//            .padding()
-//            .shadow(radius: 5)
-//            .shadow(color: .gray.opacity(0.5), radius: 5)
-            
-            
-            
-            // AI Button
+                .onChange(of: brightness) {
+                    sendHapticFeedback()
+                }
 
+
+            }
+
+            // AI Button
         }
         .ignoresSafeArea()
         .padding()
@@ -272,9 +261,8 @@ struct PendantLampControlView: View {
         }
         .onAppear {
             withAnimation {
-                wireHeight = isOn ? 500 : 300 // Animate height change
+                wireHeight = isOn ? 500 : 300
             }
-
             showAIButton = storeHistory.isQueueFull
         }
         .onReceive(storeHistory.objectWillChange) {
@@ -288,7 +276,7 @@ struct PendantLampControlView: View {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
     }
-    // Function to send lamp state
+
     private func sendLampState() {
         DispatchQueue.main.async {
             if isOn {
@@ -298,72 +286,66 @@ struct PendantLampControlView: View {
             }
         }
     }
-    
-    
+
     private func sendOn() {
-        let byteArray : [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        let byteArray: [UInt8] = [0x00, 0x00, 0x00, 0x00]
         sendMessage(hub: hub, message: byteArray)
         storeHistory.addElement(hub: hub, byteArray: byteArray)
-
     }
-    
+
     private func sendOff() {
-        let byteArray : [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        let byteArray: [UInt8] = [0x00, 0x00, 0x00, 0x00]
         sendMessage(hub: hub, message: byteArray)
         storeHistory.addElement(hub: hub, byteArray: byteArray)
-
     }
-    
-    // Function to send intensity value
+
     private func sendColor() {
         let intensityValue = Int(warmCold)
         let intensityValue2: Int = abs(intensityValue - 100)
         let brightnessValue = Int(brightness)
-        
+
         let byteArray: [UInt8] = [
             0x01,
             UInt8(intensityValue & 0xFF),
             UInt8(intensityValue2 & 0xFF),
             UInt8(brightnessValue & 0xFF)
         ]
-        
+
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
-        
         print("Sending Data: \(hexString)") // Debug output
-        
+
         sendMessage(hub: hub, message: byteArray)
         storeHistory.addElement(hub: hub, byteArray: byteArray)
     }
 
-    // Function to send intensity value
     private func sendIntensity() {
         let currentBrightness = Int(brightness)
         let previousBrightness = UserDefaults.standard.integer(forKey: "previousBrightness")
         let intensityValue = Int(warmCold)
         let intensityValue2: Int = abs(intensityValue - 100)
-        
+
         // Calculate step size (divide difference into 4 parts)
         let steps = 4
         let difference = currentBrightness - previousBrightness
         let stepSize = difference / steps
-        
+
         // Send values gradually with delay
         for i in 1...steps {
             let delayTime = Double(i - 1) * 0.15 // 150ms delay between steps
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + delayTime) {
                 let intermediateValue = previousBrightness + (stepSize * i)
-                
+
                 let byteArray: [UInt8] = [
                     0x01,
                     UInt8(intensityValue & 0xFF),
                     UInt8(intensityValue2 & 0xFF),
                     UInt8(intermediateValue & 0xFF)
                 ]
-                
+
                 let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
                 print("Step \(i): \(hexString)")
-                
+
                 self.sendMessage(hub: self.hub, message: byteArray)
                 self.storeHistory.addElement(hub: self.hub, byteArray: byteArray)
             }
@@ -374,8 +356,6 @@ struct PendantLampControlView: View {
         if pwmIntensityObj.connectedDevices[hub.id] != nil {
             let data = Data(message)
             pwmIntensityObj.sendMessageToDevice(to: hub.id, message: [UInt8](data)) // Convert Data back to [UInt8]
-            
-
         } else {
             print("Device not connected")
         }
