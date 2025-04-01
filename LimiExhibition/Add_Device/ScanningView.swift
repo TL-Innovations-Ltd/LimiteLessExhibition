@@ -137,7 +137,7 @@ struct ScanningView: View {
                     
                     ScrollView {
                         VStack(spacing: 8) {
-                            ForEach(discoveredDevices.filter { $0.name == "LIMI-CONTROLLER" || $0.name == "1 CH-HUB" }, id: \.id) { device in
+                            ForEach(discoveredDevices.filter { $0.name == "LIMI-CONTROLLER" || $0.name == "1 CH-HUB" || $0.name == "16 CH-HUB"}, id: \.id) { device in
                                 Text("\(device.name)")
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)

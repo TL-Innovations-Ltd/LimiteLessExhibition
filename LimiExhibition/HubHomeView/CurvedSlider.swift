@@ -7,7 +7,7 @@ struct CurvedSlider: View {
     var onEditingChanged: (Bool) -> Void
     var isDisabled: Bool
     
-    private let trackHeight: CGFloat = 20  // Increased track height
+    private let trackHeight: CGFloat = 10  // Increased track height
     private let knobSize: CGFloat = 36      // Increased knob size
     private let radius: CGFloat = 180        // Increased radius of the circular arc
     

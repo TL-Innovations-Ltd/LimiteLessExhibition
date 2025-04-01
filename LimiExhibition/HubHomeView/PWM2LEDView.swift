@@ -19,7 +19,7 @@ struct PWM2LEDView: View {
             Image(backgroundImage)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .blur(radius: 20) // Adjust the blur radius as needed (1-20)
+                .blur(radius: 60) // Adjust the blur radius as needed (1-20)
                 .edgesIgnoringSafeArea(.all)
 
 //            ElegantGradientBackgroundView()
@@ -172,6 +172,8 @@ struct PendantLampControlView: View {
             .padding(.horizontal)
             // Modified Brightness Control Section
             HStack {
+                Spacer() // Push the VStack to the left
+
                 VStack {
                     Text("\(Int(brightness))%")
                         .bold()
@@ -208,12 +210,11 @@ struct PendantLampControlView: View {
 
                 }
                 
-                Spacer() // Push the VStack to the left
             }
             .padding(.top, 20)
             Spacer()
             VStack {
-                VStack(spacing: 15) {
+                VStack {
                     ZStack {
                         CurvedSlider(
                             value: $warmCold,
@@ -233,10 +234,23 @@ struct PendantLampControlView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 250)
-                    Text("Adjust Color")
-                        .bold()
-                        .font(.title2)
-                        .foregroundColor(.alabaster)
+                    HStack{
+                        Text("Warm")
+                            .bold()
+                            .font(.title2)
+                            .foregroundColor(.alabaster)
+                        
+                        
+                        Spacer()
+                        
+                        Text("Cool")
+                            .bold()
+                            .font(.title2)
+                            .foregroundColor(.alabaster)
+                        
+                    }
+                    .padding(.horizontal, 20)
+
                 }
                 .padding(.top, 20)
                 .onChange(of: brightness) {
