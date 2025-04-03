@@ -35,9 +35,10 @@ struct CurvedSlider: View {
                     .stroke(
                         LinearGradient(
                             gradient: Gradient(colors: [
-                                Color(red: 0.8, green: 0.9, blue: 1.0),
+                                Color(red: 1.0, green: 0.95, blue: 0.8),
                                 Color.white,
-                                Color(red: 1.0, green: 0.95, blue: 0.8)
+                                Color(red: 0.8, green: 0.9, blue: 1.0)
+                                
                             ]),
                             startPoint: .leading,
                             endPoint: .trailing

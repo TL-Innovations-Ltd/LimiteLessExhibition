@@ -4,6 +4,7 @@
 //
 //  Created by Mac Mini on 04/03/2025.
 //
+import SwiftUI
 
 struct HubHomeView: View {
     @ObservedObject var bluetoothManager = BluetoothManager.shared  // ✅ Observe BluetoothManager
@@ -56,26 +57,6 @@ struct HubHeaderView: View {
     }
 }
     
-
-import SwiftUI
-import SwiftUI
-
-
-import SwiftUI
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 struct HubContentView: View {
     var body: some View {
         NavigationStack {

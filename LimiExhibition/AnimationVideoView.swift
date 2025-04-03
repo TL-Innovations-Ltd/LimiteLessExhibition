@@ -4,7 +4,8 @@ import AVKit
 import SwiftUI
 
 class AnimationVideoView: UIViewController {
-    
+    @AppStorage("hasLaunchedBefore") private var hasLaunchedBefore = false
+
     var player: AVPlayer?
     var playerLayer: AVPlayerLayer?
     
@@ -49,6 +50,8 @@ class AnimationVideoView: UIViewController {
     }
     
     @objc func videoDidFinishPlaying() {
+        hasLaunchedBefore = true
+
         navigateToNextScreen()
     }
     

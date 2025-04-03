@@ -391,7 +391,9 @@ struct HubCardView: View {
     @State private var brightness: Double = 0.5
     @State private var warmCold: Double = 0.5
     @State private var navigateToMiniController = false
+    @State private var navigateTo16CH = false
 
+    
     var destinationView: some View {
         switch selectedMode {
         case "PWM":
@@ -407,7 +409,15 @@ struct HubCardView: View {
 
     var body: some View {
         ZStack {
+
+                               
             if !hasModeButton {
+                NavigationLink(destination: MiniControllerView(hub: hub, brightness: $brightness, warmCold: $warmCold), isActive: $navigateToMiniController) {
+                    EmptyView()
+                }
+                .opacity(0)
+            }
+            if !hasHubButton {
                 NavigationLink(destination: MiniControllerView(hub: hub, brightness: $brightness, warmCold: $warmCold), isActive: $navigateToMiniController) {
                     EmptyView()
                 }
@@ -525,6 +535,9 @@ struct HubCardView: View {
                 if !hasModeButton {
                     navigateToMiniController = true
                 }
+                if !hasModeButton {
+                    navigateTo16CH = true
+                }
                 
             }
             .onHover { hovering in
@@ -568,6 +581,9 @@ struct HubCardView: View {
 
     private var hasModeButton: Bool {
         return (bluetoothManager.connectedDeviceName ?? hub.name) != "LIMI-CONTROLLER"
+    }
+    private var hasHubButton: Bool {
+        return (bluetoothManager.connectedDeviceName ?? hub.name) != "1 CH-HUB"
     }
 }
 
@@ -1142,7 +1158,7 @@ struct EnhancedTabBarButton: View {
 // MARK: - Enhanced WebView Screen
 struct WebViewScreen: View {
     @Binding var showWebView: Bool
-    let websiteURL = URL(string: "https://tlhome.co.uk")!
+    let websiteURL = URL(string: "https://limi-tau.vercel.app")!
     @State private var isLoading = true
     @State private var loadingProgress = 0.0
     @State private var animateShimmer = false

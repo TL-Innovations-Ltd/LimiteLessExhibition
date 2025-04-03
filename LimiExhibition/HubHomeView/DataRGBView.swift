@@ -18,36 +18,36 @@ struct DataRGBView: View {
     @State private var redValue: Int = 0
     @State private var greenValue: Int = 0
     @State private var blueValue: Int = 0
-
+    
     @ObservedObject var sharedDevice = SharedDevice.shared
     
     @State private var wireHeight: CGFloat = 300 // Initial height of the wire image
     @State private var led2Brightness: Double = 50
-
+    
     @State private var showPopup = false
     @State private var navigateToHome = false
     let selectColorObj = BluetoothManager.shared
     let hub: Hub
     @State private var backgroundImage: String = "name2"
-
-
+    @State private var showSolidColor: Bool = true // State variable to toggle between sliders
+    
     @State private var showAlert = false
-
+    
     enum ColorMode: String, CaseIterable, Identifiable {
         case solid = "Solid"
         case rainbow = "Rainbow"
-
+        
         var id: String { self.rawValue }
     }
-
+    
     var body: some View {
         ZStack{
             //Background image
-           Image(backgroundImage)
-               .resizable()
-               .aspectRatio(contentMode: .fill)
-               .blur(radius: 20) // Adjust the blur radius as needed (1-20)
-               .edgesIgnoringSafeArea(.all)
+            Image(backgroundImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .blur(radius: 20) // Adjust the blur radius as needed (1-20)
+                .edgesIgnoringSafeArea(.all)
             
             VStack{
                 Image("wire")
@@ -59,15 +59,15 @@ struct DataRGBView: View {
                     }
                 
                 ZStack {
-
-
+                    
+                    
                     Circle()
                         .fill(selectedColor)
                         .frame(width: 220, height: 220)
                         .opacity(isOn ? 0.15 : 0.0) // Adjust opacity based on brightness
                         .blur(radius: 10)
                         .padding(.top, 60)
-
+                    
                     Image("ceilingHorizaontal")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -78,13 +78,13 @@ struct DataRGBView: View {
                         }
                         .shadow(color:.white, radius: 6)
                     
- 
-
-  
+                    
+                    
+                    
                     
                 }
                 .padding(.top, -80)
-
+                
             }
             .offset(y: -UIScreen.main.bounds.height / 2 + 125) // Adjust this value to
             
@@ -95,28 +95,28 @@ struct DataRGBView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.alabaster)
                         .padding(.top)
-                        
+                    
                         .shadow(color:.gray, radius: 6)
                     Spacer()
-
+                    
                     Toggle(isOn: $isOn) {}
                         .shadow(color:.gray, radius: 6)
-
-                    .toggleStyle(SwitchToggleStyle(tint: .green))
-                    .onChange(of: isOn) { oldValue, newValue in
-                        backgroundImage = newValue ? "name2" : "name3"  // Switch between name1 and name2
-
-                        withAnimation {
-                            wireHeight = newValue ? 500 : 300 // Animate height change
+                    
+                        .toggleStyle(SwitchToggleStyle(tint: .green))
+                        .onChange(of: isOn) { oldValue, newValue in
+                            backgroundImage = newValue ? "name2" : "name3"  // Switch between name1 and name2
+                            
+                            withAnimation {
+                                wireHeight = newValue ? 500 : 300 // Animate height change
+                            }
+                            sendLampState()
                         }
-                        sendLampState()
-                    }
-                    .onAppear {
-                        withAnimation {
-                            wireHeight = isOn ? 500 : 300 // Animate height change
+                        .onAppear {
+                            withAnimation {
+                                wireHeight = isOn ? 500 : 300 // Animate height change
+                            }
+                            sendLampState()
                         }
-                        sendLampState()
-                    }
                 }
                 .padding(.horizontal)
                 Spacer()
@@ -127,38 +127,65 @@ struct DataRGBView: View {
                         .foregroundColor(.alabaster)
                         .padding(.top)
                     
-                    ColorCircleSlider(selectedColor: $selectedColor)
-                        .frame(height: 30)
-                        .onChange(of: selectedColor) { oldValue, newValue in
-                            // Haptic feedback
-                            let generator = UIImpactFeedbackGenerator(style: .medium)
-                            generator.impactOccurred()
-                            
-                            // Send color to LED
-                            sendColorToLED(selectedColor)
-                        }
-                        .padding(.top, 30)
-                        .padding(.bottom, 50)
-                        .disabled(!isOn)
-                        .opacity(isOn ? 1.0 : 0.4)
                     
-                    // Rainbow Color Picker
-                    RainbowSlider(value: $colorValue, selectedColor: $selectedColor)
-                        .frame(height: 20)
-                        .onChange(of: colorValue) { oldValue, newValue in
-                            selectedColor = getColorFromSlider(newValue)
-                            sendHapticFeedback()
-                            // Haptic feedback on value change
-                            let generator = UIImpactFeedbackGenerator(style: .medium)
-                            generator.impactOccurred()
+                    // Toggle buttons for Solid Color and Rainbow Color
+                    HStack {
+                        Button(action: {
+                            showSolidColor = true
+                        }) {
+                            Text("Solid Color")
+                                .padding(8)
+                                .background(showSolidColor ? Color.emerald : Color.etonBlue.opacity(0.4))
+                                .foregroundColor(.alabaster)
+                                .cornerRadius(8)
                         }
-                        .simultaneousGesture(DragGesture().onEnded { _ in
-                            // Send color only when user releases the slider
-                            sendColorToLED(selectedColor)
-                        })
-                        .padding(.bottom, 30)
                         .disabled(!isOn)
-                        .opacity(isOn ? 1.0 : 0.4)
+                        
+                        Button(action: {
+                            showSolidColor = false
+                        }) {
+                            Text("Rainbow Color")
+                                .padding(8)
+                                .background(!showSolidColor ? Color.emerald : Color.etonBlue.opacity(0.4))
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
+                        .disabled(!isOn)
+                    }
+                    .padding(.bottom, 20)
+                    
+                    // Show the appropriate slider based on the toggle
+                    if showSolidColor {
+                        ColorCircleSlider(selectedColor: $selectedColor)
+                            .frame(height: 20)
+                            .onChange(of: selectedColor) { oldValue, newValue in
+                                // Haptic feedback
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                                
+                                // Send color to LED
+                                sendColorToLED(selectedColor)
+                            }
+                            .disabled(!isOn)
+                            .opacity(isOn ? 1.0 : 0.4)
+                    } else {
+                        RainbowSlider(value: $colorValue, selectedColor: $selectedColor)
+                            .frame(height: 20)
+                            .onChange(of: colorValue) { oldValue, newValue in
+                                selectedColor = getColorFromSlider(newValue)
+                                sendHapticFeedback()
+                                // Haptic feedback on value change
+                                let generator = UIImpactFeedbackGenerator(style: .medium)
+                                generator.impactOccurred()
+                            }
+                            .simultaneousGesture(DragGesture().onEnded { _ in
+                                // Send color only when user releases the slider
+                                sendColorToLED(selectedColor)
+                            })
+                            .disabled(!isOn)
+                            .opacity(isOn ? 1.0 : 0.4)
+                    }
+                    
                 }
                 .padding()
                 .background(
@@ -166,58 +193,58 @@ struct DataRGBView: View {
                         .fill(Color.alabaster.opacity(0.2))
                 )
                 .padding(.bottom, 20)
-
                 
-//                HStack {
-//                    VStack {
-//                        HStack {
-//                            Text("Red")
-//                                .foregroundColor(.charlestonGreen)
-//                                .bold(true)
-//                            TextField("0", value: $redValue, formatter: NumberFormatter())
-//                                .keyboardType(.numberPad)
-//                                .textFieldStyle(RoundedBorderTextFieldStyle())
-//                                .frame(width: 50)
-//                                .onChange(of: redValue) { oldValue, newValue in
-//                                    checkAndSendColor()
-//                                }
-//                        }
-//                    }
-//                    VStack {
-//                        HStack {
-//                            Text("Green")
-//                                .foregroundColor(.charlestonGreen)
-//                                .bold(true)
-//                            TextField("0", value: $greenValue, formatter: NumberFormatter())
-//                                .keyboardType(.numberPad)
-//                                .textFieldStyle(RoundedBorderTextFieldStyle())
-//                                .frame(width: 50)
-//                                .onChange(of: redValue) { oldValue, newValue in
-//                                    checkAndSendColor()
-//                                }
-//                        }
-//                    }
-//                    VStack {
-//                        HStack {
-//                            Text("Blue")
-//                                .foregroundColor(.charlestonGreen)
-//                                .bold(true)
-//                            TextField("0", value: $blueValue, formatter: NumberFormatter())
-//                                .keyboardType(.numberPad)
-//                                .textFieldStyle(RoundedBorderTextFieldStyle())
-//                                .frame(width: 50)
-//                                .onChange(of: redValue) { oldValue, newValue in
-//                                    checkAndSendColor()
-//                                }
-//                        }
-//                    } // rgb(214,23,210)
-//                }
-//                .padding(.top)
-
+                
+                //                HStack {
+                //                    VStack {
+                //                        HStack {
+                //                            Text("Red")
+                //                                .foregroundColor(.charlestonGreen)
+                //                                .bold(true)
+                //                            TextField("0", value: $redValue, formatter: NumberFormatter())
+                //                                .keyboardType(.numberPad)
+                //                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                //                                .frame(width: 50)
+                //                                .onChange(of: redValue) { oldValue, newValue in
+                //                                    checkAndSendColor()
+                //                                }
+                //                        }
+                //                    }
+                //                    VStack {
+                //                        HStack {
+                //                            Text("Green")
+                //                                .foregroundColor(.charlestonGreen)
+                //                                .bold(true)
+                //                            TextField("0", value: $greenValue, formatter: NumberFormatter())
+                //                                .keyboardType(.numberPad)
+                //                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                //                                .frame(width: 50)
+                //                                .onChange(of: redValue) { oldValue, newValue in
+                //                                    checkAndSendColor()
+                //                                }
+                //                        }
+                //                    }
+                //                    VStack {
+                //                        HStack {
+                //                            Text("Blue")
+                //                                .foregroundColor(.charlestonGreen)
+                //                                .bold(true)
+                //                            TextField("0", value: $blueValue, formatter: NumberFormatter())
+                //                                .keyboardType(.numberPad)
+                //                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                //                                .frame(width: 50)
+                //                                .onChange(of: redValue) { oldValue, newValue in
+                //                                    checkAndSendColor()
+                //                                }
+                //                        }
+                //                    } // rgb(214,23,210)
+                //                }
+                //                .padding(.top)
+                
             }
             .padding(.horizontal)
             .padding()
-
+            
             .sheet(isPresented: $showingColorPicker) {
                 ColorPickerView(selectedColor: $selectedColor)
             }
@@ -245,19 +272,19 @@ struct DataRGBView: View {
                 HomeView()
             }
         }
-    
+        
         .background(
             LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color.charlestonGreen, // Eton
-
-                                Color.alabaster  // Alabaster
-                            ]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                            )
+                gradient: Gradient(colors: [
+                    Color.charlestonGreen, // Eton
+                    
+                    Color.alabaster  // Alabaster
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
         )
-
+        
     }
     
     func sendHapticFeedback() {
@@ -269,49 +296,76 @@ struct DataRGBView: View {
         let hue = value / 100.0
         return Color(hue: hue, saturation: 1, brightness: 1)
     }
-
+    
     func sendColorToLED(_ color: Color) {
         let uiColor = UIColor(color)
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
         uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-
+        
         let redByte = UInt8(red * 255)
         let greenByte = UInt8(green * 255)
         let blueByte = UInt8(blue * 255)
-
+        
         // Create byte array with correct length and protocol format
         let byteArray: [UInt8] = [0x02, redByte, greenByte, blueByte]
-
+        
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+        
+        // Send device info to the API
+        let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+        let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+        
+        sendDeviceInfo(deviceInfo: combinedString)
         sendMessage(hub: hub, message: byteArray)
     }
-
+    
     func sendColorToLED(red: Int, green: Int, blue: Int) {
         let redByte = UInt8(red)
         let greenByte = UInt8(green)
         let blueByte = UInt8(blue)
-
+        
         // Create byte array with correct length and protocol format
         let byteArray: [UInt8] = [0x02, redByte, greenByte, blueByte]
-
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+        
+        // Send device info to the API
+        let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+        let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+        
+        sendDeviceInfo(deviceInfo: combinedString)
         sendMessage(hub: hub, message: byteArray)
     }
-
+    
     private func checkAndSendColor() {
         if redValue > 0 && greenValue > 0 && blueValue > 0 {
             sendColorToLED(red: redValue, green: greenValue, blue: blueValue)
         }
     }
-
+    
     private func sendLampState() {
         if isOn {
             let byteArray: [UInt8] = [0x02, 0xFF, 0xFF, 0x00]
+            let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+            
+            // Send device info to the API
+            let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+            let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+            
+            sendDeviceInfo(deviceInfo: combinedString)
             sendMessage(hub: hub, message: byteArray)
         } else {
             let byteArray: [UInt8] = [0x02, 0x00, 0x00, 0x00]
+            let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+            
+            // Send device info to the API
+            let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+            let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+            
+            sendDeviceInfo(deviceInfo: combinedString)
             sendMessage(hub: hub, message: byteArray)
         }
     }
-
+    
     private func sendMessage(hub: Hub, message: [UInt8]) {
         if selectColorObj.connectedDevices[hub.id] != nil {
             let data = Data(message)
@@ -319,6 +373,54 @@ struct DataRGBView: View {
         } else {
             print("Device not connected")
         }
+    }
+    
+    // Function to send device information to the API
+    private func sendDeviceInfo(deviceInfo: String) {
+        guard let url = URL(string: "https://scholar-stephen-toe-august.trycloudflare.com/client/devices/process_device_data") else {
+            print("Invalid URL")
+            return
+        }
+        
+        // Retrieve the token from app storage (UserDefaults in this case)
+        guard let token = UserDefaults.standard.string(forKey: "authToken") else {
+            print("No token found")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Set the token in the Authorization header
+        request.setValue("\(token)", forHTTPHeaderField: "Authorization")
+        
+        let json: [String: Any] = ["deviceInfo": deviceInfo]
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
+            print("Error serializing JSON")
+            return
+        }
+        
+        request.httpBody = jsonData
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error sending device info: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+            
+            // Process the response
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("Response from server: \(responseString)")
+            }
+        }
+        
+        task.resume()
     }
 }
 struct ColorCircleSlider: View {

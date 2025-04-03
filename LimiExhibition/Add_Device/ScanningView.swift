@@ -107,11 +107,13 @@ struct ScanningView: View {
                         currentProgress += 1
                     } else {
                         timer.invalidate() // Stop the timer when it reaches 100
+//                        bluetoothManager.stopScanning() // Stop scanning in the backend
+
                     }
                 }
 
                 // Call fetchData function with the desired URL
-                fetchData(from: "https://example.com/api/devices")
+//                fetchData(from: "https://example.com/api/devices")
             }
             .alert(isPresented: $showBluetoothAlert) {
                 Alert(
@@ -137,7 +139,7 @@ struct ScanningView: View {
                     
                     ScrollView {
                         VStack(spacing: 8) {
-                            ForEach(discoveredDevices.filter { $0.name == "LIMI-CONTROLLER" || $0.name == "1 CH-HUB" || $0.name == "16 CH-HUB"}, id: \.id) { device in
+                            ForEach(discoveredDevices.filter { $0.name == "LIMI-CONTROLLER" || $0.name == "1 CH-HUB" }, id: \.id) { device in
                                 Text("\(device.name)")
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -170,6 +172,11 @@ struct ScanningView: View {
                                                     print("✅ Normal mode detected: \(SharedDevice.shared.lastReceivedBytes)")
                                                     print("Regular user - showing hub home")
                                                     showHubHomeView = true
+                                                    
+                                                    // Send device info to the API
+                                                    let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+                                                    sendDeviceInfo(deviceInfo: deviceInfo)
+
                                                 } else {
                                                     print("❌ Invalid mode")
                                                     print("Expected: Normal mode (91)")
@@ -298,4 +305,53 @@ struct ScanningView: View {
             UIApplication.shared.open(url)
         }
     }
+    // Inside the ScanningView struct
+
+    private func sendDeviceInfo(deviceInfo: String) {
+        guard let url = URL(string: "https://scholar-stephen-toe-august.trycloudflare.com/admin/add_master_controller_hub_device") else {
+            print("Invalid URL")
+            return
+        }
+
+        // Retrieve the token from app storage (UserDefaults in this case)
+        guard let token = UserDefaults.standard.string(forKey: "authToken") else {
+            print("No token found")
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        // Set the token in the Authorization header
+        request.setValue("\(token)", forHTTPHeaderField: "Authorization")
+
+        let json: [String: Any] = ["deviceInfo": deviceInfo]
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
+            print("Error serializing JSON")
+            return
+        }
+
+        request.httpBody = jsonData
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error sending device info: \(error.localizedDescription)")
+                return
+            }
+
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+
+            // Process the response
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("Response from server: \(responseString)")
+            }
+        }
+
+        task.resume()
+    }
+
 }

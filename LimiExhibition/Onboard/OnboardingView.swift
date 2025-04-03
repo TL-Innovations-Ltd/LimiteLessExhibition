@@ -169,7 +169,6 @@ import SDWebImageSwiftUI
 
 struct OnboardingPageView: View {
     
-    @AppStorage("hasLaunchedBefore") private var hasLaunchedBefore = false
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     
     let image: String
@@ -273,7 +272,6 @@ struct OnboardingPageView: View {
                             .onAppear {
                                 withAnimation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.1)) {
                                     imageScale = 1.0
-                                    hasLaunchedBefore = true
                                     hasCompletedOnboarding = true
                                 }
                             }

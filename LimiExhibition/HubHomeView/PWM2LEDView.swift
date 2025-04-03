@@ -303,13 +303,28 @@ struct PendantLampControlView: View {
 
     private func sendOn() {
         let byteArray: [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+
         sendMessage(hub: hub, message: byteArray)
+        // Send device info to the API
+        let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+        let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+
+        sendDeviceInfo(deviceInfo: combinedString)
         storeHistory.addElement(hub: hub, byteArray: byteArray)
     }
 
     private func sendOff() {
-        let byteArray: [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        let byteArray: [UInt8] = [0x01, 0x00, 0x00, 0x00]
         sendMessage(hub: hub, message: byteArray)
+        
+        let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+
+        // Send device info to the API
+        let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+        let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+
+        sendDeviceInfo(deviceInfo: combinedString)
         storeHistory.addElement(hub: hub, byteArray: byteArray)
     }
 
@@ -329,6 +344,11 @@ struct PendantLampControlView: View {
         print("Sending Data: \(hexString)") // Debug output
 
         sendMessage(hub: hub, message: byteArray)
+        // Send device info to the API
+        let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+        let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+
+        sendDeviceInfo(deviceInfo: combinedString)
         storeHistory.addElement(hub: hub, byteArray: byteArray)
     }
 
@@ -359,8 +379,14 @@ struct PendantLampControlView: View {
 
                 let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
                 print("Step \(i): \(hexString)")
-
+                
+                
                 self.sendMessage(hub: self.hub, message: byteArray)
+                // Send device info to the API
+                let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+                let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+
+                sendDeviceInfo(deviceInfo: combinedString)
                 self.storeHistory.addElement(hub: self.hub, byteArray: byteArray)
             }
         }
@@ -373,6 +399,54 @@ struct PendantLampControlView: View {
         } else {
             print("Device not connected")
         }
+    }
+    
+    // Function to send device information to the API
+    private func sendDeviceInfo(deviceInfo: String) {
+        guard let url = URL(string: "https://scholar-stephen-toe-august.trycloudflare.com/client/devices/process_device_data") else {
+            print("Invalid URL")
+            return
+        }
+        
+        // Retrieve the token from app storage (UserDefaults in this case)
+        guard let token = UserDefaults.standard.string(forKey: "authToken") else {
+            print("No token found")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Set the token in the Authorization header
+        request.setValue("\(token)", forHTTPHeaderField: "Authorization")
+        
+        let json: [String: Any] = ["deviceInfo": deviceInfo]
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
+            print("Error serializing JSON")
+            return
+        }
+        
+        request.httpBody = jsonData
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error sending device info: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+            
+            // Process the response
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("Response from server: \(responseString)")
+            }
+        }
+        
+        task.resume()
     }
 }
 

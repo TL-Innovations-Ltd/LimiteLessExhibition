@@ -47,7 +47,7 @@ struct MiniControllerView: View {
     // Add this property to track active PWM LED ellipses
     @State private var activePWMLEDs: Set<Int> = []
     @AppStorage("lampPWM") private var isOn: Bool = false
-    @State private var mode: String = "PWM"
+    @State private var mode: String = "CCT"
     @State private var wireHeight: CGFloat = 500 // Initial height of the wire image
     let hub: Hub
     @Binding var brightness: Double
@@ -159,14 +159,14 @@ struct MiniControllerView: View {
                     GeometryReader { geometry in
                         VStack(alignment: .leading, spacing: 20) {
                             // PWM Controls
-                            if mode == "PWM" && selectedPWM != nil {
+                            if mode == "CCT" && selectedPWM != nil {
                                 if let pwm = selectedPWM {
                                     Spacer()
 
                                     HStack {
-                                        Text("PWM LED \(pwm)")
+                                        Text("CCT LED \(pwm)")
                                             .font(.system(size: 18, weight: .semibold, design: .rounded))
-                                            .foregroundColor(.charlestonGreen)
+                                            .foregroundColor(.alabaster)
                                         
                                         Spacer()
                                         
@@ -267,13 +267,13 @@ struct MiniControllerView: View {
                 }
                 HStack{
                     Button(action: {
-                        mode = (mode == "PWM") ? "RGB" : "PWM"
+                        mode = (mode == "CCT") ? "RGB" : "CCT"
                     }) {
                         Text(mode)
                             .padding()
                             .bold()
                             .frame(width: 80, height: 50)
-                            .background(mode == "PWM" ? Color.alabaster : Color.etonBlue)
+                            .background(mode == "CCT" ? Color.alabaster : Color.etonBlue)
                             .foregroundColor(.charlestonGreen)
                             .cornerRadius(10)
                             .animation(.easeInOut, value: mode)
@@ -281,7 +281,7 @@ struct MiniControllerView: View {
                     }
       
                     // Conditional content based on mode
-                    if mode == "PWM" {
+                    if mode == "CCT" {
                         // PWM LED Buttons
                         VStack(alignment: .leading, spacing: 5) {
                             
@@ -373,7 +373,14 @@ struct MiniControllerView: View {
             byteArray.append(blueByte)
 
             sendMessage(hub: hub, message: byteArray)
+                
+            let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
 
+            // Send device info to the API
+            let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+            let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+
+            sendDeviceInfo(deviceInfo: combinedString)
             print("Sending LED number:", ledNumber, "Color:", byteArray)
         } else {
             print("Error: LED number out of range!")
@@ -417,6 +424,12 @@ struct MiniControllerView: View {
                 let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
                 print("Step \(i) - LED \(ledNumber): \(hexString) (\(intermediateValue)%)")
                 
+                // Send device info to the API
+                let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+                let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+
+                sendDeviceInfo(deviceInfo: combinedString)
+                
                 // Send the message
                 self.sendMessage(hub: self.hub, message: byteArray)
             }
@@ -441,6 +454,55 @@ struct MiniControllerView: View {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
     }
+    
+    // Function to send device information to the API
+    // Function to send device information to the API
+    private func sendDeviceInfo(deviceInfo: String) {
+        guard let url = URL(string: "https://scholar-stephen-toe-august.trycloudflare.com/client/devices/process_device_data") else {
+            print("Invalid URL")
+            return
+        }
+        
+        // Retrieve the token from app storage (UserDefaults in this case)
+        guard let token = UserDefaults.standard.string(forKey: "authToken") else {
+            print("No token found")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Set the token in the Authorization header
+        request.setValue("\(token)", forHTTPHeaderField: "Authorization")
+        
+        let json: [String: Any] = ["deviceInfo": deviceInfo]
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
+            print("Error serializing JSON")
+            return
+        }
+        
+        request.httpBody = jsonData
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Error sending device info: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+            
+            // Process the response
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("Response from server: \(responseString)")
+            }
+        }
+        
+        task.resume()
+    }
 }
 
 struct MiniButton: View {
@@ -463,7 +525,7 @@ struct MiniButton: View {
             .frame(minWidth: 25, minHeight: 50)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? (selectedColor ?? color) : Color.alabaster)
+                    .fill(Color.alabaster)
                     .shadow(color: isSelected ? (selectedColor ?? color).opacity(0.4) : Color.black.opacity(0.05),
                             radius: isSelected ? 6 : 4,
                             x: 0,

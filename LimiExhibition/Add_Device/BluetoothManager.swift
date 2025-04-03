@@ -154,6 +154,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
             SharedDevice.shared.connectedDevice = nil
             self.removeDisconnectedDevice(disconnectedID)
         }
+        attemptReconnect()
     }
     
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -307,6 +308,7 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         peripheral.delegate = self
         centralManager?.connect(peripheral, options: nil)
     }
+    
     func disconnectAllDevices() {
         for hub in storedHubs {
             if let peripheral = hub.peripheral { // Ensure peripheral is not nil
@@ -398,5 +400,10 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         
         print("⚠️ FF02 characteristic not found! Rediscovering services...")
         peripheral.discoverServices(nil)
+    }
+    
+    func stopScanning() {
+        centralManager?.stopScan()
+        print("🔴 Stopped scanning for peripherals.")
     }
 }
