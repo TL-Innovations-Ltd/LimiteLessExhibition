@@ -1001,8 +1001,8 @@ struct EnhancedBottomNavigationView: View {
                 // Main navigation bar
                 HStack {
                     ForEach(0..<5) { index in
-                        let icons = ["home", "magnifying", "camera", "shop", "person"]
-                        let titles = ["Home", "Search", "Camera", "Shop", "Profile"]
+                        let icons = ["home", "group", "camera", "shop", "person"]
+                        let titles = ["Home", "Group", "AR Scan", "Website", "Customer"]
                         
                         EnhancedTabBarButton(
                             icon: icons[index],
@@ -1081,9 +1081,13 @@ struct EnhancedBottomNavigationView: View {
         }
         // Sheet for Camera
         .sheet(isPresented: $showCamera) {
-            Text("Camera View")
+            Text("AR Scan")
                 .font(.title)
                 .padding()
+            Text("Visualize LIMI lighting in your personal space using augmented reality. Launching in the next update.")
+                .font(.title)
+                .padding()
+
         }
         .sheet(isPresented: $showCustomer) {
             CustomerCaptureView()
