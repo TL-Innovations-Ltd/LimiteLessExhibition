@@ -15,7 +15,7 @@ class NetworkService {
     private init() {}
     
     func sendData(payload: [String: Any], completion: @escaping (Result<Any, Error>) -> Void) {
-        guard let url = URL(string: "https://contemporary-lesson-victoria-checkout.trycloudflare.com/client/customer_capture") else {
+        guard let url = URL(string: "https://api.limitless-lighting.co.uk/client/customer_capture") else {
             completion(.failure(NetworkError.invalidURL))
             return
         }
@@ -50,8 +50,9 @@ class NetworkService {
             }
             
             do {
-                let json = try JSONSerialization.jsonObject(with: data)
+                let json = try JSONDecoder().decode(ServerResponse.self, from: data)
                 completion(.success(json))
+
             } catch {
                 completion(.failure(error))
             }

@@ -397,65 +397,63 @@ struct MiniControllerView: View {
         let targetBrightness = Int(brightness)
         let ledNumber = Int(pwmled)
         
-        // Get previous brightness from UserDefaults using LED number as key
         let key = "previousBrightness_LED\(ledNumber)"
-        let previousBrightness = UserDefaults.standard.object(forKey: key) as? Int ?? 50
+        let previousBrightness = UserDefaults.standard.integer(forKey: key)
 
-        // Calculate steps
         let steps = 4
         let difference = targetBrightness - previousBrightness
-        print("defference:\(difference)")
-        let stepSize = difference / steps
-        print("stepSize:\(stepSize)")
-
-        
         print("previousBrightness:\(previousBrightness)")
         print("currentBrightness:\(targetBrightness)")
+        print("defference:\(difference)")
+
+        let stepSize = difference / steps
+        print("stepSize:\(stepSize)")
         
-        // Send values gradually with delay
         for i in 1...steps {
             let delayTime = Double(i - 1) * 0.15 // 150ms delay between steps
             
             DispatchQueue.main.asyncAfter(deadline: .now() + delayTime) {
                 let intermediateValue = previousBrightness + (stepSize * i)
                 
-                // Construct the byte array
                 let byteArray: [UInt8] = [
                     0x03,
                     UInt8(ledNumber & 0xFF),
                     UInt8(intermediateValue & 0xFF)
                 ]
                 
-                // Convert byte values into hex string format
                 let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
                 print("Step \(i) - LED \(ledNumber): \(hexString) (\(intermediateValue)%)")
                 
-                // Send device info to the API
                 let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
                 let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
-
                 sendDeviceInfo(deviceInfo: combinedString)
-                
-                // Send the message
+
                 self.sendMessage(hub: self.hub, message: byteArray)
+//                self.storeHistory.addElement(hub: self.hub, byteArray: byteArray)
             }
         }
+
         let finalDelay = Double(steps) * 0.15
         DispatchQueue.main.asyncAfter(deadline: .now() + finalDelay) {
-            // Construct the byte array
             let byteArray: [UInt8] = [
                 0x03,
                 UInt8(ledNumber & 0xFF),
                 UInt8(targetBrightness & 0xFF)
             ]
+
             self.sendMessage(hub: self.hub, message: byteArray)
-            print("brightness (\(targetBrightness))")
+
+            let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+            let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+            let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+            sendDeviceInfo(deviceInfo: combinedString)
+//            self.storeHistory.addElement(hub: self.hub, byteArray: byteArray)
+
+            print("Final brightness (\(targetBrightness))")
             UserDefaults.standard.set(targetBrightness, forKey: key)
-            
-
         }
-
     }
+
     
     private func sendMessage(hub: Hub, message: [UInt8]) {
         if miniPwmIntensityObj.connectedDevices[hub.id] != nil {

@@ -4,9 +4,8 @@ import CoreImage.CIFilterBuiltins
 
 struct CustomerCaptureView: View {
     @StateObject private var viewModel = CustomerCaptureViewModel()
-    @State private var showingImagePicker = false
+    @State private var showingCameraView = false
     @State private var showingNFCReader = false
-    @State private var showingQRCode = false
     @State private var showingFrontCard = true
     
     var body: some View {
@@ -77,7 +76,7 @@ struct CustomerCaptureView: View {
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 16)
                                     .padding(.vertical, 8)
-                                    .background(Color.blue)
+                                    .background(Color.emerald)
                                     .cornerRadius(8)
                             }
                             Spacer()
@@ -87,20 +86,96 @@ struct CustomerCaptureView: View {
                     
                     // Form Fields
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Customer Information")
+                        Text("Client Information")
                             .font(.headline)
                             .padding(.horizontal)
                         
                         VStack(spacing: 16) {
+                            // Staff Name field
                             TextField("Staff Name", text: $viewModel.staffName)
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(8)
                             
-                            TextField("Item Code", text: $viewModel.itemCode)
+                            // Combined Client/Company field
+                            TextField("Client Name / Company", text: $viewModel.clientCompanyInfo)
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(8)
+                            
+                            // Multiple Item Codes Section
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Item Codes")
+                                    .font(.headline)
+                                    .padding(.bottom, 4)
+                                
+                                ForEach(0..<viewModel.itemCodes.count, id: \.self) { index in
+                                    HStack {
+                                        TextField("Item Code \(index + 1)", text: $viewModel.itemCodes[index])
+                                            .padding()
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(8)
+                                        
+                                        if viewModel.itemCodes.count > 1 {
+                                            Button(action: {
+                                                viewModel.removeItemCode(at: index)
+                                            }) {
+                                                Image(systemName: "minus.circle.fill")
+                                                    .foregroundColor(.red)
+                                                    .font(.system(size: 22))
+                                            }
+                                            .padding(.leading, 8)
+                                        }
+                                    }
+                                }
+                                
+                                Button(action: {
+                                    viewModel.addItemCode()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "plus.circle.fill")
+                                            .font(.system(size: 16))
+                                        Text("Add Another Item Code")
+                                            .font(.subheadline)
+                                    }
+                                    .foregroundColor(Color.emerald)
+                                    .padding(.vertical, 8)
+                                }
+                            }
+                            
+                            // Notes field with character count
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Notes (max 500 characters)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                ZStack(alignment: .topLeading) {
+                                    TextEditor(text: Binding(
+                                        get: { viewModel.notes },
+                                        set: { viewModel.limitNotesText($0) }
+                                    ))
+                                    .frame(minHeight: 100)
+                                    .padding(4)
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(8)
+                                    
+                                    if viewModel.notes.isEmpty {
+                                        Text("Enter notes about the client...")
+                                            .foregroundColor(.gray.opacity(0.8))
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 12)
+                                            .allowsHitTesting(false)
+                                    }
+                                }
+                                
+                                Text("\(viewModel.notes.count)/\(viewModel.notesCharacterLimit)")
+                                    .font(.caption)
+                                    .foregroundColor(
+                                        viewModel.notes.count >= viewModel.notesCharacterLimit ?
+                                        .red : .secondary
+                                    )
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
                         }
                         .padding(.horizontal)
                     }
@@ -138,10 +213,10 @@ struct CustomerCaptureView: View {
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.blue.opacity(0.1))
+                                    .fill(Color.emerald.opacity(0.1))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.blue, lineWidth: 1)
+                                            .stroke(Color.emerald, lineWidth: 1)
                                     )
                             )
                         }
@@ -151,7 +226,7 @@ struct CustomerCaptureView: View {
                         // Capture Front Card Button
                         Button(action: {
                             viewModel.captureMode = .frontCard
-                            showingImagePicker = true
+                            showingCameraView = true
                         }) {
                             HStack {
                                 Image(systemName: "camera.circle.fill")
@@ -187,7 +262,7 @@ struct CustomerCaptureView: View {
                         // Capture Back Card Button
                         Button(action: {
                             viewModel.captureMode = .backCard
-                            showingImagePicker = true
+                            showingCameraView = true
                         }) {
                             HStack {
                                 Image(systemName: "camera.circle.fill")
@@ -219,63 +294,13 @@ struct CustomerCaptureView: View {
                             )
                         }
                         .padding(.horizontal)
-                        
-                        // Capture Customer Photo Button
-                        Button(action: {
-                            viewModel.captureMode = .customerPhoto
-                            showingImagePicker = true
-                        }) {
-                            HStack {
-                                Image(systemName: "person.crop.rectangle.fill")
-                                    .font(.system(size: 24))
-                                    .foregroundColor(.green)
-                                
-                                VStack(alignment: .leading) {
-                                    Text("Capture Customer Photo")
-                                        .font(.headline)
-                                    
-                                    Text("Take a photo of the customer")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.green.opacity(0.1))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.green, lineWidth: 1)
-                                    )
-                            )
-                        }
-                        .padding(.horizontal)
-                    }
-                    
-                    // Customer Photo Preview
-                    if let image = viewModel.capturedImage {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Customer Photo")
-                                .font(.headline)
-                                .padding(.horizontal)
-                            
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 200)
-                                .cornerRadius(12)
-                                .padding(.horizontal)
-                        }
                     }
                     
                     // Submit Button
                     Button(action: {
                         viewModel.submitData()
+                        // Dismiss the keyboard when the button is tapped
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }) {
                         Text("Submit Data")
                             .font(.headline)
@@ -284,76 +309,36 @@ struct CustomerCaptureView: View {
                             .padding()
                             .background(
                                 viewModel.canSubmit ?
-                                    Color.blue : Color.gray.opacity(0.5)
+                                    Color.emerald : Color.gray.opacity(0.5)
                             )
                             .cornerRadius(12)
                     }
                     .disabled(!viewModel.canSubmit)
                     .padding(.horizontal)
                     .padding(.top, 10)
-                    
-                    // QR Code Section
-                    if viewModel.isSubmitted {
-                        VStack(alignment: .center, spacing: 16) {
-                            Text("Generated Link & QR Code")
-                                .font(.headline)
-                            
-                            Text(viewModel.generatedLink)
-                                .font(.footnote)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal)
-                            
-                            if let qrImage = viewModel.qrCodeImage {
-                                Image(uiImage: qrImage)
-                                    .interpolation(.none)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 200, height: 200)
-                                    .padding()
-                                    .background(Color.white)
-                                    .cornerRadius(12)
-                                    .shadow(radius: 3)
-                            }
-                            
-                            Button(action: {
-                                viewModel.printQRCode()
-                            }) {
-                                HStack {
-                                    Image(systemName: "printer.fill")
-                                    Text("Print QR Code")
-                                }
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(12)
-                            }
-                        }
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                    }
+
                 }
+                .background(Color.alabaster)
                 .padding(.vertical)
             }
-            .navigationTitle("Customer Capture")
-            .sheet(isPresented: $showingImagePicker) {
-                ImagePicker(image: Binding(
-                    get: { nil },
-                    set: { newImage in
-                        if let image = newImage {
-                            switch viewModel.captureMode {
-                            case .frontCard:
-                                viewModel.businessCardFront = image
-                            case .backCard:
-                                viewModel.businessCardBack = image
-                            case .customerPhoto:
-                                viewModel.capturedImage = image
+            .navigationTitle("Client Capture")
+            .fullScreenCover(isPresented: $showingCameraView) {
+                CameraView(
+                    image: Binding(
+                        get: { nil },
+                        set: { newImage in
+                            if let image = newImage {
+                                switch viewModel.captureMode {
+                                case .frontCard:
+                                    viewModel.businessCardFront = image
+                                case .backCard:
+                                    viewModel.businessCardBack = image
+                                }
                             }
                         }
-                    }
-                ))
+                    ),
+                    captureMode: viewModel.captureMode
+                )
             }
             .sheet(isPresented: $showingNFCReader) {
                 NFCReaderView(scannedCode: $viewModel.nfcTagData)
@@ -365,6 +350,16 @@ struct CustomerCaptureView: View {
                     dismissButton: .default(Text("OK"))
                 )
             }
+            .overlay(
+                Group {
+                    if viewModel.showSuccessPopup {
+                        SuccessPopupView(
+                            viewModel: viewModel,
+                            isPresented: $viewModel.showSuccessPopup
+                        )
+                    }
+                }
+            )
         }
     }
 }
