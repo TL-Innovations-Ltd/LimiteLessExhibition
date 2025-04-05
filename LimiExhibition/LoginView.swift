@@ -110,7 +110,7 @@ struct LoginView: View {
     }
     
     func generateOTP() {
-        guard let url = URL(string: "https://suzair-backend-limi-project.vercel.app/client/send_otp") else {
+        guard let url = URL(string: "https://api.limitless-lighting.co.uk/client/send_otp") else {
             print("Invalid URL")
             return
         }
@@ -372,7 +372,7 @@ struct OTPVerificationView: View {
     }
     
     func verifyOTP() {
-        guard let url = URL(string: "https://suzair-backend-limi-project.vercel.app/client/verify_otp") else {
+        guard let url = URL(string: "https://api.limitless-lighting.co.uk/client/verify_otp") else {
             errorMessage = "Invalid URL"
             return
         }
@@ -455,7 +455,7 @@ struct OTPVerificationView: View {
     }
     
     func generateOTP() {
-        guard let url = URL(string: "https://suzair-backend-limi-project.vercel.app/client/send_otp") else {
+        guard let url = URL(string: "https://api.limitless-lighting.co.uk/client/send_otp") else {
             errorMessage = "Invalid URL"
             return
         }

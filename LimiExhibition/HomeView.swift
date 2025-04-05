@@ -384,14 +384,15 @@ struct HubCardView: View {
     @State private var pulseAnimation = false
     @State private var isExpanded = false
     @State private var showAlert = false
+    @State private var navigateTo16CH = false
     @State private var isAnimating = true
     @State private var buttonOpacity = 0.2
     @State private var selectedMode: String? = nil
-    @ObservedObject var bluetoothManager: BluetoothManager
     @State private var brightness: Double = 0.5
     @State private var warmCold: Double = 0.5
     @State private var navigateToMiniController = false
-    @State private var navigateTo16CH = false
+    
+    @ObservedObject var bluetoothManager: BluetoothManager
 
     
     var destinationView: some View {
@@ -417,12 +418,14 @@ struct HubCardView: View {
                 }
                 .opacity(0)
             }
+            
             if !hasHubButton {
-                NavigationLink(destination: MiniControllerView(hub: hub, brightness: $brightness, warmCold: $warmCold), isActive: $navigateToMiniController) {
-                    EmptyView()
+                NavigationLink(destination: HubCHView(hub: hub)) {
+                    Text("Open Card") // You need a visible label for the link
                 }
-                .opacity(0)
+                .opacity(0) // This hides the link but keeps it functional
             }
+
 
             VStack(alignment: .leading) {
                 HStack(spacing: 15) {
@@ -535,7 +538,7 @@ struct HubCardView: View {
                 if !hasModeButton {
                     navigateToMiniController = true
                 }
-                if !hasModeButton {
+                if !hasHubButton {
                     navigateTo16CH = true
                 }
                 
@@ -583,7 +586,7 @@ struct HubCardView: View {
         return (bluetoothManager.connectedDeviceName ?? hub.name) != "LIMI-CONTROLLER"
     }
     private var hasHubButton: Bool {
-        return (bluetoothManager.connectedDeviceName ?? hub.name) != "1 CH-HUB"
+        return (bluetoothManager.connectedDeviceName ?? hub.name) != "16 CH-HUB"
     }
 }
 

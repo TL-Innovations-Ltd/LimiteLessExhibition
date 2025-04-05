@@ -458,7 +458,7 @@ struct MiniControllerView: View {
     // Function to send device information to the API
     // Function to send device information to the API
     private func sendDeviceInfo(deviceInfo: String) {
-        guard let url = URL(string: "https://scholar-stephen-toe-august.trycloudflare.com/client/devices/process_device_data") else {
+        guard let url = URL(string: "https://api.limitless-lighting.co.uk/client/devices/process_device_data") else {
             print("Invalid URL")
             return
         }

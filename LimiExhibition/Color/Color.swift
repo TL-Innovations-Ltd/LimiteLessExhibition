@@ -32,6 +32,9 @@ extension Color {
         )
     }
 
+    static let darkRed = Color(hex: "ff0000")   // #8B0000
+    static let darkGreen = Color(hex: "00ff00")  // #006400
+    static let darkBlue = Color(hex: "0000ff")   // #00008B
     
     static let darkGray = Color(red: 0.3, green: 0.3, blue: 0.3)
     static let darkBrown = Color(red: 0.4, green: 0.25, blue: 0.2)

@@ -2,7 +2,9 @@
 import UIKit
 import AVKit
 import SwiftUI
-
+extension UIColor {
+    static let charlestonGreens = UIColor(red: 23/255, green: 29/255, blue: 30/255, alpha: 1.0)
+}
 class AnimationVideoView: UIViewController {
     @AppStorage("hasLaunchedBefore") private var hasLaunchedBefore = false
 
@@ -11,6 +13,9 @@ class AnimationVideoView: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.backgroundColor = .charlestonGreens  // ✅ Set background to black
+        
         playBackgroundVideo()
 
         // Pause video when app goes to background
@@ -31,15 +36,15 @@ class AnimationVideoView: UIViewController {
         playerLayer = AVPlayerLayer(player: player)
         
         playerLayer?.frame = view.bounds
-        playerLayer?.videoGravity = .resize
+        playerLayer?.videoGravity = .resizeAspect  // ✅ Shows video in original size
         
         view.layer.insertSublayer(playerLayer!, at: 0)
         
-        // Detect when the video finishes playing
         NotificationCenter.default.addObserver(self, selector: #selector(videoDidFinishPlaying), name: .AVPlayerItemDidPlayToEndTime, object: nil)
         
         player?.play()
     }
+
 
     @objc func pauseVideo() {
         player?.pause()

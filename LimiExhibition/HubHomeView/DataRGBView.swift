@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct DataRGBView: View {
     @AppStorage("lampRGB") private var isOn: Bool = false
     @State private var selectedColor: Color = .emerald
@@ -18,7 +16,7 @@ struct DataRGBView: View {
     @State private var redValue: Int = 0
     @State private var greenValue: Int = 0
     @State private var blueValue: Int = 0
-    
+    @State private var brightnessValue: Double = 1.0 // Brightness value ranging from 0.0 to 1.0
     @ObservedObject var sharedDevice = SharedDevice.shared
     
     @State private var wireHeight: CGFloat = 300 // Initial height of the wire image
@@ -119,13 +117,68 @@ struct DataRGBView: View {
                         }
                 }
                 .padding(.horizontal)
+                HStack {
+                    Spacer() // Push the VStack to the left
+
+                    VStack {
+                        Text("\(Int(brightnessValue))%")
+                            .bold()
+                            .font(.title2)
+                            .foregroundColor(.alabaster)
+                            .padding(.bottom, 5)
+
+                        ZStack {
+                            // Background Gradient (White to Transparent)
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            .frame(width: 60, height: 200) // Adjust width and height
+                            .cornerRadius(20) // Smooth corners
+                            .opacity(0.8) // Adjust transparency
+                            .shadow(color:.black  ,radius: 5)
+                            // Vertical Slider
+                            Slider(value: $brightnessValue, in: 0...100, step: 1)
+                            .rotationEffect(.degrees(-90)) // Rotate to vertical
+                            .frame(width: 120, height: 120) // Adjust size
+                            .accentColor(.white) // Customize knob color
+                            .disabled(!isOn)
+                            .onChange(of: brightnessValue) { newValue in
+                                // Update the LED brightness based on the slider value and the selected color
+                                updateBrightness(newValue, selectedColor: selectedColor)
+                            }
+                        }
+
+                    }
+                    
+                }
+                .padding(.top, 20)
                 Spacer()
                 
                 VStack {
-                    Text("Select Color")
-                        .font(.title2)
-                        .foregroundColor(.alabaster)
+                    HStack{
+                        Text("Select Color")
+                            .font(.title2)
+                            .foregroundColor(.alabaster)
+                            .padding(.top)
+                        Spacer()
+                        Button(action: {
+                            pasteColor()
+                        }) {
+                            Text("Paste Colour")
+                                .font(.title2)
+                                .padding(8)
+                                .bold()
+                                .background(!showSolidColor ? Color.yellow : selectedColor)
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                        }
                         .padding(.top)
+                        .disabled(!isOn)
+                        .opacity(isOn ? 1.0 : 0.4)
+                    }
+                    
                     
                     
                     // Toggle buttons for Solid Color and Rainbow Color
@@ -140,6 +193,7 @@ struct DataRGBView: View {
                                 .cornerRadius(8)
                         }
                         .disabled(!isOn)
+                        .opacity(isOn ? 1.0 : 0.4)
                         
                         Button(action: {
                             showSolidColor = false
@@ -151,6 +205,7 @@ struct DataRGBView: View {
                                 .cornerRadius(8)
                         }
                         .disabled(!isOn)
+                        .opacity(isOn ? 1.0 : 0.4)
                     }
                     .padding(.bottom, 20)
                     
@@ -181,6 +236,8 @@ struct DataRGBView: View {
                             .simultaneousGesture(DragGesture().onEnded { _ in
                                 // Send color only when user releases the slider
                                 sendColorToLED(selectedColor)
+                                // Print the final selected color after slider is released
+                                print("Final Selected Color: \(selectedColor)")
                             })
                             .disabled(!isOn)
                             .opacity(isOn ? 1.0 : 0.4)
@@ -287,6 +344,58 @@ struct DataRGBView: View {
         
     }
     
+
+    
+    // Function to paste color and change the button's background
+    func pasteColor() {
+        if let pastedText = UIPasteboard.general.string {
+            if let newColor = colorFromHex(pastedText) {
+                selectedColor = newColor
+                print("Pasted color: \(pastedText)")
+            } else {
+                print("Invalid color code")
+            }
+        } else {
+            print("Clipboard is empty")
+        }
+    }
+    func updateBrightness(_ brightness: Double, selectedColor: Color) {
+        // Normalize brightness (range 0-1)
+        let normalizedBrightness = brightness / 100.0
+        // Extract RGB components from the selected color
+        let uiColor = UIColor(selectedColor)
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        // Adjust color values based on brightness
+        let adjustedRed = UInt8(min(red * normalizedBrightness * 255, 255))
+        let adjustedGreen = UInt8(min(green * normalizedBrightness * 255, 255))
+        let adjustedBlue = UInt8(min(blue * normalizedBrightness * 255, 255))
+        
+        // Create byte array with correct length and protocol format
+        let byteArray: [UInt8] = [0x02, adjustedRed, adjustedGreen, adjustedBlue]
+        
+        // Send device info to the API
+        sendMessage(hub: hub, message: byteArray)
+    }
+
+    
+    
+    // Function to convert hex string to Color
+    func colorFromHex(_ hex: String) -> Color? {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+
+        var rgb: UInt64 = 0
+        Scanner(string: hexSanitized).scanHexInt64(&rgb)
+
+        let red = Double((rgb >> 16) & 0xFF) / 255.0
+        let green = Double((rgb >> 8) & 0xFF) / 255.0
+        let blue = Double(rgb & 0xFF) / 255.0
+
+        return Color(red: red, green: green, blue: blue)
+    }
+    
     func sendHapticFeedback() {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
@@ -375,9 +484,11 @@ struct DataRGBView: View {
         }
     }
     
+    
+    
     // Function to send device information to the API
     private func sendDeviceInfo(deviceInfo: String) {
-        guard let url = URL(string: "https://scholar-stephen-toe-august.trycloudflare.com/client/devices/process_device_data") else {
+        guard let url = URL(string: "https://api.limitless-lighting.co.uk/client/devices/process_device_data") else {
             print("Invalid URL")
             return
         }
@@ -425,7 +536,7 @@ struct DataRGBView: View {
 }
 struct ColorCircleSlider: View {
     @Binding var selectedColor: Color
-    let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .indigo, .purple, .pink]
+    let colors: [Color] = [.darkRed, .orange, .yellow, .darkGreen, .darkBlue, .indigo, .purple, .pink]
     @State private var selectedIndex: Int = 0
     
     let circleSize: CGFloat = 30

@@ -35,6 +35,9 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var showGetStarted = false
     @State private var animateBackground = false
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+
+    
     private let totalPages = 5
     
     var body: some View {
@@ -144,7 +147,10 @@ struct OnboardingView: View {
                 
                 Button(action: {
                     withAnimation {
+                        hasCompletedOnboarding = true
+
                         showGetStarted = true
+
                     }
                 }) {
                     if showGetStarted == true {

@@ -360,8 +360,11 @@ struct PendantLampControlView: View {
 
         // Calculate step size (divide difference into 4 parts)
         let steps = 4
-        let difference = currentBrightness - previousBrightness
+        
+        let difference = abs(currentBrightness - previousBrightness)
+        print("defference:\(difference)")
         let stepSize = difference / steps
+        print("stepSize:\(stepSize)")
 
         // Send values gradually with delay
         for i in 1...steps {
@@ -369,6 +372,7 @@ struct PendantLampControlView: View {
 
             DispatchQueue.main.asyncAfter(deadline: .now() + delayTime) {
                 let intermediateValue = previousBrightness + (stepSize * i)
+                print("\(intermediateValue)")
 
                 let byteArray: [UInt8] = [
                     0x01,
@@ -390,6 +394,16 @@ struct PendantLampControlView: View {
                 self.storeHistory.addElement(hub: self.hub, byteArray: byteArray)
             }
         }
+        
+        let byteArray: [UInt8] = [
+            0x01,
+            UInt8(intensityValue & 0xFF),
+            UInt8(intensityValue2 & 0xFF),
+            UInt8(currentBrightness & 0xFF)
+        ]
+        print("current brightness:\(currentBrightness)")
+        self.sendMessage(hub: self.hub, message: byteArray)
+
     }
 
     private func sendMessage(hub: Hub, message: [UInt8]) {
@@ -403,7 +417,7 @@ struct PendantLampControlView: View {
     
     // Function to send device information to the API
     private func sendDeviceInfo(deviceInfo: String) {
-        guard let url = URL(string: "https://scholar-stephen-toe-august.trycloudflare.com/client/devices/process_device_data") else {
+        guard let url = URL(string: "https://api.limitless-lighting.co.uk/client/devices/process_device_data") else {
             print("Invalid URL")
             return
         }

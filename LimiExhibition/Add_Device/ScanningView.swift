@@ -139,7 +139,11 @@ struct ScanningView: View {
                     
                     ScrollView {
                         VStack(spacing: 8) {
-                            ForEach(discoveredDevices.filter { $0.name == "LIMI-CONTROLLER" || $0.name == "1 CH-HUB" }, id: \.id) { device in
+                            ForEach(discoveredDevices.filter {
+                                $0.name == "LIMI-CONTROLLER" ||
+                                $0.name == "16 CH-HUB" ||
+                                $0.name == "1 CH-HUB"
+                            }, id: \.id) { device in
                                 Text("\(device.name)")
                                     .padding()
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -160,7 +164,7 @@ struct ScanningView: View {
                                             print("⚡️ Checking received bytes: \(receivedBytes)")
                                             
                                             showDevicesList = false
-                                            if UserRoleManager.shared.currentRole == .productionUser {
+                                            if UserRoleManager.shared.currentRole == .productionUser  {
                                                 showDeveloperModeAlert = true
                                                 let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
                                                 let window = windowScene?.windows.first
@@ -168,7 +172,7 @@ struct ScanningView: View {
                                                 
                                             } else {
                                                 if !SharedDevice.shared.lastReceivedBytes.isEmpty &&
-                                                   SharedDevice.shared.lastReceivedBytes[0] == 91 {
+                                                   SharedDevice.shared.lastReceivedBytes[0] == 90 {
                                                     print("✅ Normal mode detected: \(SharedDevice.shared.lastReceivedBytes)")
                                                     print("Regular user - showing hub home")
                                                     showHubHomeView = true
@@ -287,7 +291,11 @@ struct ScanningView: View {
             if bluetoothManager.isBluetoothOn {
                 showBluetoothAlert = false
                 bluetoothManager.startScanning { devices in
-                    let filteredDevices = devices.filter { $0.name == "LIMI-CONTROLLER" || $0.name == "1 CH-HUB" }
+                    let filteredDevices = devices.filter {
+                        $0.name == "LIMI-CONTROLLER" ||
+                        $0.name == "16 CH-HUB" ||
+                        $0.name == "1 CH-HUB"
+                    }
                     self.discoveredDevices = filteredDevices
                     if !filteredDevices.isEmpty {
                         self.showDevicesList = true
@@ -308,7 +316,7 @@ struct ScanningView: View {
     // Inside the ScanningView struct
 
     private func sendDeviceInfo(deviceInfo: String) {
-        guard let url = URL(string: "https://scholar-stephen-toe-august.trycloudflare.com/admin/add_master_controller_hub_device") else {
+        guard let url = URL(string: "https://api.limitless-lighting.co.uk/admin/add_master_controller_hub_device") else {
             print("Invalid URL")
             return
         }
