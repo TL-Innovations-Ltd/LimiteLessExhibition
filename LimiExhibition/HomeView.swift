@@ -1085,7 +1085,7 @@ struct EnhancedBottomNavigationView: View {
                 .font(.title)
                 .padding()
             Text("Visualize LIMI lighting in your personal space using augmented reality. Launching in the next update.")
-                .font(.title)
+                .font(.title2)
                 .padding()
 
         }
