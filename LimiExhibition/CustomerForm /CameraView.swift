@@ -60,6 +60,9 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     private var photoOutput: AVCapturePhotoOutput?
     private var frameView: UIView?
     
+    // Business card standard aspect ratio is 3.5:2 (1.75:1)
+    private let businessCardAspectRatio: CGFloat = 1.75
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCamera()
@@ -78,7 +81,7 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
     
     private func setupCamera() {
         captureSession = AVCaptureSession()
-        captureSession?.sessionPreset = .high
+        captureSession?.sessionPreset = .photo // Use photo preset for higher quality
         
         guard let backCamera = AVCaptureDevice.default(for: .video),
               let input = try? AVCaptureDeviceInput(device: backCamera) else {
@@ -86,13 +89,30 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
             return
         }
         
+        // Configure camera for optimal business card capture
+        do {
+            try backCamera.lockForConfiguration()
+            if backCamera.isAutoFocusRangeRestrictionSupported {
+                backCamera.autoFocusRangeRestriction = .near // Better for close-up shots
+            }
+            if backCamera.isFocusModeSupported(.continuousAutoFocus) {
+                backCamera.focusMode = .continuousAutoFocus
+            }
+            backCamera.unlockForConfiguration()
+        } catch {
+            print("Error configuring camera: \(error.localizedDescription)")
+        }
+        
         if captureSession?.canAddInput(input) == true {
             captureSession?.addInput(input)
         }
         
         photoOutput = AVCapturePhotoOutput()
-        if captureSession?.canAddOutput(photoOutput!) == true {
-            captureSession?.addOutput(photoOutput!)
+        if let photoOutput = photoOutput {
+            photoOutput.isHighResolutionCaptureEnabled = true
+            if captureSession?.canAddOutput(photoOutput) == true {
+                captureSession?.addOutput(photoOutput)
+            }
         }
         
         videoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
@@ -106,15 +126,33 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
             view.layer.addSublayer(videoPreviewLayer)
         }
         
-        // Add business card frame overlay
-        let frameSize = CGSize(width: view.bounds.width * 0.8, height: view.bounds.width * 0.5) // Business card aspect ratio ~1.6:1
-        let frameX = (view.bounds.width - frameSize.width) / 2
-        let frameY = (view.bounds.height - frameSize.height) / 2
+        // Calculate optimal business card frame size
+        // Use 80% of screen width and maintain business card aspect ratio
+        let frameWidth = view.bounds.width * 0.8
+        let frameHeight = frameWidth / businessCardAspectRatio
         
-        frameView = UIView(frame: CGRect(x: frameX, y: frameY, width: frameSize.width, height: frameSize.height))
+        let frameX = (view.bounds.width - frameWidth) / 2
+        let frameY = (view.bounds.height - frameHeight) / 2
+        
+        frameView = UIView(frame: CGRect(x: frameX, y: frameY, width: frameWidth, height: frameHeight))
         frameView?.layer.borderColor = UIColor.white.cgColor
         frameView?.layer.borderWidth = 2.0
         frameView?.backgroundColor = UIColor.clear
+        
+        // Add semi-transparent overlay outside the frame
+        let overlayView = UIView(frame: view.bounds)
+        overlayView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        view.addSubview(overlayView)
+        
+        // Create mask to make the frame area transparent
+        let path = UIBezierPath(rect: view.bounds)
+        if let frameView = frameView {
+            path.append(UIBezierPath(rect: frameView.frame).reversing())
+        }
+        
+        let maskLayer = CAShapeLayer()
+        maskLayer.path = path.cgPath
+        overlayView.layer.mask = maskLayer
         
         // Add corner markers
         let cornerSize: CGFloat = 20
@@ -184,6 +222,22 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
             cancelButton.widthAnchor.constraint(equalToConstant: 40),
             cancelButton.heightAnchor.constraint(equalToConstant: 40)
         ])
+        
+        // Add flash toggle button
+        let flashButton = UIButton(type: .system)
+        flashButton.setImage(UIImage(systemName: "bolt.slash.fill"), for: .normal)
+        flashButton.tintColor = .white
+        flashButton.addTarget(self, action: #selector(toggleFlash), for: .touchUpInside)
+        
+        flashButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(flashButton)
+        
+        NSLayoutConstraint.activate([
+            flashButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            flashButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            flashButton.widthAnchor.constraint(equalToConstant: 40),
+            flashButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
     }
     
     private func createCorner(at position: UIRectCorner, size: CGFloat, width: CGFloat) -> UIView {
@@ -237,11 +291,47 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         guard let photoOutput = photoOutput else { return }
         
         let settings = AVCapturePhotoSettings()
+        
+        // Enable flash if available
+        if let device = AVCaptureDevice.default(for: .video), device.hasTorch {
+            settings.flashMode = .auto
+        }
+        
+        // Enable high resolution capture
+        settings.isHighResolutionPhotoEnabled = true
+        
+        // Add visual feedback for capture
+        UIView.animate(withDuration: 0.1, animations: {
+            self.view.alpha = 0.0
+        }) { _ in
+            UIView.animate(withDuration: 0.1) {
+                self.view.alpha = 1.0
+            }
+        }
+        
         photoOutput.capturePhoto(with: settings, delegate: self)
     }
     
     @objc private func cancelCapture() {
         delegate?.didCancel()
+    }
+    
+    @objc private func toggleFlash() {
+        guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else { return }
+        
+        do {
+            try device.lockForConfiguration()
+            
+            if device.torchMode == .on {
+                device.torchMode = .off
+            } else {
+                try device.setTorchModeOn(level: AVCaptureDevice.maxAvailableTorchLevel)
+            }
+            
+            device.unlockForConfiguration()
+        } catch {
+            print("Error toggling flash: \(error.localizedDescription)")
+        }
     }
     
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
@@ -256,40 +346,110 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
             return
         }
         
-        // Crop image to frame
-        if let croppedImage = cropImageToFrame(image) {
-            delegate?.didCaptureImage(croppedImage)
+        // Crop image to frame with precise business card dimensions
+        if let croppedImage = cropImageToBusinessCardFrame(image) {
+            // Apply image enhancement for business cards
+            let enhancedImage = enhanceBusinessCardImage(croppedImage)
+            delegate?.didCaptureImage(enhancedImage)
         } else {
             delegate?.didCaptureImage(image)
         }
     }
     
-    private func cropImageToFrame(_ image: UIImage) -> UIImage? {
+    private func cropImageToBusinessCardFrame(_ image: UIImage) -> UIImage? {
         guard let frameView = frameView else { return nil }
         
+        // Get the orientation of the image
+        let imageOrientation = image.imageOrientation
+        let originalSize = image.size
+        
         // Convert frame rect to image coordinates
-        let imageSize = image.size
         let viewSize = view.bounds.size
         
-        // Calculate scaling factors
-        let scaleX = imageSize.width / viewSize.width
-        let scaleY = imageSize.height / viewSize.height
+        // Calculate scaling factors based on orientation
+        var scaleX: CGFloat
+        var scaleY: CGFloat
+        
+        if imageOrientation.isPortrait {
+            // In portrait orientation, width and height are swapped
+            scaleX = originalSize.height / viewSize.width
+            scaleY = originalSize.width / viewSize.height
+        } else {
+            scaleX = originalSize.width / viewSize.width
+            scaleY = originalSize.height / viewSize.height
+        }
         
         // Calculate frame in image coordinates
         let frameInView = frameView.frame
-        let frameInImage = CGRect(
+        var frameInImage = CGRect(
             x: frameInView.origin.x * scaleX,
             y: frameInView.origin.y * scaleY,
             width: frameInView.size.width * scaleX,
             height: frameInView.size.height * scaleY
         )
         
+        // Adjust for image orientation if needed
+        if imageOrientation.isPortrait {
+            // Swap x and y coordinates for portrait orientation
+            frameInImage = CGRect(
+                x: frameInView.origin.y * scaleX,
+                y: (viewSize.width - frameInView.origin.x - frameInView.size.width) * scaleY,
+                width: frameInView.size.height * scaleX,
+                height: frameInView.size.width * scaleY
+            )
+        }
+        
+        // Ensure the frame is within the image bounds
+        let imageBounds = CGRect(origin: .zero, size: originalSize)
+        frameInImage = frameInImage.intersection(imageBounds)
+        
         // Crop the image
         if let cgImage = image.cgImage?.cropping(to: frameInImage) {
+            // Create a new UIImage with the correct orientation
             return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
         }
         
         return nil
+    }
+    
+    private func enhanceBusinessCardImage(_ image: UIImage) -> UIImage {
+        // Create a CIImage from the UIImage
+        guard let ciImage = CIImage(image: image) else { return image }
+        
+        // Create a context to perform the filters
+        let context = CIContext(options: nil)
+        
+        // Apply filters to enhance the business card
+        var filteredImage = ciImage
+        
+        // 1. Apply contrast and brightness adjustment
+        if let filter = CIFilter(name: "CIColorControls") {
+            filter.setValue(filteredImage, forKey: kCIInputImageKey)
+            filter.setValue(1.1, forKey: kCIInputContrastKey) // Slightly increase contrast
+            filter.setValue(0.03, forKey: kCIInputBrightnessKey) // Slightly increase brightness
+            
+            if let outputImage = filter.outputImage {
+                filteredImage = outputImage
+            }
+        }
+        
+        // 2. Apply unsharp mask to sharpen text
+        if let filter = CIFilter(name: "CIUnsharpMask") {
+            filter.setValue(filteredImage, forKey: kCIInputImageKey)
+            filter.setValue(0.8, forKey: kCIInputRadiusKey) // Radius of the effect
+            filter.setValue(0.6, forKey: kCIInputIntensityKey) // Intensity of the effect
+            
+            if let outputImage = filter.outputImage {
+                filteredImage = outputImage
+            }
+        }
+        
+        // Convert back to UIImage
+        if let cgImage = context.createCGImage(filteredImage, from: filteredImage.extent) {
+            return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
+        }
+        
+        return image
     }
     
     private func showAlert(message: String) {
@@ -300,3 +460,16 @@ class CameraViewController: UIViewController, AVCapturePhotoCaptureDelegate {
         present(alert, animated: true)
     }
 }
+
+// Extension to check if orientation is portrait
+extension UIImage.Orientation {
+    var isPortrait: Bool {
+        switch self {
+        case .left, .leftMirrored, .right, .rightMirrored:
+            return true
+        default:
+            return false
+        }
+    }
+}
+

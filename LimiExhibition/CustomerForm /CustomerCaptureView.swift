@@ -15,6 +15,7 @@ struct CustomerCaptureView: View {
                     // Business Card Preview Section
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Business Card Preview")
+                            .foregroundColor(.alabaster)
                             .font(.headline)
                             .padding(.horizontal)
                         
@@ -87,6 +88,7 @@ struct CustomerCaptureView: View {
                     // Form Fields
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Client Information")
+                            .foregroundColor(.alabaster)
                             .font(.headline)
                             .padding(.horizontal)
                         
@@ -106,6 +108,8 @@ struct CustomerCaptureView: View {
                             // Multiple Item Codes Section
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Item Codes")
+                                    .foregroundColor(.alabaster)
+
                                     .font(.headline)
                                     .padding(.bottom, 4)
                                 
@@ -316,9 +320,10 @@ struct CustomerCaptureView: View {
                     .disabled(!viewModel.canSubmit)
                     .padding(.horizontal)
                     .padding(.top, 10)
+                    .padding(.bottom, 20)
 
                 }
-                .background(Color.alabaster)
+                .background(Color.charlestonGreen)
                 .padding(.vertical)
             }
             .navigationTitle("Client Capture")

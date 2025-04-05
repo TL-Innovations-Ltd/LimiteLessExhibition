@@ -36,7 +36,7 @@ class AnimationVideoView: UIViewController {
         playerLayer = AVPlayerLayer(player: player)
         
         playerLayer?.frame = view.bounds
-        playerLayer?.videoGravity = .resizeAspect  // ✅ Shows video in original size
+        playerLayer?.videoGravity = .resize // ✅ Shows video in original size
         
         view.layer.insertSublayer(playerLayer!, at: 0)
         

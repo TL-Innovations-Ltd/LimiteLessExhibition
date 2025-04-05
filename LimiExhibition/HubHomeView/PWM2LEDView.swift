@@ -302,7 +302,7 @@ struct PendantLampControlView: View {
     }
 
     private func sendOn() {
-        let byteArray: [UInt8] = [0x00, 0x00, 0x00, 0x00]
+        let byteArray: [UInt8] = [0x01, 0x00, 0x00, 0x00]
         let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
 
         sendMessage(hub: hub, message: byteArray)

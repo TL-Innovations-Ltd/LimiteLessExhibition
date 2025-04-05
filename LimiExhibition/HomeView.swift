@@ -969,6 +969,8 @@ struct EnhancedSidebarView: View {
 struct EnhancedBottomNavigationView: View {
     @State private var selectedTab = 0
     @State private var showWebView = false
+    @State private var showGrouping = false
+    @State private var showCustomer = false
     @State private var showCamera = false
     @State private var capturedImage: UIImage?
     @State private var tabBarOffset: CGFloat = 0
@@ -1016,10 +1018,17 @@ struct EnhancedBottomNavigationView: View {
                                 impactMed.impactOccurred()
                                 
                                 // Handle special tabs
-                                if index == 2 { // Camera
+                                if index == 1 { // Camera
+                                    showGrouping = true
+                                }
+                                else if index == 2 { // Camera
                                     showCamera = true
-                                } else if index == 3 { // Shop
+                                }
+                                else if index == 3 { // Shop
                                     showWebView = true
+                                }
+                                else if index == 4 { // Shop
+                                    showCustomer = true
                                 }
                             }
                         }
@@ -1067,11 +1076,19 @@ struct EnhancedBottomNavigationView: View {
             WebViewScreen(showWebView: $showWebView)
         }
         // Sheet for Camera
+        .sheet(isPresented: $showGrouping) {
+            GroupingView()
+        }
+        // Sheet for Camera
         .sheet(isPresented: $showCamera) {
             Text("Camera View")
                 .font(.title)
                 .padding()
         }
+        .sheet(isPresented: $showCustomer) {
+            CustomerCaptureView()
+        }
+
     }
 }
 
