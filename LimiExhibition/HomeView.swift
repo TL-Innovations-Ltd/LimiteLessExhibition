@@ -419,9 +419,9 @@ struct HubCardView: View {
                 .opacity(0)
             }
             
-            if !hasHubButton {
+            if hasHubButton {
                 NavigationLink(destination: HubCHView(hub: hub)) {
-                    Text("Open Card") // You need a visible label for the link
+                    EmptyView() // You need a visible label for the link
                 }
                 .opacity(0) // This hides the link but keeps it functional
             }
