@@ -399,12 +399,18 @@ struct MiniControllerView: View {
         
         // Get previous brightness from UserDefaults using LED number as key
         let key = "previousBrightness_LED\(ledNumber)"
-        let previousBrightness = UserDefaults.standard.integer(forKey: key)
-        
+        let previousBrightness = UserDefaults.standard.object(forKey: key) as? Int ?? 50
+
         // Calculate steps
         let steps = 4
         let difference = targetBrightness - previousBrightness
+        print("defference:\(difference)")
         let stepSize = difference / steps
+        print("stepSize:\(stepSize)")
+
+        
+        print("previousBrightness:\(previousBrightness)")
+        print("currentBrightness:\(targetBrightness)")
         
         // Send values gradually with delay
         for i in 1...steps {
@@ -434,9 +440,21 @@ struct MiniControllerView: View {
                 self.sendMessage(hub: self.hub, message: byteArray)
             }
         }
-        
-        // Store current brightness as previous for next time
-        UserDefaults.standard.set(targetBrightness, forKey: key)
+        let finalDelay = Double(steps) * 0.15
+        DispatchQueue.main.asyncAfter(deadline: .now() + finalDelay) {
+            // Construct the byte array
+            let byteArray: [UInt8] = [
+                0x03,
+                UInt8(ledNumber & 0xFF),
+                UInt8(targetBrightness & 0xFF)
+            ]
+            self.sendMessage(hub: self.hub, message: byteArray)
+            print("brightness (\(targetBrightness))")
+            UserDefaults.standard.set(targetBrightness, forKey: key)
+            
+
+        }
+
     }
     
     private func sendMessage(hub: Hub, message: [UInt8]) {

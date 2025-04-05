@@ -354,14 +354,19 @@ struct PendantLampControlView: View {
 
     private func sendIntensity() {
         let currentBrightness = Int(brightness)
-        let previousBrightness = UserDefaults.standard.integer(forKey: "previousBrightness")
+        
+        let previousBrightness =  UserDefaults.standard.integer(forKey: "previousBrightness")
+        
         let intensityValue = Int(warmCold)
         let intensityValue2: Int = abs(intensityValue - 100)
 
         // Calculate step size (divide difference into 4 parts)
         let steps = 4
-        
-        let difference = abs(currentBrightness - previousBrightness)
+
+        print("previousBrightness:\(previousBrightness)")
+        print("currentBrightness:\(currentBrightness)")
+
+        let difference = currentBrightness - previousBrightness
         print("defference:\(difference)")
         let stepSize = difference / steps
         print("stepSize:\(stepSize)")
@@ -371,7 +376,7 @@ struct PendantLampControlView: View {
             let delayTime = Double(i - 1) * 0.15 // 150ms delay between steps
 
             DispatchQueue.main.asyncAfter(deadline: .now() + delayTime) {
-                let intermediateValue = previousBrightness + (stepSize * i)
+                let intermediateValue = (stepSize * i) + previousBrightness
                 print("\(intermediateValue)")
 
                 let byteArray: [UInt8] = [
@@ -393,16 +398,30 @@ struct PendantLampControlView: View {
                 sendDeviceInfo(deviceInfo: combinedString)
                 self.storeHistory.addElement(hub: self.hub, byteArray: byteArray)
             }
+            
         }
         
-        let byteArray: [UInt8] = [
-            0x01,
-            UInt8(intensityValue & 0xFF),
-            UInt8(intensityValue2 & 0xFF),
-            UInt8(currentBrightness & 0xFF)
-        ]
-        print("current brightness:\(currentBrightness)")
-        self.sendMessage(hub: self.hub, message: byteArray)
+        // Send final step after all intermediate steps are done
+        let finalDelay = Double(steps) * 0.15
+        DispatchQueue.main.asyncAfter(deadline: .now() + finalDelay) {
+            let byteArray: [UInt8] = [
+                0x01,
+                UInt8(intensityValue & 0xFF),
+                UInt8(intensityValue2 & 0xFF),
+                UInt8(currentBrightness & 0xFF)
+            ]
+
+            print("Final current brightness: \(currentBrightness)")
+            self.sendMessage(hub: self.hub, message: byteArray)
+
+            let hexString = byteArray.map { String(format: "0x%02X", $0) }.joined(separator: ", ")
+            let deviceInfo = String(describing: SharedDevice.shared.connectedDevice)
+            let combinedString = "\(deviceInfo) | Hex Data: [\(hexString)]"
+            sendDeviceInfo(deviceInfo: combinedString)
+            self.storeHistory.addElement(hub: self.hub, byteArray: byteArray)
+            UserDefaults.standard.set(currentBrightness, forKey: "previousBrightness")
+
+        }
 
     }
 

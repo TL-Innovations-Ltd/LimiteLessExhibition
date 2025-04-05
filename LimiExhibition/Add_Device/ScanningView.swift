@@ -172,7 +172,7 @@ struct ScanningView: View {
                                                     
                                                 } else {
                                                         if !SharedDevice.shared.lastReceivedBytes.isEmpty &&
-                                                       SharedDevice.shared.lastReceivedBytes[0] == 90 {
+                                                       SharedDevice.shared.lastReceivedBytes[0] == 91 {
                                                         print("✅ Normal mode detected: \(SharedDevice.shared.lastReceivedBytes)")
                                                         print("Regular user - showing hub home")
                                                         showHubHomeView = true
