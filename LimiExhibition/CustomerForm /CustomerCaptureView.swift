@@ -7,7 +7,8 @@ struct CustomerCaptureView: View {
     @State private var showingCameraView = false
     @State private var showingNFCReader = false
     @State private var showingFrontCard = true
-    
+    @State private var isLoading: Bool = false
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -189,6 +190,9 @@ struct CustomerCaptureView: View {
                         // NFC Scan Button
                         Button(action: {
                             showingNFCReader = true
+                            
+                            // Dismiss the keyboard when the button is tapped
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                         }) {
                             HStack {
                                 Image(systemName: "wave.3.right.circle.fill")
@@ -231,6 +235,8 @@ struct CustomerCaptureView: View {
                         Button(action: {
                             viewModel.captureMode = .frontCard
                             showingCameraView = true
+                            // Dismiss the keyboard when the button is tapped
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)                        
                         }) {
                             HStack {
                                 Image(systemName: "camera.circle.fill")
@@ -267,7 +273,8 @@ struct CustomerCaptureView: View {
                         Button(action: {
                             viewModel.captureMode = .backCard
                             showingCameraView = true
-                        }) {
+                            // Dismiss the keyboard when the button is tapped
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)                        }) {
                             HStack {
                                 Image(systemName: "camera.circle.fill")
                                     .font(.system(size: 24))
@@ -303,21 +310,30 @@ struct CustomerCaptureView: View {
                     // Submit Button
                     Button(action: {
                         viewModel.submitData()
+                        isLoading = true
+
                         // Dismiss the keyboard when the button is tapped
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     }) {
-                        Text("Submit Data")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                viewModel.canSubmit ?
+                        ZStack {
+                            Text("Submit Data")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(
+                                    (viewModel.canSubmit && !isLoading) ?
                                     Color.emerald : Color.gray.opacity(0.5)
-                            )
-                            .cornerRadius(12)
+                                )
+                                .cornerRadius(12)
+                            
+                            if isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .alabaster))
+                            }
+                        }
                     }
-                    .disabled(!viewModel.canSubmit)
+                    .disabled(!viewModel.canSubmit || isLoading)
                     .padding(.horizontal)
                     .padding(.top, 10)
                     .padding(.bottom, 20)

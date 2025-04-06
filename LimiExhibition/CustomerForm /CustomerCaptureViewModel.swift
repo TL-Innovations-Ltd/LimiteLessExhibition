@@ -231,6 +231,8 @@ class CustomerCaptureViewModel: ObservableObject {
                     </ul>
                     <p style="font-size: 8pt;">Scan QR code for more details</p>
         <img src="data:image/png;base64,\(base64String)" alt="QR Code" style="width: 100px; height: auto;" />
+                            <p>Staff: \(staffName)</p>
+
                 </div>
             </div>
         </body>

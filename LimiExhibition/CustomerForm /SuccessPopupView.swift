@@ -25,7 +25,7 @@ struct SuccessPopupView: View {
                 HStack {
                     Text("Submission Successful")
                         .font(.headline)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.charlestonGreen)
                     
                     Spacer()
                     
@@ -46,7 +46,7 @@ struct SuccessPopupView: View {
                 Text("Client information has been saved successfully!")
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.charlestonGreen)
                 
                 // QR Code
                 if let qrImage = viewModel.qrCodeImage {
@@ -87,6 +87,9 @@ struct SuccessPopupView: View {
                         Text("• \(code)")
                             .font(.subheadline)
                     }
+                    Link(viewModel.generatedLink, destination: URL(string: viewModel.generatedLink)!)
+                        .font(.subheadline)
+
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
