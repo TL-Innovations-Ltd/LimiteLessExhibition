@@ -741,6 +741,8 @@ struct EnhancedSidebarView: View {
     @State private var selectedItem = "Home"
     @State private var animateBackground = false
     @State private var showGetStartScreen = false // State variable to control the presentation
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("hasLaunchedBefore") private var hasLaunchedBefore = false
 
     
     var body: some View {
@@ -913,7 +915,9 @@ struct EnhancedSidebarView: View {
                                     AuthManager.shared.clearToken()
                                     showGetStartScreen = true // Set state variable to true
                                     BluetoothManager.shared.disconnectAllDevices() // Disconnect all devices
-                                    
+                                    hasCompletedOnboarding = false
+                                    hasLaunchedBefore = false
+
                                 }) {
                                     HStack {
                                         ZStack {

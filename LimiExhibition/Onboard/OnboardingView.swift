@@ -63,7 +63,7 @@ struct OnboardingView: View {
                             OnboardingPageView(
                                 image: "second",
                                 title: "Seamless Setup & Control",
-                                description: "Scan a QR code, tap NFC, or connect via BLE or Wi-Fi for instant control."
+                                description: "Scan QR code, tap NFC, or connect via BLE or Wi-Fi. LIMI auto discovers and assigns smart lights during setup."
                             )
                             .tag(1)
                             
@@ -76,8 +76,8 @@ struct OnboardingView: View {
                             
                             OnboardingPageView(
                                 image: "fourth",
-                                title: "Smart Scheduling",
-                                description: "Create routines that adapt to your lifestyle."
+                                title: "LIMI AI\nSelf Learning Schedule",
+                                description: "LIMI learns your patterns and adjusts your lights automatically."
                             )
                             .tag(3)
                             
@@ -256,7 +256,7 @@ struct OnboardingPageView: View {
                         Image(imageRotationManager.images[imageRotationManager.currentIndex])
                             .resizable()
                             .scaledToFill() // Fills width, may crop height
-                            .frame(width: 350, height: 550)
+                            .frame(width: 350, height: 500)
                             .clipped() // Prevents overflow
                             .cornerRadius(40) // Adds rounded corners
                             .padding(.top, 60)
@@ -305,6 +305,8 @@ struct OnboardingPageView: View {
                 .padding(.top, 20)
                 .shadow(radius: 20)
                 .opacity(textOpacity)
+                .multilineTextAlignment(.center)
+
                 .onAppear {
                     withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
                         textOpacity = 1
@@ -327,7 +329,7 @@ struct OnboardingPageView: View {
                     }
                 }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 

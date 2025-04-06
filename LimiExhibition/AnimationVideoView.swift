@@ -55,7 +55,7 @@ class AnimationVideoView: UIViewController {
     }
     
     @objc func videoDidFinishPlaying() {
-        hasLaunchedBefore = true
+//        hasLaunchedBefore = true
 
         navigateToNextScreen()
     }
