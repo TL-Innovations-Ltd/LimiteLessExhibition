@@ -1081,13 +1081,29 @@ struct EnhancedBottomNavigationView: View {
         }
         // Sheet for Camera
         .sheet(isPresented: $showCamera) {
-            Text("AR Scan")
-                .font(.title)
-                .padding()
-            Text("Visualize LIMI lighting in your personal space using augmented reality. Launching in the next update.")
-                .font(.title2)
-                .padding()
+            VStack {
+                
+                Text("AR Scan")
+                    .font(.system(size: 34, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.top, 40)
 
+                Text("Visualize lighting in your real space using augmented reality.")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 20)
+                    .padding(.horizontal)
+
+                Text("Launching in the next update.")
+                    .font(.system(size: 16))
+                    .foregroundColor(.green)
+                    .padding(.top, 10)
+            }
+            .padding()
+            .background(Color.black.opacity(0.8))
+            .cornerRadius(15)
+            .padding(.horizontal)
         }
         .sheet(isPresented: $showCustomer) {
             CustomerCaptureView()
