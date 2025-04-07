@@ -77,20 +77,34 @@ struct PWM2LEDView: View {
             }
             .offset(y: -UIScreen.main.bounds.height / 2 + 125) // Adjust this value to fine-tune the position
             
-            VStack{
-                // LED 1 Control
-                PendantLampControlView(
-                    title: "Bela Lampe",
+            ZStack(alignment: .topLeading) {
+                // Main content
+                VStack{
+                    // LED 1 Control
+                    PendantLampControlView(
+                        title: "Bela Lampe",
+                        warmCold: $led1warmCold,
+                        brightness: $led2Brightness,
+                        color: .emerald,
+                        hub: hub,
+                        wireHeight: $wireHeight,
+                        backgroundImage: $backgroundImage,
+                        isOn: $isOn,
+                        isAIModeActive: $isAIModeActive
+                    )
+                }
+                
+                // AI Button positioned at top left
+                AIButtonView(
+                    hub: hub,
+                    isAIModeActive: $isAIModeActive,
                     warmCold: $led1warmCold,
                     brightness: $led2Brightness,
-                    color: .emerald,
-                    hub: hub,
-                    wireHeight: $wireHeight,
-                    backgroundImage: $backgroundImage, // Pass the wireHeight binding
-                    isOn: $isOn, // Pass the isOn binding
-                    isAIModeActive: $isAIModeActive // Pass this binding
-
+                    isOn: $isOn
                 )
+                .disabled(!isOn) // Disable AI button when light is off
+                .padding(.top, 50) // Position under where a back button would be
+                .padding(.leading, 16)
             }
             .cornerRadius(16)
             .onChange(of: sharedDevice.connectedDevice) { oldValue, newValue in
@@ -111,16 +125,6 @@ struct PWM2LEDView: View {
             }
             .allowsHitTesting(!isAIModeActive) // Disable controls during AI mode
             .opacity(isAIModeActive ? 0.5 : 1.0) // Fade controls during AI mode
-            
-//            if storeHistory.isQueueFull {
-//                AIButtonView(hub: hub)
-//                    .onChange(of: isAIModeActive) { _, newValue in
-//                        withAnimation {
-//                            self.isAIModeActive = newValue
-//                        }
-//                    }
-//            }
-
         }
     }
 }
@@ -489,3 +493,4 @@ struct PendantLampControlView: View {
 #Preview {
     PWM2LEDView(hub: Hub(name: "Test Hub"))
 }
+
