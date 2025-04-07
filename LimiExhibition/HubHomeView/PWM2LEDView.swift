@@ -93,6 +93,8 @@ struct PWM2LEDView: View {
                         isAIModeActive: $isAIModeActive
                     )
                 }
+                .allowsHitTesting(!isAIModeActive) // Disable only the lamp controls during AI mode
+                .opacity(isAIModeActive ? 0.5 : 1.0) // Fade only the lamp controls during AI mode
                 
                 // AI Button positioned at top left
                 AIButtonView(
@@ -103,8 +105,10 @@ struct PWM2LEDView: View {
                     isOn: $isOn
                 )
                 .disabled(!isOn) // Disable AI button when light is off
-                .padding(.top, 50) // Position under where a back button would be
+                .padding(.top, 100) // Position under where a back button would be
                 .padding(.leading, 16)
+                .allowsHitTesting(true) // Always allow interaction with AI button
+                .opacity(1.0) // Always show at full opacity
             }
             .cornerRadius(16)
             .onChange(of: sharedDevice.connectedDevice) { oldValue, newValue in
@@ -123,8 +127,7 @@ struct PWM2LEDView: View {
             .fullScreenCover(isPresented: $navigateToHome) {
                 HomeView()
             }
-            .allowsHitTesting(!isAIModeActive) // Disable controls during AI mode
-            .opacity(isAIModeActive ? 0.5 : 1.0) // Fade controls during AI mode
+            // Removed the allowsHitTesting and opacity modifiers from here
         }
     }
 }

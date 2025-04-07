@@ -27,11 +27,11 @@ struct AIButtonView: View {
                 }
             }) {
                 HStack {
-                    Image(systemName: "waveform.circle.fill")
+                    Image(systemName: isAIModeActive ? "stop.circle.fill" : "waveform.circle.fill")
                         .font(.system(size: 20))
-                        .foregroundColor(isAIModeActive ? .green : .white)
+                        .foregroundColor(isAIModeActive ? .red : .white)
                     
-                    Text("Limi")
+                    Text(isAIModeActive ? "Stop AI" : "Limi")
                         .font(.headline)
                         .foregroundColor(.white)
                 }
@@ -39,12 +39,12 @@ struct AIButtonView: View {
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(isAIModeActive ? Color.white.opacity(0.3) : Color.black.opacity(0.5))
-                        .shadow(color: isAIModeActive ? .green.opacity(0.6) : .black.opacity(0.3), radius: 5)
+                        .fill(isAIModeActive ? Color.red.opacity(0.3) : Color.black.opacity(0.5))
+                        .shadow(color: isAIModeActive ? .red.opacity(0.6) : .black.opacity(0.3), radius: 5)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(isAIModeActive ? Color.green : Color.white.opacity(0.5), lineWidth: 1)
+                        .stroke(isAIModeActive ? Color.red : Color.white.opacity(0.5), lineWidth: 1)
                 )
                 .opacity(isOn ? 1.0 : 0.5) // Show as faded when disabled
             }
