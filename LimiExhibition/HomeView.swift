@@ -781,6 +781,7 @@ struct EnhancedSidebarView: View {
     @State private var showGetStartScreen = false // State variable to control the presentation
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("hasLaunchedBefore") private var hasLaunchedBefore = false
+    @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
 
     
     var body: some View {
@@ -955,6 +956,8 @@ struct EnhancedSidebarView: View {
                                     BluetoothManager.shared.disconnectAllDevices() // Disconnect all devices
                                     hasCompletedOnboarding = false
                                     hasLaunchedBefore = false
+                                    demoEmail = ""  // Set demoEmail to an empty string (null equivalent)
+
 
                                 }) {
                                     HStack {
