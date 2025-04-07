@@ -101,8 +101,8 @@ struct LightScreen: View {
                         Text("Add Light")
                             .fontWeight(.bold)
                             .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.blue)
+                            .frame(width:80, height: 30)
+                            .background(Color.emerald)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
