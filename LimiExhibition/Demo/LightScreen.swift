@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct LightScreen: View {
+    let title: String
     @State private var isLoaded = false
     @State private var searchFieldFocused = false
     @State private var headerOffset: CGFloat = -100
@@ -32,7 +33,7 @@ struct LightScreen: View {
                 }
 
                 VStack {
-                    Text("Light Control")
+                    Text(title)
                         .font(.largeTitle)
                         .padding()
 
@@ -71,7 +72,7 @@ struct LightScreen: View {
                         isSearching = true
                         searchForDevices()
                     }) {
-                        Text("Add Light")
+                        Text("Add DeviceS")
                             .fontWeight(.bold)
                             .padding()
                             .frame(width: 150, height: 60)

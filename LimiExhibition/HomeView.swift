@@ -460,7 +460,7 @@ struct HubCardView: View {
             
             if demoEmail == "umer.asif@terralumen.co.uk" {
                 // Display a button that opens LightScreen
-                NavigationLink(destination: LightScreen(), isActive: $navigateToLightScreen) {
+                NavigationLink(destination: LightScreen(title: hub.name), isActive: $navigateToLightScreen) {
                     Button(action: {
                         navigateToLightScreen = true
                     }) {

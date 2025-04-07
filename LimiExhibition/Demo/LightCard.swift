@@ -13,6 +13,9 @@ struct LightCard: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack {
+                Image(systemName: "lightbulb")
+                    
+                    .foregroundColor(.etonBlue)
                 Text(lightName)
                     .font(.headline)
                     .foregroundColor(.charlestonGreen)
