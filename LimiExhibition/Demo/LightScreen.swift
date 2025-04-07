@@ -8,7 +8,7 @@ struct LightScreen: View {
     @State private var shimmerAnimation = false // For shimmer effect
     @State private var isAIEnabled: Bool = false // State to track LIMI AI toggle
     @State private var showToast: Bool = false
-    @State private var lightNames: [String] = ["Light 1", "Light 2", "Light 3"] // State to keep track of lights
+    @State private var lightNames: [String] = ["Lana Pendant Light", "Astoria Pendant Light", "Oceana Small Ceiling Light"] // State to keep track of lights
 
     var body: some View {
         VStack {
