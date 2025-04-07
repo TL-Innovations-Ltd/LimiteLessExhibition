@@ -9,7 +9,7 @@ struct LightScreen: View {
     @State private var showToast: Bool = false
     @State private var lightNames: [String] = ["Lana Pendant Light", "Astoria Pendant Light", "Oceana Small Ceiling Light"]
     @State private var isSearching: Bool = false // State to track if we're searching for lights
-    @State private var selectedLight: String? = nil // Selected light after search
+    @State private var newLightName: String = "" // State to track the new light's name
 
     var body: some View {
         VStack {
@@ -82,7 +82,7 @@ struct LightScreen: View {
                         Text("Add Light")
                             .fontWeight(.bold)
                             .padding()
-                            .frame(width: 150, height: 60)
+                            .frame(width: 80, height: 30)
                             .background(Color.emerald)
                             .foregroundColor(.white)
                             .cornerRadius(10)
@@ -97,12 +97,8 @@ struct LightScreen: View {
                             .padding()
                             .background(Color.black.opacity(0.7))
                             .cornerRadius(8)
-                    } else if let selectedLight = selectedLight {
-                        // Once a device is selected, show the light card
-                        LightCard(lightName: selectedLight, isAIEnabled: $isAIEnabled)
-                            .padding(.horizontal)
                     } else {
-                        // Show existing lights
+                        // Show the list of lights
                         ForEach(lightNames, id: \.self) { lightName in
                             LightCard(lightName: lightName, isAIEnabled: $isAIEnabled)
                                 .padding(.horizontal)
@@ -118,10 +114,9 @@ struct LightScreen: View {
     func searchForDevices() {
         // Simulate a device search process with a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            // After searching, display the device list
-            isSearching = false
-            selectedLight = "New Light \(lightNames.count + 1)" // Simulate device selection
-            lightNames.append(selectedLight!) // Add selected device to the list
+            // After searching, add a new light to the list
+            lightNames.append("New Light \(lightNames.count + 1)") // Add the new light to the array
+            isSearching = false // Stop the searching view
         }
     }
 
@@ -139,4 +134,3 @@ struct LightScreen: View {
         showToast = false
     }
 }
-
