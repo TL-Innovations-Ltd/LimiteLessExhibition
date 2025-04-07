@@ -1,11 +1,3 @@
-//
-//  LightScreen.swift
-//  Limi
-//
-//  Created by Mac Mini on 07/04/2025.
-//
-
-
 import SwiftUI
 
 struct LightScreen: View {
@@ -14,7 +6,10 @@ struct LightScreen: View {
     @State private var searchFieldFocused = false
     @State private var headerOffset: CGFloat = -100
     @State private var shimmerAnimation = false // For shimmer effect
-    
+    @State private var isAIEnabled: Bool = false // State to track LIMI AI toggle
+    @State private var showToast: Bool = false
+    @State private var lightNames: [String] = ["Light 1", "Light 2", "Light 3"] // State to keep track of lights
+
     var body: some View {
         VStack {
             // MARK: - Enhanced Background with Animated Gradient
@@ -54,21 +49,82 @@ struct LightScreen: View {
                             )
                     }
                 }
+
                 VStack {
                     Text("Light Control")
                         .font(.largeTitle)
                         .padding()
-                    
-                    ForEach(0..<3) { index in
-                        LightCard(lightName: "Light \(index + 1)")
+
+                    // LIMI AI Button
+                    Button(action: {
+                        isAIEnabled.toggle()
+                        if isAIEnabled {
+                            startAIMode()
+                        } else {
+                            stopAIMode()
+                        }
+                    }) {
+                        Text("LIMI AI")
+                            .fontWeight(.bold)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(isAIEnabled ? Color.green : Color.gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    .padding()
+
+                    // Toast Message
+                    if showToast {
+                        Text("AI adjusting environment…")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Color.black.opacity(0.8))
+                            .cornerRadius(8)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .zIndex(1)
+                    }
+
+                    // Lights
+                    ForEach(lightNames, id: \.self) { lightName in
+                        LightCard(lightName: lightName, isAIEnabled: $isAIEnabled)
                             .padding(.horizontal)
                     }
+                    
+                    // Add Light Button
+                    Button(action: {
+                        let newLightName = "Light \(lightNames.count + 1)"
+                        lightNames.append(newLightName) // Add a new light
+                    }) {
+                        Text("Add Light")
+                            .fontWeight(.bold)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    .padding(.top, 20)
                 }
                 .navigationTitle("Lights")
-
             }
             .edgesIgnoringSafeArea(.all)
-
         }
+    }
+
+    // MARK: - AI Mode Logic
+    func startAIMode() {
+        showToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation {
+                showToast = false
+            }
+        }
+    }
+
+    func stopAIMode() {
+        showToast = false
     }
 }
