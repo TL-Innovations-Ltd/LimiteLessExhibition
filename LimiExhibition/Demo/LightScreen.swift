@@ -1,101 +1,74 @@
+//
+//  LightScreen.swift
+//  Limi
+//
+//  Created by Mac Mini on 07/04/2025.
+//
+
+
 import SwiftUI
 
-struct LightCard: View {
-    let lightName: String
-    @State private var isOn: Bool = false
-    @State private var isAIEnabled: Bool = false
-    @State private var showToast: Bool = false
-    @State private var brightness: Double = 1.0
-    @State private var animate = false
-
+struct LightScreen: View {
+    // Animation states
+    @State private var isLoaded = false
+    @State private var searchFieldFocused = false
+    @State private var headerOffset: CGFloat = -100
+    @State private var shimmerAnimation = false // For shimmer effect
+    
     var body: some View {
-        VStack(spacing: 16) {
-            // Light Toggle Card
-            HStack {
-                Text(lightName)
-                    .font(.headline)
-                    .foregroundColor(.charlestonGreen)
-                Spacer()
-                Toggle(isOn: $isOn) {
-                    Text(isOn ? "On" : "Off")
-                        .foregroundColor(isOn ? .green : .red)
+        VStack {
+            // MARK: - Enhanced Background with Animated Gradient
+            ZStack {
+                // Base gradient
+                LinearGradient(gradient: Gradient(colors: [Color.charlestonGreen.opacity(0.8), Color.alabaster.opacity(0.9)]),
+                               startPoint: .top,
+                               endPoint: .bottom)
+                
+                // Animated overlay gradient for dynamic effect
+                RadialGradient(
+                    gradient: Gradient(colors: [Color.white.opacity(0.3), Color.clear]),
+                    center: .topLeading,
+                    startRadius: 0,
+                    endRadius: UIScreen.main.bounds.width * 1.3
+                )
+                .scaleEffect(shimmerAnimation ? 1.2 : 0.8)
+                .opacity(shimmerAnimation ? 0.7 : 0.3)
+                .animation(
+                    Animation.easeInOut(duration: 4)
+                        .repeatForever(autoreverses: true),
+                    value: shimmerAnimation
+                )
+                .onAppear {
+                    shimmerAnimation = true
                 }
-                .toggleStyle(SwitchToggleStyle(tint: .green))
-                .disabled(isAIEnabled) // Disable when AI is ON
-                .labelsHidden()
-            }
-            .padding()
-            .background(Color.white.opacity(brightness))
-            .cornerRadius(10)
-            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-
-            // LIMI AI Button
-            Button(action: {
-                isAIEnabled.toggle()
-                if isAIEnabled {
-                    startAIMode()
-                } else {
-                    stopAIMode()
+                
+                // Subtle pattern overlay
+                ZStack {
+                    ForEach(0..<5) { i in
+                        Circle()
+                            .fill(Color.white.opacity(0.05))
+                            .frame(width: CGFloat.random(in: 100...200))
+                            .position(
+                                x: CGFloat.random(in: 0...UIScreen.main.bounds.width),
+                                y: CGFloat.random(in: 0...UIScreen.main.bounds.height)
+                            )
+                    }
                 }
-            }) {
-                Text("LIMI AI")
-                    .fontWeight(.bold)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(isAIEnabled ? Color.green : Color.gray)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-
-            // Toast Message
-            if showToast {
-                Text("AI adjusting environment…")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(Color.black.opacity(0.8))
-                    .cornerRadius(8)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .zIndex(1)
-            }
-        }
-        .padding()
-        .onChange(of: isAIEnabled) { _ in
-            withAnimation {
-                showToast = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                withAnimation {
-                    showToast = false
+                VStack {
+                    Text("Light Control")
+                        .font(.largeTitle)
+                        .padding()
+                    
+                    ForEach(0..<3) { index in
+                        LightCard(lightName: "Light \(index + 1)")
+                            .padding(.horizontal)
+                    }
                 }
+                .navigationTitle("Lights")
+
             }
-        }
-        .onAppear {
-            if isAIEnabled {
-                startAIMode()
-            }
-        }
-    }
+            .edgesIgnoringSafeArea(.all)
 
-    // MARK: - AI Mode Animation
-    func startAIMode() {
-        animate = true
-        runLightAnimation()
-    }
-
-    func stopAIMode() {
-        animate = false
-        brightness = 1.0
-    }
-
-    func runLightAnimation() {
-        guard animate else { return }
-        withAnimation(.easeInOut(duration: 2.0)) {
-            brightness = brightness == 1.0 ? 0.5 : 1.0
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            runLightAnimation()
         }
     }
 }
