@@ -12,7 +12,8 @@ struct LoginView: View {
     // Animation states
     @State private var welcomeTextOffset: CGFloat = 100
     @State private var welcomeTextOpacity: Double = 0.0
-    
+    @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
+
     var body: some View {
         ZStack(alignment: .top) {
             Color.charlestonGreen.edgesIgnoringSafeArea(.all)
@@ -60,7 +61,7 @@ struct LoginView: View {
                     Button(action: {
                         if email == "umer.asif@terralumen.co.uk" {
                             
-                            @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
+                            demoEmail = "umer.asif@terralumen.co.uk"
                             isEmailVerified = true
                             
                         } else {

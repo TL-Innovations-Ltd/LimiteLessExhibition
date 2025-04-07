@@ -294,6 +294,13 @@ struct HomeView: View {
                     HStack {
                         Spacer()
                         if bluetoothManager.storedHubs.isEmpty {
+                            if demoEmail == "umer.asif@terralumen.co.uk" {
+                                EnhancedFloatingButton(isNavigating: $isNavigatingToAddDevice)
+                                    // Animation: Bounce in from bottom
+                                    .offset(y: isLoaded ? 0 : 100)
+                                    .opacity(isLoaded ? 1 : 0)
+                                    .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
+                            }
                             
                         }else{
                             EnhancedFloatingButton(isNavigating: $isNavigatingToAddDevice)
@@ -429,7 +436,9 @@ struct HubCardView: View {
     @State private var brightness: Double = 0.5
     @State private var warmCold: Double = 0.5
     @State private var navigateToMiniController = false
-    
+    @State private var navigateToLightScreen = false // New state variable
+    @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
+
     @ObservedObject var bluetoothManager: BluetoothManager
 
     
@@ -448,155 +457,237 @@ struct HubCardView: View {
 
     var body: some View {
         ZStack {
-
-                               
-            if !hasModeButton {
-                NavigationLink(destination: MiniControllerView(hub: hub, brightness: $brightness, warmCold: $warmCold), isActive: $navigateToMiniController) {
-                    EmptyView()
-                }
-                .opacity(0)
-            }
             
-            if hasHubButton {
-                NavigationLink(destination: HubCHView(hub: hub)) {
-                    EmptyView() // You need a visible label for the link
+            if demoEmail == "umer.asif@terralumen.co.uk" {
+                // Display a button that opens LightScreen
+                NavigationLink(destination: LightScreen(), isActive: $navigateToLightScreen) {
+                    Button(action: {
+                        navigateToLightScreen = true
+                    }) {
+                        HStack(spacing: 15) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.etonBlue.opacity(0.15))
+                                    .frame(width: 60, height: 60)
+                                    .scaleEffect(pulseAnimation ? 1.2 : 0.9)
+                                    .opacity(pulseAnimation ? 0.6 : 0.2)
+                                    .animation(
+                                        Animation.easeInOut(duration: 1.5)
+                                            .repeatForever(autoreverses: true),
+                                        value: pulseAnimation
+                                    )
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [Color.etonBlue.opacity(0.8), Color.etonBlue.opacity(0.6)]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 50, height: 50)
+                                Image(systemName: "house.fill")
+                                    .font(.system(size: 22, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+                            .onAppear {
+                                pulseAnimation = true
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(bluetoothManager.connectedDeviceName ?? hub.name)
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.charlestonGreen)
+                                
+                                HStack(spacing: 5) {
+                                    Circle()
+                                        .fill(Color.green)
+                                        .frame(width: 8, height: 8)
+                                        .opacity(pulseAnimation ? 1.0 : 0.5)
+                                        .animation(
+                                            Animation.easeInOut(duration: 1.0)
+                                                .repeatForever(autoreverses: true),
+                                            value: pulseAnimation
+                                        )
+                                    Text("Connected")
+                                        .font(.subheadline)
+                                        .foregroundColor(.green)
+                                }
+                            }
+
+                            Spacer()
+                            Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                                .foregroundColor(.emerald.opacity(0.8))
+                                .onTapGesture {
+                                    withAnimation {
+                                        isExpanded.toggle()
+                                    }
+                                }
+                        }
+                        .padding()
+                        .frame(height: 60)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [.white, .alabaster.opacity(0.8)]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                    }
+
                 }
-                .opacity(0) // This hides the link but keeps it functional
-            }
-
-
-            VStack(alignment: .leading) {
-                HStack(spacing: 15) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.etonBlue.opacity(0.15))
-                            .frame(width: 60, height: 60)
-                            .scaleEffect(pulseAnimation ? 1.2 : 0.9)
-                            .opacity(pulseAnimation ? 0.6 : 0.2)
-                            .animation(
-                                Animation.easeInOut(duration: 1.5)
-                                    .repeatForever(autoreverses: true),
-                                value: pulseAnimation
-                            )
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [Color.etonBlue.opacity(0.8), Color.etonBlue.opacity(0.6)]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 50, height: 50)
-                        Image(systemName: "house.fill")
-                            .font(.system(size: 22, weight: .medium))
-                            .foregroundColor(.white)
+            } else {
+                if !hasModeButton {
+                    NavigationLink(destination: MiniControllerView(hub: hub, brightness: $brightness, warmCold: $warmCold), isActive: $navigateToMiniController) {
+                        EmptyView()
                     }
-                    .onAppear {
-                        pulseAnimation = true
+                    .opacity(0)
+                }
+                
+                if hasHubButton {
+                    NavigationLink(destination: HubCHView(hub: hub)) {
+                        EmptyView() // You need a visible label for the link
                     }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(bluetoothManager.connectedDeviceName ?? hub.name)
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.charlestonGreen)
-                        
-                        HStack(spacing: 5) {
+                    .opacity(0) // This hides the link but keeps it functional
+                }
+                
+                
+                VStack(alignment: .leading) {
+                    HStack(spacing: 15) {
+                        ZStack {
                             Circle()
-                                .fill(Color.green)
-                                .frame(width: 8, height: 8)
-                                .opacity(pulseAnimation ? 1.0 : 0.5)
+                                .fill(Color.etonBlue.opacity(0.15))
+                                .frame(width: 60, height: 60)
+                                .scaleEffect(pulseAnimation ? 1.2 : 0.9)
+                                .opacity(pulseAnimation ? 0.6 : 0.2)
                                 .animation(
-                                    Animation.easeInOut(duration: 1.0)
+                                    Animation.easeInOut(duration: 1.5)
                                         .repeatForever(autoreverses: true),
                                     value: pulseAnimation
                                 )
-                            Text("Connected")
-                                .font(.subheadline)
-                                .foregroundColor(.green)
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [Color.etonBlue.opacity(0.8), Color.etonBlue.opacity(0.6)]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 50, height: 50)
+                            Image(systemName: "house.fill")
+                                .font(.system(size: 22, weight: .medium))
+                                .foregroundColor(.white)
                         }
-                    }
-                    Spacer()
-                    
-                    if hasModeButton {
-                        Button(action: {
-                            showAlert = true
-                        }) {
-                            Text(selectedMode == nil ? "Mode" : "Mode: \(selectedMode!)")
-                                .font(.title)
-                                .foregroundColor(.black)
-                                .opacity(buttonOpacity)
-                                .animation(isAnimating ? .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : .none, value: buttonOpacity)
-                        }
-                        .disabled(selectedMode != nil)
                         .onAppear {
-                            startAnimation()
+                            pulseAnimation = true
                         }
-                        .confirmationDialog("Please Select Your Mode", isPresented: $showAlert, titleVisibility: .visible) {
-                            Button("PWM") { selectMode("PWM") }
-                            Button("RGB") { selectMode("RGB") }
-                            Button("MiniController") { selectMode("MiniController") }
-                            Button("Cancel", role: .cancel) { }
-                        }
-                    }
-
-                    Spacer()
-                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                        .foregroundColor(.emerald.opacity(0.8))
-                        .onTapGesture {
-                            withAnimation {
-                                isExpanded.toggle()
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(bluetoothManager.connectedDeviceName ?? hub.name)
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.charlestonGreen)
+                            
+                            HStack(spacing: 5) {
+                                Circle()
+                                    .fill(Color.green)
+                                    .frame(width: 8, height: 8)
+                                    .opacity(pulseAnimation ? 1.0 : 0.5)
+                                    .animation(
+                                        Animation.easeInOut(duration: 1.0)
+                                            .repeatForever(autoreverses: true),
+                                        value: pulseAnimation
+                                    )
+                                Text("Connected")
+                                    .font(.subheadline)
+                                    .foregroundColor(.green)
                             }
                         }
-                }
-            }
-            .padding()
-            .frame(height: 60)
-            .frame(maxWidth: .infinity)
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [.white, .alabaster.opacity(0.8)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-            .onTapGesture {
-                let impactMed = UIImpactFeedbackGenerator(style: .light)
-                impactMed.impactOccurred()
-
-                withAnimation {
-                    isPressed = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        isPressed = false
+                        Spacer()
+                        
+                        if hasModeButton {
+                            Button(action: {
+                                showAlert = true
+                            }) {
+                                Text(selectedMode == nil ? "Mode" : "Mode: \(selectedMode!)")
+                                    .font(.title)
+                                    .foregroundColor(.black)
+                                    .opacity(buttonOpacity)
+                                    .animation(isAnimating ? .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : .none, value: buttonOpacity)
+                            }
+                            .disabled(selectedMode != nil)
+                            .onAppear {
+                                startAnimation()
+                            }
+                            .confirmationDialog("Please Select Your Mode", isPresented: $showAlert, titleVisibility: .visible) {
+                                Button("PWM") { selectMode("PWM") }
+                                Button("RGB") { selectMode("RGB") }
+                                Button("MiniController") { selectMode("MiniController") }
+                                Button("Cancel", role: .cancel) { }
+                            }
+                        }
+                        
+                        Spacer()
+                        Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                            .foregroundColor(.emerald.opacity(0.8))
+                            .onTapGesture {
+                                withAnimation {
+                                    isExpanded.toggle()
+                                }
+                            }
                     }
                 }
-                
-                if !hasModeButton {
-                    navigateToMiniController = true
+                .padding()
+                .frame(height: 60)
+                .frame(maxWidth: .infinity)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [.white, .alabaster.opacity(0.8)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .cornerRadius(16)
+                .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+                .onTapGesture {
+                    let impactMed = UIImpactFeedbackGenerator(style: .light)
+                    impactMed.impactOccurred()
+                    
+                    withAnimation {
+                        isPressed = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            isPressed = false
+                        }
+                    }
+                    
+                    if !hasModeButton {
+                        navigateToMiniController = true
+                    }
+                    if !hasHubButton {
+                        navigateTo16CH = true
+                    }
+                    
                 }
-                if !hasHubButton {
-                    navigateTo16CH = true
+                .onHover { hovering in
+                    isHovered = hovering
                 }
                 
+                NavigationLink(destination: destinationView, isActive: Binding(
+                    get: { selectedMode != nil },
+                    set: { if !$0 { selectedMode = nil } }
+                )) {
+                    EmptyView()
+                }
+                .opacity(0)
+                .onTapGesture {
+                }
             }
-            .onHover { hovering in
-                isHovered = hovering
-            }
-
-            NavigationLink(destination: destinationView, isActive: Binding(
-                get: { selectedMode != nil },
-                set: { if !$0 { selectedMode = nil } }
-            )) {
-                EmptyView()
-            }
-            .opacity(0)
-            .onTapGesture {
-            }
+            
         }
     }
-
 
     
     private func startAnimation() {
@@ -1365,41 +1456,35 @@ struct EnhancedFloatingButton: View {
     @State private var isAnimating = false
     @State private var rotationDegrees = 0.0
     @State private var glowOpacity = 0.0
+    @State private var showDemoView = false // NEW
+    @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
+    @StateObject private var bluetoothManager = BluetoothManager()
 
     var body: some View {
         Button(action: {
-            // Animation: Scale down on tap
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                isAnimating = true
-                
-                // Haptic feedback
-                let impactMed = UIImpactFeedbackGenerator(style: .medium)
-                impactMed.impactOccurred()
-                
-                // Delay navigation to allow animation to complete
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    isNavigating = true
-                    isAnimating = false
+            if demoEmail == "umer.asif@terralumen.co.uk" {
+                showDemoView = true // Trigger the sheet presentation
+            } else {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    isAnimating = true
+                    let impactMed = UIImpactFeedbackGenerator(style: .medium)
+                    impactMed.impactOccurred()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        isNavigating = true
+                        isAnimating = false
+                    }
                 }
             }
         }) {
             ZStack {
-                // Enhanced outer glow with animation
                 Circle()
                     .fill(Color.etonBlue.opacity(0.3))
                     .frame(width: 70, height: 70)
                     .blur(radius: 5)
                     .opacity(glowOpacity)
-                    .animation(
-                        Animation.easeInOut(duration: 1.5)
-                            .repeatForever(autoreverses: true),
-                        value: glowOpacity
-                    )
-                    .onAppear {
-                        glowOpacity = 0.7
-                    }
+                    .animation(Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: glowOpacity)
+                    .onAppear { glowOpacity = 0.7 }
                 
-                // Rotating ring
                 Circle()
                     .stroke(
                         LinearGradient(
@@ -1412,15 +1497,11 @@ struct EnhancedFloatingButton: View {
                     .frame(width: 65, height: 65)
                     .rotationEffect(.degrees(rotationDegrees))
                     .onAppear {
-                        withAnimation(
-                            Animation.linear(duration: 10)
-                                .repeatForever(autoreverses: false)
-                        ) {
+                        withAnimation(Animation.linear(duration: 10).repeatForever(autoreverses: false)) {
                             rotationDegrees = 360
                         }
                     }
                 
-                // Enhanced button background with gradient
                 Circle()
                     .fill(
                         LinearGradient(
@@ -1433,7 +1514,6 @@ struct EnhancedFloatingButton: View {
                     .shadow(color: Color.etonBlue.opacity(0.3), radius: 8, x: 0, y: 4)
                     .scaleEffect(isAnimating ? 0.9 : 1.0)
                 
-                // Enhanced plus icon with animation
                 Image(systemName: "plus")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.white)
@@ -1442,9 +1522,13 @@ struct EnhancedFloatingButton: View {
                     .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isAnimating)
             }
         }
+        .sheet(isPresented: $showDemoView) {
+            DemoAddDeviceView(bluetoothManager: bluetoothManager)
+        }
         .padding()
     }
 }
+
 
 // MARK: - Preview
 struct HomeView_Previews: PreviewProvider {

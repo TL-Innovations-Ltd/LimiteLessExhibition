@@ -60,6 +60,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         Hub(name: "Bedroom"),
         Hub(name: "Kitchen")
     ]
+    func addDummyDevice() {
+        // Simulate a delay for adding a device
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            let newHub = Hub(name: "LIMI Hub")
+            self.DemostoredHubs.append(newHub)
+        }
+    }
     private var centralManager: CBCentralManager?
     private var discoveredDevices: [(name: String, id: String)] = []
     private var connectedPeripheral: CBPeripheral?
