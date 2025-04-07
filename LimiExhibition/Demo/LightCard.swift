@@ -2,34 +2,32 @@ import SwiftUI
 
 struct LightCard: View {
     let lightName: String
-    @Binding var isAIEnabled: Bool // Track AI state
+    let index: Int // NEW: Position in the list
+    @Binding var isAIEnabled: Bool
+
     @State private var isOn: Bool = false
     @State private var brightness: Double = 1.0
     @State private var animate = false
-    @State private var isNavigatingToPWM = false // Track navigation state
+    @State private var isNavigatingToPWM = false
 
     var body: some View {
         VStack(spacing: 16) {
-            // Light Toggle Card
             HStack {
                 Text(lightName)
                     .font(.headline)
                     .foregroundColor(.charlestonGreen)
                 Spacer()
-                
-                // Toggle Switch for Light
+
                 Toggle(isOn: $isOn) {
                     Text(isOn ? "On" : "Off")
                         .foregroundColor(isOn ? .green : .red)
                 }
                 .toggleStyle(SwitchToggleStyle(tint: .green))
-                .disabled(isAIEnabled) // Disable manual toggle when AI is ON
+                .disabled(isAIEnabled)
                 .labelsHidden()
-                
-                // Navigation Link that opens PWMControllerView
+
                 NavigationLink(
-                    destination: PWM2LEDView(hub: Hub(name: "Test Hub"))
-,
+                    destination: PWM2LEDView(hub: Hub(name: "Test Hub")),
                     isActive: $isNavigatingToPWM
                 ) {
                     EmptyView()
@@ -40,28 +38,33 @@ struct LightCard: View {
             .cornerRadius(10)
             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         }
-        .onChange(of: isAIEnabled) { _ in
-            if isAIEnabled {
-                startAIMode()
+        .onTapGesture {
+            isNavigatingToPWM = true
+        }
+        .onChange(of: isAIEnabled) { newValue in
+            if newValue {
+                startAIModeWithDelay()
             } else {
                 stopAIMode()
             }
         }
-        .onTapGesture {
-            // Trigger navigation to PWMControllerView when the card is tapped
-            isNavigatingToPWM = true
-        }
     }
 
-    // MARK: - AI Mode Animation and Light Toggle
-    func startAIMode() {
-        animate = true
-        runLightAnimation()
-        runAutoToggleLoop()
+    // MARK: - AI Mode Logic
+    func startAIModeWithDelay() {
+        // Delay based on card index to stagger ON state
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(index)) {
+            guard isAIEnabled else { return }
+            isOn = true
+            animate = true
+            runLightAnimation()
+            runAutoToggleLoop()
+        }
     }
 
     func stopAIMode() {
         animate = false
+        isOn = false
         brightness = 1.0
     }
 
@@ -79,7 +82,7 @@ struct LightCard: View {
         Task {
             while isAIEnabled {
                 isOn.toggle()
-                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds delay
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
             }
         }
     }

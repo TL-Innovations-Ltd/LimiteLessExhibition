@@ -8,18 +8,16 @@ struct LightScreen: View {
     @State private var isAIEnabled: Bool = false
     @State private var showToast: Bool = false
     @State private var lightNames: [String] = ["Lana Pendant Light", "Astoria Pendant Light", "Oceana Small Ceiling Light"]
-    @State private var isSearching: Bool = false // State to track if we're searching for lights
-    @State private var newLightName: String = "" // State to track the new light's name
+    @State private var isSearching: Bool = false
+    @State private var lightStatus: [Bool] = [false, false, false] // light on/off status
 
     var body: some View {
         VStack {
             ZStack {
-                // Base gradient
                 LinearGradient(gradient: Gradient(colors: [Color.charlestonGreen.opacity(0.8), Color.alabaster.opacity(0.9)]),
                                startPoint: .top,
                                endPoint: .bottom)
                 
-                // Animated shimmer effect
                 RadialGradient(
                     gradient: Gradient(colors: [Color.white.opacity(0.3), Color.clear]),
                     center: .topLeading,
@@ -28,11 +26,7 @@ struct LightScreen: View {
                 )
                 .scaleEffect(shimmerAnimation ? 1.2 : 0.8)
                 .opacity(shimmerAnimation ? 0.7 : 0.3)
-                .animation(
-                    Animation.easeInOut(duration: 4)
-                        .repeatForever(autoreverses: true),
-                    value: shimmerAnimation
-                )
+                .animation(Animation.easeInOut(duration: 4).repeatForever(autoreverses: true), value: shimmerAnimation)
                 .onAppear {
                     shimmerAnimation = true
                 }
@@ -61,7 +55,6 @@ struct LightScreen: View {
                     }
                     .padding()
 
-                    // Toast Message
                     if showToast {
                         Text("AI adjusting environment…")
                             .font(.subheadline)
@@ -74,7 +67,6 @@ struct LightScreen: View {
                             .zIndex(1)
                     }
 
-                    // Add Light Button
                     Button(action: {
                         isSearching = true
                         searchForDevices()
@@ -89,7 +81,6 @@ struct LightScreen: View {
                     }
                     .padding(.top, 20)
 
-                    // Show Searching View
                     if isSearching {
                         Text("Searching for devices...")
                             .font(.subheadline)
@@ -98,11 +89,15 @@ struct LightScreen: View {
                             .background(Color.black.opacity(0.7))
                             .cornerRadius(8)
                     } else {
-                        // Show the list of lights
-                        ForEach(lightNames, id: \.self) { lightName in
-                            LightCard(lightName: lightName, isAIEnabled: $isAIEnabled)
-                                .padding(.horizontal)
+                        ForEach(lightNames.indices, id: \.self) { index in
+                            LightCard(
+                                lightName: lightNames[index],
+                                index: index, // 🔁 Pass index here
+                                isAIEnabled: $isAIEnabled
+                            )
+                            .padding(.horizontal)
                         }
+
                     }
                 }
                 .navigationTitle("Lights")
@@ -112,11 +107,11 @@ struct LightScreen: View {
     }
 
     func searchForDevices() {
-        // Simulate a device search process with a delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            // After searching, add a new light to the list
-            lightNames.append("New Light \(lightNames.count + 1)") // Add the new light to the array
-            isSearching = false // Stop the searching view
+            let newLight = "New Light \(lightNames.count + 1)"
+            lightNames.append(newLight)
+            lightStatus.append(false) // Add status for new light
+            isSearching = false
         }
     }
 
@@ -128,9 +123,20 @@ struct LightScreen: View {
                 showToast = false
             }
         }
+
+        for index in lightNames.indices {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index)) {
+                if isAIEnabled {
+                    lightStatus[index] = true
+                }
+            }
+        }
     }
 
     func stopAIMode() {
+        for index in lightStatus.indices {
+            lightStatus[index] = false
+        }
         showToast = false
     }
 }
