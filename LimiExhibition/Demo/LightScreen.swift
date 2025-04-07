@@ -1,25 +1,25 @@
 import SwiftUI
 
 struct LightScreen: View {
-    // Animation states
     @State private var isLoaded = false
     @State private var searchFieldFocused = false
     @State private var headerOffset: CGFloat = -100
-    @State private var shimmerAnimation = false // For shimmer effect
-    @State private var isAIEnabled: Bool = false // State to track LIMI AI toggle
+    @State private var shimmerAnimation = false
+    @State private var isAIEnabled: Bool = false
     @State private var showToast: Bool = false
-    @State private var lightNames: [String] = ["Lana Pendant Light", "Astoria Pendant Light", "Oceana Small Ceiling Light"] // State to keep track of lights
+    @State private var lightNames: [String] = ["Lana Pendant Light", "Astoria Pendant Light", "Oceana Small Ceiling Light"]
+    @State private var isSearching: Bool = false // State to track if we're searching for lights
+    @State private var selectedLight: String? = nil // Selected light after search
 
     var body: some View {
         VStack {
-            // MARK: - Enhanced Background with Animated Gradient
             ZStack {
                 // Base gradient
                 LinearGradient(gradient: Gradient(colors: [Color.charlestonGreen.opacity(0.8), Color.alabaster.opacity(0.9)]),
                                startPoint: .top,
                                endPoint: .bottom)
                 
-                // Animated overlay gradient for dynamic effect
+                // Animated shimmer effect
                 RadialGradient(
                     gradient: Gradient(colors: [Color.white.opacity(0.3), Color.clear]),
                     center: .topLeading,
@@ -35,19 +35,6 @@ struct LightScreen: View {
                 )
                 .onAppear {
                     shimmerAnimation = true
-                }
-                
-                // Subtle pattern overlay
-                ZStack {
-                    ForEach(0..<5) { i in
-                        Circle()
-                            .fill(Color.white.opacity(0.05))
-                            .frame(width: CGFloat.random(in: 100...200))
-                            .position(
-                                x: CGFloat.random(in: 0...UIScreen.main.bounds.width),
-                                y: CGFloat.random(in: 0...UIScreen.main.bounds.height)
-                            )
-                    }
                 }
 
                 VStack {
@@ -87,30 +74,54 @@ struct LightScreen: View {
                             .zIndex(1)
                     }
 
-                    // Lights
-                    ForEach(lightNames, id: \.self) { lightName in
-                        LightCard(lightName: lightName, isAIEnabled: $isAIEnabled)
-                            .padding(.horizontal)
-                    }
-                    
                     // Add Light Button
                     Button(action: {
-                        let newLightName = "Light \(lightNames.count + 1)"
-                        lightNames.append(newLightName) // Add a new light
+                        isSearching = true
+                        searchForDevices()
                     }) {
                         Text("Add Light")
                             .fontWeight(.bold)
                             .padding()
-                            .frame(width:80, height: 30)
+                            .frame(width: 80, height: 30)
                             .background(Color.emerald)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
                     .padding(.top, 20)
+
+                    // Show Searching View
+                    if isSearching {
+                        Text("Searching for devices...")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Color.black.opacity(0.7))
+                            .cornerRadius(8)
+                    } else if let selectedLight = selectedLight {
+                        // Once a device is selected, show the light card
+                        LightCard(lightName: selectedLight, isAIEnabled: $isAIEnabled)
+                            .padding(.horizontal)
+                    } else {
+                        // Show existing lights
+                        ForEach(lightNames, id: \.self) { lightName in
+                            LightCard(lightName: lightName, isAIEnabled: $isAIEnabled)
+                                .padding(.horizontal)
+                        }
+                    }
                 }
                 .navigationTitle("Lights")
             }
             .edgesIgnoringSafeArea(.all)
+        }
+    }
+
+    func searchForDevices() {
+        // Simulate a device search process with a delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            // After searching, display the device list
+            isSearching = false
+            selectedLight = "New Light \(lightNames.count + 1)" // Simulate device selection
+            lightNames.append(selectedLight!) // Add selected device to the list
         }
     }
 
@@ -128,3 +139,4 @@ struct LightScreen: View {
         showToast = false
     }
 }
+
