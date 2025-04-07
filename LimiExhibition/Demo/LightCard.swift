@@ -28,7 +28,8 @@ struct LightCard: View {
                 
                 // Navigation Link that opens PWMControllerView
                 NavigationLink(
-                    destination: PWMControllerView(lightName: lightName, isOn: $isOn),
+                    destination: PWM2LEDView(hub: Hub(name: "Test Hub"))
+,
                     isActive: $isNavigatingToPWM
                 ) {
                     EmptyView()
@@ -81,36 +82,5 @@ struct LightCard: View {
                 try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds delay
             }
         }
-    }
-}
-
-// Example of PWMControllerView
-struct PWMControllerView: View {
-    let lightName: String
-    @Binding var isOn: Bool
-    
-    var body: some View {
-        VStack {
-            Text("PWM Controller for \(lightName)")
-                .font(.largeTitle)
-                .padding()
-            
-            Toggle(isOn: $isOn) {
-                Text("Light is \(isOn ? "On" : "Off")")
-                    .font(.title)
-            }
-            .toggleStyle(SwitchToggleStyle(tint: .green))
-            .padding()
-
-            // You can add additional controls related to PWM if needed
-            // For example, a slider to control brightness, etc.
-            Slider(value: .constant(0.5), in: 0...1) {
-                Text("Brightness")
-            }
-            .padding()
-
-            Spacer()
-        }
-        .navigationTitle("PWM Control")
     }
 }
