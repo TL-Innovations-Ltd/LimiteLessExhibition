@@ -55,7 +55,11 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
     @Published var isBluetoothOn = false
     @Published var storedHubs: [Hub] = []
     @Published var connectedDevices: [UUID: (peripheral: CBPeripheral, characteristic: CBCharacteristic)] = [:]
-    
+    @Published var DemostoredHubs: [Hub] = [
+        Hub(name: "Living Room"),
+        Hub(name: "Bedroom"),
+        Hub(name: "Kitchen")
+    ]
     private var centralManager: CBCentralManager?
     private var discoveredDevices: [(name: String, id: String)] = []
     private var connectedPeripheral: CBPeripheral?

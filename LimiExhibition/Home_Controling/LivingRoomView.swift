@@ -224,7 +224,7 @@ struct DevicesGridView: View {
             }
             
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 15), GridItem(.flexible(), spacing: 15)], spacing: 15) {
-                DeviceCard(
+                DemoDeviceCard(
                     icon: "lightbulb.fill",
                     name: "Light",
                     status: "80%",
@@ -232,7 +232,7 @@ struct DevicesGridView: View {
                     onTap: onLightTap
                 )
                 
-                DeviceCard(
+                DemoDeviceCard(
                     icon: "snowflake",
                     name: "AC",
                     status: "23°C",
@@ -240,7 +240,7 @@ struct DevicesGridView: View {
                     onTap: {}
                 )
                 
-                DeviceCard(
+                DemoDeviceCard(
                     icon: "wifi",
                     name: "Wi-Fi",
                     status: "On",
@@ -248,7 +248,7 @@ struct DevicesGridView: View {
                     onTap: {}
                 )
                 
-                DeviceCard(
+                DemoDeviceCard(
                     icon: "tv",
                     name: "Smart TV",
                     status: "Off",
@@ -261,7 +261,7 @@ struct DevicesGridView: View {
     }
 }
 
-struct DeviceCard: View {
+struct DemoDeviceCard: View {
     let icon: String
     let name: String
     let status: String

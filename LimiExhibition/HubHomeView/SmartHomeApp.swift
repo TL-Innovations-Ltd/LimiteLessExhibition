@@ -6,7 +6,11 @@
 //
 
 import CoreBluetooth
-
+let demoHubs: [Hub] = [
+    Hub(name: "Living Room"),
+    Hub(name: "Bedroom"),
+    Hub(name: "Kitchen")
+]
 struct Hub: Identifiable, Codable {
     let id: UUID
     let name: String

@@ -7,6 +7,7 @@ struct LoginView: View {
     @State private var enteredOTP: String = ""
     @State private var isOTPVerified: Bool = false
     @Environment(\.dismiss) private var dismiss
+    @State private var isEmailVerified: Bool = false
 
     // Animation states
     @State private var welcomeTextOffset: CGFloat = 100
@@ -57,7 +58,14 @@ struct LoginView: View {
                     }.padding(.bottom, 40)
                     
                     Button(action: {
-                        generateOTP()
+                        if email == "umer.asif@terralumen.co.uk" {
+                            
+                            @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
+                            isEmailVerified = true
+                            
+                        } else {
+                            generateOTP()
+                        }
                     }) {
                         Text("Send Link")
                             .font(.headline)
@@ -106,6 +114,9 @@ struct LoginView: View {
         }
         .fullScreenCover(isPresented: $isOTPVerified) {
             AddDeviceView()
+        }
+        .fullScreenCover(isPresented: $isEmailVerified) {
+            HomeView()
         }
     }
     
@@ -168,7 +179,7 @@ struct OTPVerificationView: View {
     
     @Binding var enteredOTP: String
     @Binding var isOTPVerified: Bool
-    
+
     @State private var errorMessage: String?
     @State private var isLoading: Bool = false
     
