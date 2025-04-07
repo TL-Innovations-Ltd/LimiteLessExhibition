@@ -37,24 +37,24 @@ struct LightScreen: View {
                         .font(.largeTitle)
                         .padding()
 
-                    // LIMI AI Button
-                    Button(action: {
-                        isAIEnabled.toggle()
-                        if isAIEnabled {
-                            startAIMode()
-                        } else {
-                            stopAIMode()
-                        }
-                    }) {
-                        Text("LIMI AI")
-                            .fontWeight(.bold)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(isAIEnabled ? Color.green : Color.gray)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .padding()
+//                    // LIMI AI Button
+//                    Button(action: {
+//                        isAIEnabled.toggle()
+//                        if isAIEnabled {
+//                            startAIMode()
+//                        } else {
+//                            stopAIMode()
+//                        }
+//                    }) {
+//                        Text("LIMI AI")
+//                            .fontWeight(.bold)
+//                            .padding()
+//                            .frame(maxWidth: .infinity)
+//                            .background(isAIEnabled ? Color.green : Color.gray)
+//                            .foregroundColor(.white)
+//                            .cornerRadius(10)
+//                    }
+//                    .padding()
 
                     if showToast {
                         Text("AI adjusting environment…")
@@ -72,7 +72,7 @@ struct LightScreen: View {
                         isSearching = true
                         searchForDevices()
                     }) {
-                        Text("Add DeviceS")
+                        Text("Add Device")
                             .fontWeight(.bold)
                             .padding()
                             .frame(width: 150, height: 60)
