@@ -168,7 +168,7 @@ struct HomeView: View {
                     // MARK: - Enhanced Devices Section with Staggered Animation
                     VStack(alignment: .leading) {
                         HStack {
-                            Text("My Hubs")
+                            Text("My Spaces")
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.charlestonGreen)
