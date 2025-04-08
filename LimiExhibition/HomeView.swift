@@ -32,7 +32,11 @@ struct HomeView: View {
     @State private var linkedDevices: [DeviceHome] = []
     @State private var isNavigatingToAddDevice = false
     @State private var showARScan = false
-    @State private var selectedModel = "LimiLight1"
+    @State private var showCustomer = false
+    @State private var showGrouping = false
+    @State private var showWebView = false
+    @State private var selectedTab = 0
+
     @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
 
     @ObservedObject var bluetoothManager = BluetoothManager.shared
@@ -328,9 +332,9 @@ struct HomeView: View {
             // (Sidebar and floating button code omitted for brevity)
         }
             // <-- PRESENT ARScanView when showARScan is true:
-            .fullScreenCover(isPresented: $showARScan) {
-                ARScanViewContainer()
-            }
+        .fullScreenCover(isPresented: $showARScan) {
+            ARScanViewContainer()
+        }
             .onAppear {
                 // Trigger animations when view appears
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -343,7 +347,13 @@ struct HomeView: View {
             }
             // MARK: - Enhanced Bottom Navigation
             .overlay(
-                EnhancedBottomNavigationView(showARScan: $showARScan)
+                EnhancedBottomNavigationView(
+                    showARScan: $showARScan,
+                    showCustomer: $showCustomer,
+                    showGrouping: $showGrouping,
+                    showWebView: $showWebView,
+                    selectedTab: $selectedTab
+                )
                     .offset(y: isLoaded ? 0 : 100)
                     // Animation: Slide up from bottom
                     .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.4), value: isLoaded),
@@ -1117,10 +1127,10 @@ struct EnhancedSidebarView: View {
 // MARK: - Enhanced Bottom Navigation
 struct EnhancedBottomNavigationView: View {
     @Binding var showARScan: Bool
-    @State private var selectedTab = 0
-    @State private var showWebView = false
-    @State private var showGrouping = false
-    @State private var showCustomer = false
+    @Binding var showCustomer: Bool
+    @Binding var showGrouping: Bool
+    @Binding var showWebView: Bool
+    @Binding var selectedTab: Int
     @State private var showCamera = false
     @State private var capturedImage: UIImage?
     @State private var tabBarOffset: CGFloat = 0
@@ -1176,6 +1186,9 @@ struct EnhancedBottomNavigationView: View {
                                 }
                                 else if index == 4 { // Shop
                                     showCustomer = true
+                                }
+                                else if index == 1 { // Group
+                                    showGrouping = true
                                 }
                             }
                         }
@@ -1251,10 +1264,10 @@ struct EnhancedBottomNavigationView: View {
             .background(Color.black.opacity(0.8))
             .cornerRadius(15)
             .padding(.horizontal)
-        }
+        }*/
         .sheet(isPresented: $showCustomer) {
             CustomerCaptureView()
-        }*/
+        }
     }
 }
 
