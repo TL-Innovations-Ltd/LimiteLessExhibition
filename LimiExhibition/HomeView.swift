@@ -31,6 +31,8 @@ struct HomeView: View {
     @State private var searchText = ""
     @State private var linkedDevices: [DeviceHome] = []
     @State private var isNavigatingToAddDevice = false
+    @State private var showARScan = false
+    @State private var selectedModel = "LimiLight1"
     @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
 
     @ObservedObject var bluetoothManager = BluetoothManager.shared
@@ -115,11 +117,12 @@ struct HomeView: View {
                             .onSubmit {
                                 searchFieldFocused = false
                             }
+                        Spacer()
                         
                         // MARK: - Enhanced Scan Button with Pulse Animation
                         Button(action: {
-                            print("Scanning...")
-                            // Animation: Trigger pulse effect when scanning
+                            print("AR Scan button tapped")
+                            showARScan = true  // Trigger AR experience
                             withAnimation(.spring()) {
                                 let impactMed = UIImpactFeedbackGenerator(style: .medium)
                                 impactMed.impactOccurred()
@@ -157,7 +160,7 @@ struct HomeView: View {
                                     .foregroundColor(.alabaster)
                                     .frame(width: 22, height: 22)
                                     .scaleEffect(isLoaded ? 1.0 : 0.95)
-                                    
+                                
                             }
                         }
                     }
@@ -187,69 +190,69 @@ struct HomeView: View {
                             .onAppear {
                                 isLoaded = true
                             }
-
+                            
                         } else {
                             if bluetoothManager.storedHubs.isEmpty {
-                                            // ❌ No hubs found → Show Empty State
-                                            VStack(spacing: 20) {
-                                                ZStack {
-                                                    ForEach(0..<3, id: \.self) { i in
-                                                        Circle()
-                                                            .stroke(Color.etonBlue.opacity(0.1), lineWidth: 2)
-                                                            .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
-                                                            .scaleEffect(isLoaded ? 1.0 : 0.8)
-                                                            .opacity(isLoaded ? 1 : 0)
-                                                            .animation(.easeInOut(duration: 1.0).delay(0.3 + Double(i) * 0.1), value: isLoaded)
-                                                    }
-                                                    Image(systemName: "house.fill")
-                                                        .font(.system(size: 40))
-                                                        .foregroundColor(.etonBlue)
-                                                        .opacity(isLoaded ? 1 : 0)
-                                                        .scaleEffect(isLoaded ? 1 : 0.5)
-                                                        .rotationEffect(isLoaded ? .degrees(0) : .degrees(-30))
-                                                        .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
-                                                }
-                                                .frame(height: 150)
-                                                .padding(.top, 20)
-
-                                                VStack(spacing: 10) {
-                                                    Text("No devices linked yet")
-                                                        .font(.headline)
-                                                        .foregroundColor(.charlestonGreen)
-                                                        .opacity(isLoaded ? 1 : 0)
-                                                        .animation(.easeIn.delay(0.6), value: isLoaded)
-
-                                                    Text("Tap + to add your first device")
-                                                        .font(.subheadline)
-                                                        .foregroundColor(.gray.opacity(0.8))
-                                                        .opacity(isLoaded ? 1 : 0)
-                                                        .animation(.easeIn.delay(0.8), value: isLoaded)
-                                                        .padding(.bottom, 10)
-
-                                                    Button(action: {
-                                                        isNavigatingToAddDevice = true
-                                                    }) {
-                                                        HStack {
-                                                            Image(systemName: "plus.circle.fill")
-                                                                .font(.system(size: 16))
-                                                            Text("Add Device")
-                                                                .fontWeight(.medium)
-                                                        }
-                                                        .foregroundColor(.white)
-                                                        .padding(.vertical, 10)
-                                                        .padding(.horizontal, 20)
-                                                        .background(
-                                                            RoundedRectangle(cornerRadius: 20)
-                                                                .fill(Color.etonBlue)
-                                                        )
-                                                        .shadow(color: Color.etonBlue.opacity(0.3), radius: 5, x: 0, y: 3)
-                                                    }
-                                                    .opacity(isLoaded ? 1 : 0)
-                                                    .animation(.easeIn.delay(1.0), value: isLoaded)
-                                                }
+                                // ❌ No hubs found → Show Empty State
+                                VStack(spacing: 20) {
+                                    ZStack {
+                                        ForEach(0..<3, id: \.self) { i in
+                                            Circle()
+                                                .stroke(Color.etonBlue.opacity(0.1), lineWidth: 2)
+                                                .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
+                                                .scaleEffect(isLoaded ? 1.0 : 0.8)
+                                                .opacity(isLoaded ? 1 : 0)
+                                                .animation(.easeInOut(duration: 1.0).delay(0.3 + Double(i) * 0.1), value: isLoaded)
+                                        }
+                                        Image(systemName: "house.fill")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(.etonBlue)
+                                            .opacity(isLoaded ? 1 : 0)
+                                            .scaleEffect(isLoaded ? 1 : 0.5)
+                                            .rotationEffect(isLoaded ? .degrees(0) : .degrees(-30))
+                                            .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
+                                    }
+                                    .frame(height: 150)
+                                    .padding(.top, 20)
+                                    
+                                    VStack(spacing: 10) {
+                                        Text("No devices linked yet")
+                                            .font(.headline)
+                                            .foregroundColor(.charlestonGreen)
+                                            .opacity(isLoaded ? 1 : 0)
+                                            .animation(.easeIn.delay(0.6), value: isLoaded)
+                                        
+                                        Text("Tap + to add your first device")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray.opacity(0.8))
+                                            .opacity(isLoaded ? 1 : 0)
+                                            .animation(.easeIn.delay(0.8), value: isLoaded)
+                                            .padding(.bottom, 10)
+                                        
+                                        Button(action: {
+                                            isNavigatingToAddDevice = true
+                                        }) {
+                                            HStack {
+                                                Image(systemName: "plus.circle.fill")
+                                                    .font(.system(size: 16))
+                                                Text("Add Device")
+                                                    .fontWeight(.medium)
                                             }
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 20)
+                                            .foregroundColor(.white)
+                                            .padding(.vertical, 10)
+                                            .padding(.horizontal, 20)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .fill(Color.etonBlue)
+                                            )
+                                            .shadow(color: Color.etonBlue.opacity(0.3), radius: 5, x: 0, y: 3)
+                                        }
+                                        .opacity(isLoaded ? 1 : 0)
+                                        .animation(.easeIn.delay(1.0), value: isLoaded)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 20)
                             } else {
                                 // ✅ Hubs Available → Show Hub List
                                 ScrollView(showsIndicators: false) {
@@ -274,13 +277,13 @@ struct HomeView: View {
                                 }
                             }
                         }
-
+                        
                     }
                     .onAppear {
                         isLoaded = true
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-
+                    
                     
                     Spacer()
                 }
@@ -296,7 +299,7 @@ struct HomeView: View {
                         if bluetoothManager.storedHubs.isEmpty {
                             if demoEmail == "umer.asif@terralumen.co.uk" {
                                 EnhancedFloatingButton(isNavigating: $isNavigatingToAddDevice)
-                                    // Animation: Bounce in from bottom
+                                // Animation: Bounce in from bottom
                                     .offset(y: isLoaded ? 0 : 100)
                                     .opacity(isLoaded ? 1 : 0)
                                     .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
@@ -304,7 +307,7 @@ struct HomeView: View {
                             
                         }else{
                             EnhancedFloatingButton(isNavigating: $isNavigatingToAddDevice)
-                                // Animation: Bounce in from bottom
+                            // Animation: Bounce in from bottom
                                 .offset(y: isLoaded ? 0 : 100)
                                 .opacity(isLoaded ? 1 : 0)
                                 .animation(.spring(response: 0.6, dampingFraction: 0.6).delay(0.5), value: isLoaded)
@@ -317,8 +320,17 @@ struct HomeView: View {
                     .padding(.trailing, 20)
                     .padding(.bottom, 120)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Spacer()
             }
             
+            // (Sidebar and floating button code omitted for brevity)
+        }
+            // <-- PRESENT ARScanView when showARScan is true:
+            .fullScreenCover(isPresented: $showARScan) {
+                ARScanViewContainer()
+            }
             .onAppear {
                 // Trigger animations when view appears
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -331,14 +343,13 @@ struct HomeView: View {
             }
             // MARK: - Enhanced Bottom Navigation
             .overlay(
-                EnhancedBottomNavigationView()
+                EnhancedBottomNavigationView(showARScan: $showARScan)
                     .offset(y: isLoaded ? 0 : 100)
                     // Animation: Slide up from bottom
                     .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.4), value: isLoaded),
                 alignment: .bottom
             )
         }
-    }
 
     // MARK: - API Functions
     func fetchLinkedDevices() {
@@ -346,24 +357,24 @@ struct HomeView: View {
             print("User not logged in")
             return
         }
-
+        
         guard let url = URL(string: "https://exhibition-workout-alex-wishlist.trycloudflare.com/client/devices/get_link_devices") else {
             print("Invalid URL")
             return
         }
-
+        
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("\(token)", forHTTPHeaderField: "Authorization")
-
+        
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let data = data {
                 do {
                     if let jsonString = String(data: data, encoding: .utf8) {
                         print("Raw API Response: \(jsonString)")
                     }
-
+                    
                     let decodedResponse = try JSONDecoder().decode(APIResponseHome.self, from: data)
                     DispatchQueue.main.async {
                         self.linkedDevices = decodedResponse.devices.devices.map { device in
@@ -384,6 +395,8 @@ struct HomeView: View {
         }.resume()
     }
 }
+    
+
 
 // MARK: - Device Models
 struct DeviceHome: Identifiable, Codable {
@@ -1103,6 +1116,7 @@ struct EnhancedSidebarView: View {
 
 // MARK: - Enhanced Bottom Navigation
 struct EnhancedBottomNavigationView: View {
+    @Binding var showARScan: Bool
     @State private var selectedTab = 0
     @State private var showWebView = false
     @State private var showGrouping = false
@@ -1154,11 +1168,8 @@ struct EnhancedBottomNavigationView: View {
                                 impactMed.impactOccurred()
                                 
                                 // Handle special tabs
-                                if index == 1 { // Camera
-                                    showGrouping = true
-                                }
-                                else if index == 2 { // Camera
-                                    showCamera = true
+                                if index == 2 { // AR Scan
+                                    showARScan = true
                                 }
                                 else if index == 3 { // Shop
                                     showWebView = true
@@ -1215,7 +1226,7 @@ struct EnhancedBottomNavigationView: View {
         .sheet(isPresented: $showGrouping) {
             GroupingView()
         }
-        // Sheet for Camera
+        /* // Sheet for Camera
         .sheet(isPresented: $showCamera) {
             VStack {
                 
@@ -1243,8 +1254,7 @@ struct EnhancedBottomNavigationView: View {
         }
         .sheet(isPresented: $showCustomer) {
             CustomerCaptureView()
-        }
-
+        }*/
     }
 }
 
