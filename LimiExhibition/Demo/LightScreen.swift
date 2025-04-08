@@ -9,8 +9,10 @@ struct LightScreen: View {
     @State private var isAIEnabled: Bool = false
     @State private var showToast: Bool = false
     @State private var lightNames: [String] = ["Lana Pendant Light", "Astoria Pendant Light", "Oceana Small Ceiling Light"]
-    @State private var isSearching: Bool = false
     @State private var lightStatus: [Bool] = [false, false, false] // light on/off status
+    
+    // New state for the bottom sheet
+    @State private var showDeviceSheet: Bool = false
 
     var body: some View {
         VStack {
@@ -37,25 +39,6 @@ struct LightScreen: View {
                         .font(.largeTitle)
                         .padding()
 
-//                    // LIMI AI Button
-//                    Button(action: {
-//                        isAIEnabled.toggle()
-//                        if isAIEnabled {
-//                            startAIMode()
-//                        } else {
-//                            stopAIMode()
-//                        }
-//                    }) {
-//                        Text("LIMI AI")
-//                            .fontWeight(.bold)
-//                            .padding()
-//                            .frame(maxWidth: .infinity)
-//                            .background(isAIEnabled ? Color.green : Color.gray)
-//                            .foregroundColor(.white)
-//                            .cornerRadius(10)
-//                    }
-//                    .padding()
-
                     if showToast {
                         Text("AI adjusting environment…")
                             .font(.subheadline)
@@ -69,8 +52,8 @@ struct LightScreen: View {
                     }
 
                     Button(action: {
-                        isSearching = true
-                        searchForDevices()
+                        // Show the device search sheet instead of inline search
+                        showDeviceSheet = true
                     }) {
                         Text("Add Device")
                             .fontWeight(.bold)
@@ -82,37 +65,29 @@ struct LightScreen: View {
                     }
                     .padding(.top, 20)
 
-                    if isSearching {
-                        Text("Searching for devices...")
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color.black.opacity(0.7))
-                            .cornerRadius(8)
-                    } else {
-                        ForEach(lightNames.indices, id: \.self) { index in
-                            LightCard(
-                                lightName: lightNames[index],
-                                index: index, // 🔁 Pass index here
-                                isAIEnabled: $isAIEnabled
-                            )
-                            .padding(.horizontal)
-                        }
-
+                    // Display light cards
+                    ForEach(lightNames.indices, id: \.self) { index in
+                        LightCard(
+                            lightName: lightNames[index],
+                            index: index,
+                            isAIEnabled: $isAIEnabled
+                        )
+                        .padding(.horizontal)
                     }
                 }
                 .navigationTitle("Lights")
             }
             .edgesIgnoringSafeArea(.all)
-        }
-    }
-
-    func searchForDevices() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let newLight = "New Light \(lightNames.count + 1)"
-            lightNames.append(newLight)
-            lightStatus.append(false) // Add status for new light
-            isSearching = false
+            // Add the sheet presentation
+            .sheet(isPresented: $showDeviceSheet) {
+                DeviceSearchSheet(
+                    isPresented: $showDeviceSheet,
+                    lightNames: $lightNames,
+                    lightStatus: $lightStatus
+                )
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+            }
         }
     }
 
