@@ -39,5 +39,9 @@
 		<string>NDEF</string>
 		<string>TAG</string>
 	</array>
+    <key>NSCameraUsageDescription</key>
+    <string>This app uses the camera for augmented reality features.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Camera is used for AR scanning to create 3D floor plans.</string>
 </dict>
 </plist>

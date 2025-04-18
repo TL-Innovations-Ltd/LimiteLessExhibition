@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9A78A3142D8A7E4100F01E0D /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 9A78A3132D8A7E4100F01E0D /* SDWebImageSwiftUI */; };
+		9ABD247D2DA57617003A5A22 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ABD247C2DA57617003A5A22 /* ARKit.framework */; };
 		9ABFFE3B2D6F20AF00FCA582 /* modela.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */; };
 		9ABFFE502D6F38BC00FCA582 /* Bulbs.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 9ABFFE4F2D6F38BC00FCA582 /* Bulbs.usdz */; };
 		9ACC85E72D731F33009F2DD5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 9ACC85E62D731F23009F2DD5 /* README.md */; };
@@ -40,10 +41,12 @@
 		9ADA73062D6DD73C0044A7CF /* Poppins-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9ADA72E42D6DD73C0044A7CF /* Poppins-Medium.ttf */; };
 		9ADC37662D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 9ADC37652D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 */; };
 		9AF2B1BC2D7D59A1003D366D /* FLAnimatedImage in Frameworks */ = {isa = PBXBuildFile; productRef = 9AF2B1BB2D7D59A1003D366D /* FLAnimatedImage */; };
+		9AF3A3AB2DA58E8E004EADAA /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AF3A3AA2DA58E8E004EADAA /* Metal.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		9A8310452DA135A300D84901 /* Limi.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Limi.entitlements; sourceTree = "<group>"; };
+		9ABD247C2DA57617003A5A22 /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
 		9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = modela.usdz; sourceTree = "<group>"; };
 		9ABFFE4F2D6F38BC00FCA582 /* Bulbs.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = Bulbs.usdz; sourceTree = "<group>"; };
 		9ACC85E62D731F23009F2DD5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -76,6 +79,7 @@
 		9ADA72E92D6DD73C0044A7CF /* Poppins-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Thin.ttf"; sourceTree = "<group>"; };
 		9ADA72EA2D6DD73C0044A7CF /* Poppins-ThinItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-ThinItalic.ttf"; sourceTree = "<group>"; };
 		9ADC37652D77E7FD00FFD618 /* logoanimationupdate - Trim.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "logoanimationupdate - Trim.mp4"; sourceTree = "<group>"; };
+		9AF3A3AA2DA58E8E004EADAA /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -115,6 +119,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9AF3A3AB2DA58E8E004EADAA /* Metal.framework in Frameworks */,
+				9ABD247D2DA57617003A5A22 /* ARKit.framework in Frameworks */,
 				9A78A3142D8A7E4100F01E0D /* SDWebImageSwiftUI in Frameworks */,
 				9AF2B1BC2D7D59A1003D366D /* FLAnimatedImage in Frameworks */,
 			);
@@ -123,6 +129,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		9ABD247B2DA57617003A5A22 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9AF3A3AA2DA58E8E004EADAA /* Metal.framework */,
+				9ABD247C2DA57617003A5A22 /* ARKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		9ABFFE462D6F26F500FCA582 /* Objects */ = {
 			isa = PBXGroup;
 			children = (
@@ -142,6 +157,7 @@
 				9ADA72152D6DD6D80044A7CF /* Products */,
 				9ABFFE462D6F26F500FCA582 /* Objects */,
 				9A6EFC5C2D8BB14500272B02 /* LimiExhibition */,
+				9ABD247B2DA57617003A5A22 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
