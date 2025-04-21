@@ -43,5 +43,8 @@
     <string>This app uses the camera for augmented reality features.</string>
     <key>NSCameraUsageDescription</key>
     <string>Camera is used for AR scanning to create 3D floor plans.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>This app requires camera access for augmented reality.</string>
+
 </dict>
 </plist>

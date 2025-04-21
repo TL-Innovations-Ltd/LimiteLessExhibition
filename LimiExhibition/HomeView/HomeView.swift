@@ -61,7 +61,7 @@ struct HomeView: View {
             
             // MARK: - AR Scan View
             .fullScreenCover(isPresented: $viewModel.showARScan) {
-                ARContentView()
+                ARRoomPlanContentView()
             }
             .onAppear {
                 viewModel.setupInitialState()
