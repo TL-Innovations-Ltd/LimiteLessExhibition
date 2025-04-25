@@ -208,12 +208,12 @@ struct LEDToggleButton: View {
                 
                 Toggle("", isOn: $toggles[index])
                     .labelsHidden()
-                    .tint(.etonBlue)
+                    .tint(.eton)
                     .animation(.spring(response: 0.3, dampingFraction: 0.6), value: toggles[index])
                     .scaleEffect(toggles[index] ? 1.1 : 1.0)
                     .overlay(
                         Circle()
-                            .fill(toggles[index] ? Color.etonBlue.opacity(0.3) : Color.clear)
+                            .fill(toggles[index] ? Color.eton.opacity(0.3) : Color.clear)
                             .scaleEffect(toggles[index] ? 1.5 : 0)
                             .animation(.easeOut(duration: 0.3), value: toggles[index])
                     )

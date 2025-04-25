@@ -9,12 +9,18 @@ import SwiftUI
 
 struct DataRGBView: View {
     @AppStorage("lampRGB") private var isOn: Bool = false
-    @State private var selectedColor: Color = .emerald
+    @AppStorage("RGBBrightness") private var RGBBrightness: Double = 50
+    @AppStorage("selectedColorHex") private var selectedColorHex: String = "#50C878" // Default emerald hex
+    private var hexColor: Color {
+        Color(hex: selectedColorHex)
+    }
+    @State private var selectedColor: Color = Color(hex: UserDefaults.standard.string(forKey: "selectedColorHex") ?? "#50C878")
     @State private var showingColorPicker = false
     @State private var selectedMode: ColorMode = .solid
     @State private var colorValue: Double = 0.0 // Represents position on rainbow slider
     @State private var redValue: Int = 0
     @State private var greenValue: Int = 0
+     
     @State private var blueValue: Int = 0
     @State private var brightnessValue: Double = 1.0 // Brightness value ranging from 0.0 to 1.0
     @ObservedObject var sharedDevice = SharedDevice.shared
@@ -117,43 +123,31 @@ struct DataRGBView: View {
                         }
                 }
                 .padding(.horizontal)
+                
+                // Modified Brightness Control Section
                 HStack {
                     Spacer() // Push the VStack to the left
 
                     VStack {
-                        Text("\(Int(brightnessValue))%")
+                        Text("\(Int(RGBBrightness))%")
                             .bold()
                             .font(.title2)
                             .foregroundColor(.alabaster)
                             .padding(.bottom, 5)
 
-                        ZStack {
-                            // Background Gradient (White to Transparent)
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                            .frame(width: 60, height: 200) // Adjust width and height
-                            .cornerRadius(20) // Smooth corners
-                            .opacity(0.8) // Adjust transparency
-                            .shadow(color:.black  ,radius: 5)
-                            // Vertical Slider
-                            Slider(value: $brightnessValue, in: 0...100, step: 1)
-                            .rotationEffect(.degrees(-90)) // Rotate to vertical
-                            .frame(width: 120, height: 120) // Adjust size
-                            .accentColor(.white) // Customize knob color
-                            .disabled(!isOn)
-                            .onChange(of: brightnessValue) { newValue in
-                                // Update the LED brightness based on the slider value and the selected color
-                                updateBrightness(newValue, selectedColor: selectedColor)
-                            }
+
+                        VerticalSlider(value: $RGBBrightness, isEnabled: isOn) { newValue in
+                            updateBrightness(newValue, selectedColor: selectedColor)
                         }
+                        .frame(width: 60, height: 200)
 
                     }
                     
                 }
+                .disabled(!isOn)
                 .padding(.top, 20)
+                .padding(.horizontal)
+
                 Spacer()
                 
                 VStack {
@@ -188,7 +182,7 @@ struct DataRGBView: View {
                         }) {
                             Text("Solid Color")
                                 .padding(8)
-                                .background(showSolidColor ? Color.emerald : Color.etonBlue.opacity(0.4))
+                                .background(showSolidColor ? Color.emerald : Color.eton.opacity(0.4))
                                 .foregroundColor(.alabaster)
                                 .cornerRadius(8)
                         }
@@ -200,7 +194,7 @@ struct DataRGBView: View {
                         }) {
                             Text("Rainbow Color")
                                 .padding(8)
-                                .background(!showSolidColor ? Color.emerald : Color.etonBlue.opacity(0.4))
+                                .background(!showSolidColor ? Color.emerald : Color.eton.opacity(0.4))
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
                         }
@@ -252,56 +246,15 @@ struct DataRGBView: View {
                 .padding(.bottom, 20)
                 
                 
-                //                HStack {
-                //                    VStack {
-                //                        HStack {
-                //                            Text("Red")
-                //                                .foregroundColor(.charlestonGreen)
-                //                                .bold(true)
-                //                            TextField("0", value: $redValue, formatter: NumberFormatter())
-                //                                .keyboardType(.numberPad)
-                //                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                //                                .frame(width: 50)
-                //                                .onChange(of: redValue) { oldValue, newValue in
-                //                                    checkAndSendColor()
-                //                                }
-                //                        }
-                //                    }
-                //                    VStack {
-                //                        HStack {
-                //                            Text("Green")
-                //                                .foregroundColor(.charlestonGreen)
-                //                                .bold(true)
-                //                            TextField("0", value: $greenValue, formatter: NumberFormatter())
-                //                                .keyboardType(.numberPad)
-                //                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                //                                .frame(width: 50)
-                //                                .onChange(of: redValue) { oldValue, newValue in
-                //                                    checkAndSendColor()
-                //                                }
-                //                        }
-                //                    }
-                //                    VStack {
-                //                        HStack {
-                //                            Text("Blue")
-                //                                .foregroundColor(.charlestonGreen)
-                //                                .bold(true)
-                //                            TextField("0", value: $blueValue, formatter: NumberFormatter())
-                //                                .keyboardType(.numberPad)
-                //                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                //                                .frame(width: 50)
-                //                                .onChange(of: redValue) { oldValue, newValue in
-                //                                    checkAndSendColor()
-                //                                }
-                //                        }
-                //                    } // rgb(214,23,210)
-                //                }
-                //                .padding(.top)
-                
             }
             .padding(.horizontal)
             .padding()
             
+            .onChange(of: selectedColor) { oldValue, newValue in
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+                selectedColorHex = newValue.toHex()
+            }
             .sheet(isPresented: $showingColorPicker) {
                 ColorPickerView(selectedColor: $selectedColor)
             }
@@ -537,12 +490,16 @@ struct DataRGBView: View {
 struct ColorCircleSlider: View {
     @Binding var selectedColor: Color
     let colors: [Color] = [.darkRed, .orange, .yellow, .darkGreen, .darkBlue, .indigo, .purple, .pink]
-    @State private var selectedIndex: Int = 0
     
+    // Instead of @State, make it computed from the binding
+    var selectedIndex: Int {
+        colors.firstIndex(where: { $0.description == selectedColor.description }) ?? 0
+    }
     let circleSize: CGFloat = 30
     let selectedScale: CGFloat = 1.3
     let spacing: CGFloat = 10
-    
+
+
     var body: some View {
         HStack(spacing: spacing) {
             ForEach(colors.indices, id: \.self) { index in
@@ -558,7 +515,6 @@ struct ColorCircleSlider: View {
                     .shadow(color: colors[index].opacity(0.5), radius: 4)
                     .animation(.spring(response: 0.3), value: selectedIndex)
                     .onTapGesture {
-                        selectedIndex = index
                         selectedColor = colors[index]
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
@@ -566,9 +522,9 @@ struct ColorCircleSlider: View {
             }
         }
         .padding(.horizontal)
-
     }
 }
+
 struct ColorPresetButton: View {
     let color: Color
     @Binding var selectedColor: Color

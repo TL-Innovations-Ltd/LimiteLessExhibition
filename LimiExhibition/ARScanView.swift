@@ -22,7 +22,7 @@
 //                    Label(selectedModel, systemImage: "cube.transparent.fill")
 //                        .foregroundColor(.white)
 //                        .padding(10)
-//                        .background(Color.etonBlue.opacity(0.9)) // Replace with Color.etonBlue if defined
+//                        .background(Color.eton.opacity(0.9)) // Replace with Color.eton if defined
 //                        .cornerRadius(10)
 //                        .shadow(radius: 4)
 //                }

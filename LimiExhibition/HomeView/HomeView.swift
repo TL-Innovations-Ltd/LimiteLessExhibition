@@ -191,13 +191,13 @@ struct EnhancedSidebarView: View {
                                         Circle()
                                             .fill(
                                                 LinearGradient(
-                                                    gradient: Gradient(colors: [Color.etonBlue, Color.etonBlue.opacity(0.7)]),
+                                                    gradient: Gradient(colors: [Color.eton, Color.eton.opacity(0.7)]),
                                                     startPoint: .topLeading,
                                                     endPoint: .bottomTrailing
                                                 )
                                             )
                                             .frame(width: 60, height: 60)
-                                            .shadow(color: Color.etonBlue.opacity(0.3), radius: 5, x: 0, y: 3)
+                                            .shadow(color: Color.eton.opacity(0.3), radius: 5, x: 0, y: 3)
                                         
                                         // Animated ring
                                         Circle()
@@ -247,23 +247,23 @@ struct EnhancedSidebarView: View {
                                         // Icon with background for selected item
                                         ZStack {
                                             Circle()
-                                                .fill(selectedItem == item.1 ? Color.etonBlue.opacity(0.2) : Color.clear)
+                                                .fill(selectedItem == item.1 ? Color.eton.opacity(0.2) : Color.clear)
                                                 .frame(width: 36, height: 36)
                                             
                                             Image(systemName: item.0)
                                                 .font(.system(size: 18))
-                                                .foregroundColor(selectedItem == item.1 ? Color.etonBlue : .charlestonGreen.opacity(0.7))
+                                                .foregroundColor(selectedItem == item.1 ? Color.eton : .charlestonGreen.opacity(0.7))
                                         }
                                         
                                         Text(item.1)
                                             .font(.headline)
-                                            .foregroundColor(selectedItem == item.1 ? Color.etonBlue : .charlestonGreen.opacity(0.7))
+                                            .foregroundColor(selectedItem == item.1 ? Color.eton : .charlestonGreen.opacity(0.7))
                                         
                                         Spacer()
                                         
                                         if selectedItem == item.1 {
                                             Circle()
-                                                .fill(Color.etonBlue)
+                                                .fill(Color.eton)
                                                 .frame(width: 8, height: 8)
                                         }
                                     }
@@ -272,7 +272,7 @@ struct EnhancedSidebarView: View {
                                     // Enhanced animation: Highlight on selection
                                     .background(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .fill(selectedItem == item.1 ? Color.etonBlue.opacity(0.1) : Color.clear)
+                                            .fill(selectedItem == item.1 ? Color.eton.opacity(0.1) : Color.clear)
                                             .padding(.horizontal, 10)
                                     )
                                 }

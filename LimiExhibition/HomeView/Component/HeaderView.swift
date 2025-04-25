@@ -56,7 +56,7 @@ struct HeaderView: View {
                 ZStack {
                     // Button glow
                     Circle()
-                        .fill(Color.etonBlue.opacity(0.2))
+                        .fill(Color.eton.opacity(0.2))
                         .frame(width: 50, height: 50)
                         .blur(radius: 5)
                         .opacity(isSidebarOpen ? 0.7 : 0)

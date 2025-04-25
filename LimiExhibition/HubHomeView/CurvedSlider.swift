@@ -25,11 +25,11 @@ struct CurvedSlider: View {
         GeometryReader { geometry in
             let scale = min(1.0, geometry.size.width / (2 * radius + knobSize))
             ZStack(alignment: .center) {
-                // Background track as a circular arc with gradient
+                // Track background
                 CircularTrackShape(radius: radius)
                     .stroke(Color.gray.opacity(0.2), lineWidth: trackHeight)
                     .frame(width: 2 * radius, height: radius)
-                
+
                 // Gradient track
                 CircularTrackShape(radius: radius)
                     .stroke(
@@ -38,7 +38,6 @@ struct CurvedSlider: View {
                                 Color(red: 1.0, green: 0.95, blue: 0.8),
                                 Color.white,
                                 Color(red: 0.8, green: 0.9, blue: 1.0)
-                                
                             ]),
                             startPoint: .leading,
                             endPoint: .trailing
@@ -46,16 +45,14 @@ struct CurvedSlider: View {
                         style: StrokeStyle(lineWidth: trackHeight, lineCap: .round)
                     )
                     .frame(width: 2 * radius, height: radius)
-                
-                // Knob with improved design
+
+                // Knob
                 ZStack {
-                    // Outer glow
                     Circle()
                         .fill(Color.white.opacity(0.5))
                         .frame(width: knobSize + 8, height: knobSize + 8)
                         .blur(radius: 4)
-                    
-                    // Main knob body
+
                     Circle()
                         .fill(
                             LinearGradient(
@@ -66,35 +63,43 @@ struct CurvedSlider: View {
                         )
                         .frame(width: knobSize, height: knobSize)
                         .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
-                    
-                    // Inner highlight
+
                     Circle()
                         .fill(Color.white)
                         .frame(width: knobSize * 0.6, height: knobSize * 0.6)
                 }
-                .position(
-                    x: knobXPosition(),
-                    y: knobYPosition()
-                )
+                .position(x: knobXPosition(), y: knobYPosition())
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { gesture in
                             if isDisabled { return }
-                            
                             if !isDragging {
                                 isDragging = true
                                 onEditingChanged(true)
                             }
-                            
                             updateValue(with: gesture.location)
                         }
                         .onEnded { _ in
                             if isDisabled { return }
-                            
                             isDragging = false
                             onEditingChanged(false)
                         }
                 )
+
+                // Tap-to-move the knob anywhere on the arc
+                Color.clear
+                    .contentShape(CircularTrackShape(radius: radius))
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onEnded { drag in
+                                if isDisabled { return }
+                                updateValue(with: drag.location)
+                                onEditingChanged(true)
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    onEditingChanged(false)
+                                }
+                            }
+                    )
             }
             .frame(width: 2 * radius, height: radius)
             .scaleEffect(scale)
@@ -128,32 +133,38 @@ struct CurvedSlider: View {
         // Calculate vector from center to touch point
         let dx = location.x - cx
         let dy = cy - location.y  // Invert y-axis
-        
+
         // Calculate angle in radians
         var angle = atan2(dy, dx)
-        
-        // Ensure angle is between 0 and π (0° to 180°)
-        if angle < 0 {
-            angle = 0
-        } else if angle > .pi {
-            angle = .pi
+
+        // Clamp angle safely within [0, π]
+        angle = max(min(angle, .pi), 0)
+
+        // Optional: Prevent sudden angle jump
+        let lastPercentage = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
+        let lastAngle = lastPercentage * .pi
+        let angleDelta = abs(lastAngle - angle)
+
+        if angleDelta > .pi / 1.5 {
+            return // Ignore large unexpected jumps
         }
-        
+
         // Convert angle to percentage of the slider range
         let percentage = angle / .pi
         var newValue = range.lowerBound + percentage * (range.upperBound - range.lowerBound)
-        
+
         // Apply stepping if needed
         if step > 0 {
             newValue = round(newValue / step) * step
         }
-        
+
         // Clamp to range
         newValue = max(range.lowerBound, min(range.upperBound, newValue))
-        
+
         // Update the value
         self.value = newValue
     }
+
 }
 
 // Custom shape for the circular track

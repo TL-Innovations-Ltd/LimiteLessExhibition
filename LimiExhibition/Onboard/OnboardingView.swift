@@ -141,7 +141,7 @@ struct OnboardingView: View {
             .edgesIgnoringSafeArea(.all)
             
             ZStack(alignment: .topTrailing) {
-                Color.etonBlue
+                Color.eton
                     .edgesIgnoringSafeArea(.all)
                     .opacity(0)
                 

@@ -273,7 +273,7 @@ struct MiniControllerView: View {
                             .padding()
                             .bold()
                             .frame(width: 80, height: 50)
-                            .background(mode == "CCT" ? Color.alabaster : Color.etonBlue)
+                            .background(mode == "CCT" ? Color.alabaster : Color.eton)
                             .foregroundColor(.charlestonGreen)
                             .cornerRadius(10)
                             .animation(.easeInOut, value: mode)
@@ -319,7 +319,7 @@ struct MiniControllerView: View {
                                         MiniButton(
                                             title: "RGB \(index)",
                                             isSelected: selectedRGB == index,
-                                            color: .etonBlue,
+                                            color: .eton,
                                             selectedColor: selectedRGB == index ? selectedColor : nil,
                                             action: {
                                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {

@@ -83,7 +83,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		9A6EFC902D8BB14500272B02 /* Exceptions for "LimiExhibition" folder in "Limi" target */ = {
+		9AD631BF2DB8C9F300D76934 /* Exceptions for "LimiExhibition" folder in "Limi" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -92,22 +92,11 @@
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		9A6EFC912D8BB14500272B02 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "Limi" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = 9ADA72122D6DD6D80044A7CF /* Resources */;
-			membershipExceptions = (
-				"Home_Controling/smart-home-app.tsx",
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9A6EFC5C2D8BB14500272B02 /* LimiExhibition */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				9A6EFC902D8BB14500272B02 /* Exceptions for "LimiExhibition" folder in "Limi" target */,
-				9A6EFC912D8BB14500272B02 /* Exceptions for "LimiExhibition" folder in "Copy Bundle Resources" phase from "Limi" target */,
+				9AD631BF2DB8C9F300D76934 /* Exceptions for "LimiExhibition" folder in "Limi" target */,
 			);
 			path = LimiExhibition;
 			sourceTree = "<group>";

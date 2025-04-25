@@ -11,7 +11,7 @@ struct HubHomeView: View {
 
     var body: some View {
         ZStack {
-            Color.etonBlue
+            Color.eton
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -53,7 +53,7 @@ struct HubHeaderView: View {
             }
         }
         .padding()
-        .background(Color.etonBlue)
+        .background(Color.eton)
     }
 }
     

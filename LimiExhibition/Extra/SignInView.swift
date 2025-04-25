@@ -11,7 +11,7 @@ struct SignInView: View {
     
     var body: some View {
         ZStack {
-            Color.etonBlue.edgesIgnoringSafeArea(.all)
+            Color.eton.edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
                 // Header with Gradient Background
@@ -25,7 +25,7 @@ struct SignInView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 150)
                 .background(
-                    Color.etonBlue.opacity(0.8)
+                    Color.eton.opacity(0.8)
                         .clipShape(RoundedCorner(radius: 20, corners: [.topLeft, .bottomRight, .topRight, .bottomLeft]))
                 )
                 .padding(.horizontal)
@@ -90,7 +90,7 @@ struct SignInView: View {
                         
                         Spacer()
                         Button("Forgot Password?") {}
-                            .foregroundColor(.etonBlue)
+                            .foregroundColor(.eton)
                     }
                     .padding(.horizontal)
                     
@@ -103,7 +103,7 @@ struct SignInView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color.etonBlue)
+                            .background(Color.eton)
                             .cornerRadius(10)
                     }
                     .padding(.horizontal)
@@ -152,7 +152,7 @@ struct SignInView: View {
                     }) {
                         Text("Don't have an account? Register")
                             .font(.subheadline)
-                            .foregroundColor(.etonBlue)
+                            .foregroundColor(.eton)
                             .padding(.top, 10)
                     }
                     

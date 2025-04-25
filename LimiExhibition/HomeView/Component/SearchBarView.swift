@@ -25,7 +25,7 @@ struct SearchBarView: View {
                         .shadow(color: Color.black.opacity(0.1), radius: searchFieldFocused ? 8 : 3, x: 0, y: 2)
                         .overlay(
                             RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.etonBlue.opacity(searchFieldFocused ? 0.5 : 0), lineWidth: 2)
+                                .stroke(Color.eton.opacity(searchFieldFocused ? 0.5 : 0), lineWidth: 2)
                         )
                 )
                 .onTapGesture {
@@ -50,7 +50,7 @@ struct SearchBarView: View {
                 ZStack {
                     // Animated ring
                     Circle()
-                        .stroke(Color.etonBlue.opacity(0.3), lineWidth: 2)
+                        .stroke(Color.eton.opacity(0.3), lineWidth: 2)
                         .frame(width: 50, height: 50)
                         .scaleEffect(isLoaded ? 1.2 : 0.8)
                         .opacity(isLoaded ? 0.0 : 0.8)

@@ -50,7 +50,7 @@ struct WebViewScreen: View {
                                 Circle()
                                     .stroke(
                                         LinearGradient(
-                                            gradient: Gradient(colors: [Color.etonBlue.opacity(0.3), Color.etonBlue.opacity(0.1)]),
+                                            gradient: Gradient(colors: [Color.eton.opacity(0.3), Color.eton.opacity(0.1)]),
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         ),
@@ -62,7 +62,7 @@ struct WebViewScreen: View {
                                     .trim(from: 0, to: CGFloat(loadingProgress))
                                     .stroke(
                                         LinearGradient(
-                                            gradient: Gradient(colors: [Color.etonBlue, Color.etonBlue.opacity(0.7)]),
+                                            gradient: Gradient(colors: [Color.eton, Color.eton.opacity(0.7)]),
                                             startPoint: .topLeading,
                                             endPoint: .bottomTrailing
                                         ),
@@ -74,7 +74,7 @@ struct WebViewScreen: View {
                                 
                                 Image(systemName: "globe")
                                     .font(.system(size: 24))
-                                    .foregroundColor(Color.etonBlue)
+                                    .foregroundColor(Color.eton)
                             }
                             
                             Text("Loading Shop...")
@@ -136,7 +136,7 @@ struct WebViewScreen: View {
                         Image(systemName: "chevron.left")
                         Text("Back")
                     }
-                    .foregroundColor(.etonBlue)
+                    .foregroundColor(.eton)
                 }
             )
         }

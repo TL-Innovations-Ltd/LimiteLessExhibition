@@ -1,70 +1,59 @@
-//
-//  CustomVerticalSlider.swift
-//  Limi
-//
-//  Created by Mac Mini on 29/03/2025.
-//
-
 import SwiftUI
 
-struct CustomVerticalSlider: View {
+struct VerticalSlider: View {
     @Binding var value: Double
-    let range: ClosedRange<Double>
-    let step: Double
-    var onEditingChanged: (Bool) -> Void
-    var isDisabled: Bool
-
-    private let trackWidth: CGFloat = 10
-    private let knobSize: CGFloat = 30
-    private let trackHeight: CGFloat = 200
-
-    @State private var isDragging = false
+    var range: ClosedRange<Double> = 0...100
+    var isEnabled: Bool = true
+    var onRelease: ((Double) -> Void)? = nil
 
     var body: some View {
-        VStack {
-            // Custom Track
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: trackWidth, height: trackHeight)
-                .cornerRadius(trackWidth / 2)
-                .overlay(
-                    Rectangle()
-                        .fill(LinearGradient(gradient: Gradient(colors: [Color.blue, Color.purple]), startPoint: .top, endPoint: .bottom))
-                        .frame(width: trackWidth, height: trackHeight * CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)))
-                        .cornerRadius(trackWidth / 2)
-                )
-                .padding(.vertical, 20)
+        GeometryReader { geo in
+            ZStack(alignment: .bottom) {
+                LinearGradient(gradient: Gradient(colors: [.black, .white]), startPoint: .top, endPoint: .bottom)
+                    .opacity(0.4)
+                    .cornerRadius(20)
+                    .shadow(color: .black, radius: 5)
 
-            // Knob
-            Circle()
-                .fill(Color.white)
-                .frame(width: knobSize, height: knobSize)
-                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
-                .offset(y: -CGFloat((value - range.lowerBound) / (range.upperBound - range.lowerBound)) * trackHeight)
-                .gesture(
-                    DragGesture()
-                        .onChanged { gesture in
-                            guard !isDisabled else { return }
-                            let location = gesture.location.y
-                            let percentage = 1 - min(max(0, location / trackHeight), 1) // Invert for vertical slider
-                            let newValue = range.lowerBound + percentage * (range.upperBound - range.lowerBound)
+                Rectangle()
+                    .fill(Color.white)
+                    .frame(height: CGFloat((clampedValue - range.lowerBound) / (range.upperBound - range.lowerBound)) * geo.size.height)
+                    .cornerRadius(20)
+            }
+            .frame(width: 50)
+            .brightness(isEnabled ? 0 : -0.3)
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { gesture in
+                        if isEnabled {
+                            let height = geo.size.height
+                            let locationY = Double(min(max(gesture.location.y, 0), height))
+                            let sliderHeight = Double(height)
+                            let newValue = (1 - locationY / sliderHeight) * (range.upperBound - range.lowerBound) + range.lowerBound
 
-                            // Apply stepping if needed
-                            if step > 0 {
-                                value = round(newValue / step) * step
-                            } else {
-                                value = newValue
-                            }
-
-                            onEditingChanged(true)
+                            value = newValue.clamped(to: range)
                         }
-                        .onEnded { _ in
-                            onEditingChanged(false)
-                        }
-                )
+                    }
+                    .onEnded { _ in if isEnabled { onRelease?(value) } }
+            )
+            .onTapGesture { loc in
+                if isEnabled {
+                    let newValue = (1 - Double(loc.y) / Double(geo.size.height)) * (range.upperBound - range.lowerBound) + range.lowerBound
+                    value = newValue.clamped(to: range)
+                    onRelease?(value)
+                }
+            }
+            .allowsHitTesting(isEnabled)
         }
-        .frame(height: trackHeight + knobSize) // Adjust the frame to fit the track and knob
-        .disabled(isDisabled)
+        .frame(height: 200)
+    }
+
+    private var clampedValue: Double {
+        value.clamped(to: range)
     }
 }
 
+extension Comparable {
+    func clamped(to limits: ClosedRange<Self>) -> Self {
+        return min(max(self, limits.lowerBound), limits.upperBound)
+    }
+}

@@ -7,7 +7,7 @@ struct DeviceSearchView: View {
     var body: some View {
         ZStack {
             // Background Gradient
-            LinearGradient(gradient: Gradient(colors: [Color.emerald.opacity(0.8), Color.etonBlue]),
+            LinearGradient(gradient: Gradient(colors: [Color.emerald.opacity(0.8), Color.eton]),
                            startPoint: .top,
                            endPoint: .bottom)
                 .edgesIgnoringSafeArea(.all)

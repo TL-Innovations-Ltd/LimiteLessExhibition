@@ -3,7 +3,7 @@ import SwiftUI
 extension Color {
     // Brand Colors
     static let emerald = Color(red: 84/255, green: 187/255, blue: 116/255)
-    static let etonBlue = Color(red: 147/255, green: 207/255, blue: 162/255)
+    static let eton = Color(red: 147/255, green: 207/255, blue: 162/255)
     static let charlestonGreen = Color(red: 23/255, green: 29/255, blue: 30/255)
     static let alabaster = Color(red: 243/255, green: 235/255, blue: 226/255)
     
@@ -36,18 +36,37 @@ extension Color {
     static let darkGreen = Color(hex: "00ff00")  // #006400
     static let darkBlue = Color(hex: "0000ff")   // #00008B
     
+    static let orange     = Color(hex: "FFA500")
+    static let yellow     = Color(hex: "FFFF00")
+    static let indigo     = Color(hex: "4B0082")
+    static let purple     = Color(hex: "800080")
+    static let pink       = Color(hex: "FFC0CB")
+
     static let darkGray = Color(red: 0.3, green: 0.3, blue: 0.3)
     static let darkBrown = Color(red: 0.4, green: 0.25, blue: 0.2)
     // UI Colors
     static let backgroundColor = Color.alabaster
     static let cardColor = Color.white
     static let primaryAccent = Color.emerald
-    static let secondaryAccent = Color.etonBlue
+    static let secondaryAccent = Color.eton
     
     static let verticalGradient = LinearGradient(
-        gradient: Gradient(colors: [etonBlue.opacity(0.4), emerald]),
+        gradient: Gradient(colors: [eton.opacity(0.4), emerald]),
         startPoint: .top,
         endPoint: .bottom
     )
+    
+    func toHex() -> String {
+        let uiColor = UIColor(self)
+        var r: CGFloat = 0
+        var g: CGFloat = 0
+        var b: CGFloat = 0
+        var a: CGFloat = 1
+        uiColor.getRed(&r, green: &g, blue: &b, alpha: &a)
+        return String(format: "#%02lX%02lX%02lX",
+                      lroundf(Float(r * 255)),
+                      lroundf(Float(g * 255)),
+                      lroundf(Float(b * 255)))
+    }
 }
 

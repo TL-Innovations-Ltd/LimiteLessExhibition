@@ -1,80 +1,104 @@
-//
-//  ARViewContainer.swift
-//  Limi
-//
-//  Created by Mac Mini on 08/04/2025.
-//
+import SwiftUI
+import ARKit
+import SceneKit
 
+struct ContentViewAR: View {
+    @State private var selectedModel = "FloorLamp"
+    
+    let modelNames = [
+        "FloorLamp",
+        "MultiplePendants",
+        "TexturedLight",
+        "WallLight"
+    ]
+    
+    var body: some View {
+        VStack {
+            Picker("Model", selection: $selectedModel) {
+                ForEach(modelNames, id: \.self) { model in
+                Text(model)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding()
+            
+            ARViewContainer(selectedModelName: $selectedModel)
+                .edgesIgnoringSafeArea(.all)
+        }
+    }
+}
 
-//import SwiftUI
-//import ARKit
-//import RealityKit
-//
-//// Define your SwiftUI view
-//struct ARViewContainer: View {
-//    @State private var arView: ARView?
-//
-//    var body: some View {
-//        ZStack {
-//            // RealityKit ARView
-//            ARViewRepresentable()
-//                .edgesIgnoringSafeArea(.all)
-//            
-//            // Simple UI for instructions or buttons
-//            VStack {
-//                Spacer()
-//                HStack {
-//                    Spacer()
-//                    Button(action: {
-//                        print("Add model")
-//                    }) {
-//                        Text("Add 3D Model")
-//                            .padding()
-//                            .background(Color.white.opacity(0.7))
-//                            .cornerRadius(10)
-//                            .shadow(radius: 5)
-//                    }
-//                    .padding()
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//// UIKit-based ARView integration
-//struct ARViewRepresentable: UIViewRepresentable {
-//    func makeUIView(context: Context) -> ARView {
-//        let arView = ARView(frame: .zero)
-//
-//        // Configure AR session
-//        let config = ARWorldTrackingConfiguration()
-//        config.planeDetection = [.horizontal]
-//        arView.session.run(config)
-//
-//        // Add a simple box model to the scene
-//        addBoxModelToScene(arView)
-//
-//        return arView
-//    }
-//
-//    func updateUIView(_ uiView: ARView, context: Context) {
-//        // You can update the ARView if necessary when the UI state changes
-//    }
-//
-//    func addBoxModelToScene(_ arView: ARView) {
-//        // Generate a simple 3D box model
-//        let mesh = MeshResource.generateBox(size: 0.1) // 0.1 meter (10 cm) sized box
-//        let material = SimpleMaterial(color: .blue, isMetallic: false) // Blue, non-metallic material
-//        let modelEntity = ModelEntity(mesh: mesh, materials: [material])
-//
-//        // Create an anchor entity to position the model in the AR space
-//        let anchor = AnchorEntity(world: simd_float4x4(1)) // Place at the origin (0, 0, 0)
-//
-//        // Add the model to the anchor
-//        anchor.addChild(modelEntity)
-//
-//        // Add the anchor to the AR scene
-//        arView.scene.addAnchor(anchor)
-//    }
-//}
-//
+struct ARViewContainer: UIViewRepresentable {
+    @Binding var selectedModelName: String
+    
+    class Coordinator: NSObject, ARSCNViewDelegate {
+        var modelNode: SCNNode?
+        var sceneView: ARSCNView?
+        
+        // Handle plane detection and add blue rectangle to the surface
+        func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
+            if let planeAnchor = anchor as? ARPlaneAnchor {
+                let plane = SCNPlane(width: CGFloat(planeAnchor.extent.x), height: CGFloat(planeAnchor.extent.z))
+                
+                // Set the blue color with transparency for the detected surface
+                let planeNode = SCNNode(geometry: plane)
+                planeNode.position = SCNVector3(planeAnchor.center.x, 0, planeAnchor.center.z)
+                planeNode.eulerAngles.x = -.pi / 2
+                planeNode.opacity = 0.5  // Make it semi-transparent
+                plane.materials.first?.diffuse.contents = UIColor.blue
+                
+                // Add the planeNode to the parent node (the detected surface)
+                node.addChildNode(planeNode)
+            }
+        }
+        
+        // Handle tap gestures for object placement
+        @objc func handleTap(_ gesture: UITapGestureRecognizer) {
+            guard let view = gesture.view as? ARSCNView else { return }
+            let location = gesture.location(in: view)
+            let results = view.hitTest(location, types: .existingPlaneUsingExtent)
+            if let result = results.first {
+                placeModel(at: result.worldTransform, in: view)
+            }
+        }
+        
+        // Place model on detected plane
+        func placeModel(at transform: simd_float4x4, in sceneView: ARSCNView) {
+            modelNode?.removeFromParentNode()
+            guard let scene = SCNScene(named: "art.scnassets/\(selectedModelName).usdz") else { return }
+            let node = scene.rootNode.clone()
+            node.position = SCNVector3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
+            sceneView.scene.rootNode.addChildNode(node)
+            modelNode = node
+        }
+        
+        var selectedModelName: String = "FloorLamp"
+        
+        func updateModelName(_ name: String) {
+            selectedModelName = name
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        return Coordinator()
+    }
+    
+    func makeUIView(context: Context) -> ARSCNView {
+        let sceneView = ARSCNView()
+        sceneView.delegate = context.coordinator
+        context.coordinator.sceneView = sceneView
+        
+        let config = ARWorldTrackingConfiguration()
+        config.planeDetection = [.horizontal, .vertical]
+        sceneView.session.run(config)
+        
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
+        sceneView.addGestureRecognizer(tapGesture)
+        
+        return sceneView
+    }
+    
+    func updateUIView(_ uiView: ARSCNView, context: Context) {
+        context.coordinator.updateModelName(selectedModelName)
+    }
+}

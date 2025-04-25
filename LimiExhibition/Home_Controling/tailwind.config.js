@@ -12,7 +12,7 @@ module.exports = {
     extend: {
       colors: {
         emerald: "#54BB74",
-        etonBlue: "#93CFA2",
+        eton: "#93CFA2",
         charlestonGreen: "#171D1E",
         alabaster: "#F3EBE2",
         border: "hsl(var(--border))",

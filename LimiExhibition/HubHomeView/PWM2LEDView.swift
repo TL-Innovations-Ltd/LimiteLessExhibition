@@ -188,37 +188,18 @@ struct PendantLampControlView: View {
                         .foregroundColor(.alabaster)
                         .padding(.bottom, 5)
 
-                    ZStack {
-                        // Background Gradient (White to Transparent)
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.white.opacity(0.8), Color.clear]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        .frame(width: 60, height: 200) // Adjust width and height
-                        .cornerRadius(20) // Smooth corners
-                        .opacity(0.8) // Adjust transparency
-                        .shadow(color:.black  ,radius: 5)
-                        // Vertical Slider
-                        Slider(value: $brightness, in: 0...100, step: 1, onEditingChanged: { isEditing in
-                            if isEditing {
-                                isEditingSliderBrightness = true
-                                sendHapticFeedback()
-                            } else if isEditingSliderBrightness {
-                                sendIntensity()
-                                isEditingSliderBrightness = false
-                            }
-                        })
-                        .rotationEffect(.degrees(-90)) // Rotate to vertical
-                        .frame(width: 120, height: 120) // Adjust size
-                        .accentColor(.white) // Customize knob color
-                        .disabled(!isOn)
+                    VerticalSlider(value: $brightness, isEnabled: isOn) { newValue in
+                        sendIntensity()
                     }
+                    .frame(width: 60, height: 200)
+
 
                 }
                 
             }
+            .disabled(!isOn)
             .padding(.top, 20)
+            .padding(.horizontal)
             Spacer()
             VStack {
                 VStack {

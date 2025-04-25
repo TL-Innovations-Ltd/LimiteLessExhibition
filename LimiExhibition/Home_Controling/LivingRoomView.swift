@@ -53,7 +53,7 @@ struct LivingRoomView: View {
             }
             .padding(.horizontal)
         }
-        .background(Color.etonBlue)
+        .background(Color.eton)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 withAnimation {

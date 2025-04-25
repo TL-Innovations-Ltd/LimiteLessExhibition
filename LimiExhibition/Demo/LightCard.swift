@@ -15,7 +15,7 @@ struct LightCard: View {
             HStack {
                 Image(systemName: "lightbulb")
                     
-                    .foregroundColor(.etonBlue)
+                    .foregroundColor(.eton)
                 Text(lightName)
                     .font(.headline)
                     .foregroundColor(.charlestonGreen)

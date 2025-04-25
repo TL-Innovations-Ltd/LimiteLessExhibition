@@ -17,7 +17,7 @@ struct EmptyStateView: View {
             ZStack {
                 ForEach(0..<3, id: \.self) { i in
                     Circle()
-                        .stroke(Color.etonBlue.opacity(0.1), lineWidth: 2)
+                        .stroke(Color.eton.opacity(0.1), lineWidth: 2)
                         .frame(width: 120 + CGFloat(i * 30), height: 120 + CGFloat(i * 30))
                         .scaleEffect(isLoaded ? 1.0 : 0.8)
                         .opacity(isLoaded ? 1 : 0)
@@ -25,7 +25,7 @@ struct EmptyStateView: View {
                 }
                 Image(systemName: "house.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(.etonBlue)
+                    .foregroundColor(.eton)
                     .opacity(isLoaded ? 1 : 0)
                     .scaleEffect(isLoaded ? 1 : 0.5)
                     .rotationEffect(isLoaded ? .degrees(0) : .degrees(-30))
@@ -62,9 +62,9 @@ struct EmptyStateView: View {
                     .padding(.horizontal, 20)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.etonBlue)
+                            .fill(Color.eton)
                     )
-                    .shadow(color: Color.etonBlue.opacity(0.3), radius: 5, x: 0, y: 3)
+                    .shadow(color: Color.eton.opacity(0.3), radius: 5, x: 0, y: 3)
                 }
                 .opacity(isLoaded ? 1 : 0)
                 .animation(.easeIn.delay(1.0), value: isLoaded)

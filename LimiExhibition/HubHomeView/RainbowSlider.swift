@@ -5,7 +5,7 @@
 //  Created by Mac Mini on 17/03/2025.
 //
 import SwiftUI
-
+import RealityKit
 struct RainbowSlider: View {
     @Binding var value: Double
     @Binding var selectedColor: Color
@@ -41,12 +41,12 @@ struct RainbowSlider: View {
                     )
                     .position(
                         x: max(10, min(geometry.size.width - 10, geometry.size.width * CGFloat(value / 100))),
-                        y: 20 // Half of the frame height (40/2)
+                        y: 20
                     )
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { gesture in
-                                let width = geometry.size.width - 20 // Accounting for circle width
+                                let width = geometry.size.width - 20
                                 let rawPosition = gesture.location.x - 10
                                 let newValue = (min(max(rawPosition, 0), width) / width) * 100
                                 if abs(newValue - value) > 1 {
@@ -56,6 +56,12 @@ struct RainbowSlider: View {
                                 selectedColor = getColorAt(position: value)
                             }
                     )
+            }
+            .onAppear {
+                // Sync `value` with current `selectedColor`
+                if let newValue = getPosition(for: selectedColor) {
+                    value = newValue
+                }
             }
         }
         .frame(height: 40)
@@ -68,16 +74,26 @@ struct RainbowSlider: View {
         let progress = index - Double(lowerIndex)
         
         return interpolateColor(from: Self.gradientColors[lowerIndex],
-                              to: Self.gradientColors[upperIndex],
-                              progress: progress)
+                                to: Self.gradientColors[upperIndex],
+                                progress: progress)
     }
-    
+
+    private func getPosition(for color: Color) -> Double? {
+        // Find nearest color index
+        for i in 0..<Self.gradientColors.count {
+            if color.description == Self.gradientColors[i].description {
+                return Double(i) / Double(Self.gradientColors.count - 1) * 100
+            }
+        }
+        return nil
+    }
+
     private func interpolateColor(from startColor: Color, to endColor: Color, progress: Double) -> Color {
         guard let startComponents = UIColor(startColor).cgColor.components,
               let endComponents = UIColor(endColor).cgColor.components else {
             return startColor
         }
-        
+
         let r = startComponents[0] + (endComponents[0] - startComponents[0]) * progress
         let g = startComponents[1] + (endComponents[1] - startComponents[1]) * progress
         let b = startComponents[2] + (endComponents[2] - startComponents[2]) * progress

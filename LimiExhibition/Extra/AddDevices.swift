@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - AddDevices View
 
 struct AddDevices: View {
-    @State private var navigatetonBlueearbyDevices = false  // State variable to control navigation
+    @State private var navigatetonearbyDevices = false  // State variable to control navigation
 
     var body: some View {
           
@@ -30,7 +30,7 @@ struct AddDevices: View {
                     title: "Scan QR Code",
                     description: "Scan the QR code to add a device.",
                     iconName: "qrcode.viewfinder",
-                    gradientColors: [Color.emerald, Color.etonBlue]) {
+                    gradientColors: [Color.emerald, Color.eton]) {
                         print("Scan QR Code tapped")
                     }
                 
@@ -39,15 +39,15 @@ struct AddDevices: View {
                                    title: "Nearby Devices",
                                    description: "Find nearby devices that you can connect to.",
                                    iconName: "wifi",
-                                   gradientColors: [Color.emerald, Color.etonBlue]) {
-                                       navigatetonBlueearbyDevices = true
+                                   gradientColors: [Color.emerald, Color.eton]) {
+                                       navigatetonearbyDevices = true
                                    }
                 // Option 3: Enter Manually
                 CardButtonView(
                     title: "Enter Manually",
                     description: "Manually enter details to add a device.",
                     iconName: "keyboard",
-                    gradientColors: [Color.emerald, Color.etonBlue]) {
+                    gradientColors: [Color.emerald, Color.eton]) {
                         print("Enter Manually tapped")
                     }
                 
@@ -56,7 +56,7 @@ struct AddDevices: View {
             .padding()
             .background(Color.alabaster.edgesIgnoringSafeArea(.all))
             .navigationBarHidden(true) // Hide the default navigation title
-            .navigationDestination(isPresented: $navigatetonBlueearbyDevices) {
+            .navigationDestination(isPresented: $navigatetonearbyDevices) {
                          //   NearbyDevicesView() // Navigate to NearbyDevicesView
                         }
         }

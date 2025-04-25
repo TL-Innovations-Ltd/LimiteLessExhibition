@@ -87,27 +87,31 @@ struct HubCardView: View {
                     .onHover { hovering in
                         isHovered = hovering
                     }
-                
                 if hasModeButton {
-                    Button(action: {
-                        showAlert = true
-                    }) {
-                        Text(selectedMode == nil ? "Mode" : "Mode: \(selectedMode!)")
-                            .font(.title)
-                            .foregroundColor(.black)
-                            .opacity(buttonOpacity)
-                            .animation(isAnimating ? .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : .none, value: buttonOpacity)
+                    HStack{
+                        Spacer()
+                        Button(action: {
+                            showAlert = true
+                        }) {
+                            Text(selectedMode == nil ? "Mode" : "Mode: \(selectedMode!)")
+                                .font(.title)
+                                .foregroundColor(.black)
+                                .opacity(buttonOpacity)
+                                .animation(isAnimating ? .easeInOut(duration: 0.8).repeatForever(autoreverses: true) : .none, value: buttonOpacity)
+                        }
+                        .padding(.horizontal, 30)
+                        .disabled(selectedMode != nil)
+                        .onAppear {
+                            startAnimation()
+                        }
+                        .confirmationDialog("Please Select Your Mode", isPresented: $showAlert, titleVisibility: .visible) {
+                            Button("PWM") { selectMode("PWM") }
+                            Button("RGB") { selectMode("RGB") }
+                            Button("MiniController") { selectMode("MiniController") }
+                            Button("Cancel", role: .cancel) { }
+                        }
                     }
-                    .disabled(selectedMode != nil)
-                    .onAppear {
-                        startAnimation()
-                    }
-                    .confirmationDialog("Please Select Your Mode", isPresented: $showAlert, titleVisibility: .visible) {
-                        Button("PWM") { selectMode("PWM") }
-                        Button("RGB") { selectMode("RGB") }
-                        Button("MiniController") { selectMode("MiniController") }
-                        Button("Cancel", role: .cancel) { }
-                    }
+                    
                 }
                 
                 NavigationLink(destination: destinationView, isActive: Binding(

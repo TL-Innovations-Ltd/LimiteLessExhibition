@@ -18,7 +18,7 @@ struct HubCardContent: View {
         HStack(spacing: 15) {
             ZStack {
                 Circle()
-                    .fill(Color.etonBlue.opacity(0.15))
+                    .fill(Color.eton.opacity(0.15))
                     .frame(width: 60, height: 60)
                     .scaleEffect(pulseAnimation ? 1.2 : 0.9)
                     .opacity(pulseAnimation ? 0.6 : 0.2)
@@ -30,7 +30,7 @@ struct HubCardContent: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            gradient: Gradient(colors: [Color.etonBlue.opacity(0.8), Color.etonBlue.opacity(0.6)]),
+                            gradient: Gradient(colors: [Color.eton.opacity(0.8), Color.eton.opacity(0.6)]),
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )

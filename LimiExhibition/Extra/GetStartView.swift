@@ -17,7 +17,7 @@ struct GetStartView: View {
             NavigationStack {
                 ZStack {
                     LinearGradient(
-                        gradient: Gradient(colors: [Color.emerald, Color.etonBlue.opacity(0.5)]),
+                        gradient: Gradient(colors: [Color.emerald, Color.eton.opacity(0.5)]),
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )

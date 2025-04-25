@@ -28,7 +28,7 @@ struct EnhancedBottomNavigationView: View {
             ZStack {
                 // Animated glow effect
                 RoundedRectangle(cornerRadius: 25)
-                    .fill(Color.etonBlue.opacity(0.2))
+                    .fill(Color.eton.opacity(0.2))
                     .blur(radius: 10)
                     .frame(height: 70)
                     .padding(.horizontal, 10)

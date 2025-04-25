@@ -72,7 +72,7 @@ struct DeviceSearchSheet: View {
                             }) {
                                 HStack {
                                     Image(systemName: "lightbulb")
-                                        .foregroundColor(.etonBlue)
+                                        .foregroundColor(.eton)
                                         .padding(.trailing, 5)
                                     
                                     Text(device)

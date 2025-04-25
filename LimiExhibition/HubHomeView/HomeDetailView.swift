@@ -100,7 +100,7 @@ struct HomeDetailView: View {
                         Spacer()
                     }
                 }
-                .background(Color.etonBlue)
+                .background(Color.eton)
                 .navigationBarHidden(true)
                 .navigationTitle(hub.name)
                 .navigationBarTitleDisplayMode(.inline)
