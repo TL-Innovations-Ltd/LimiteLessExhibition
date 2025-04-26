@@ -63,8 +63,15 @@ struct MiniControllerView: View {
 
     let selectColorObj = BluetoothManager()
     
+    // AppStorage properties for each LED brightness
+    @AppStorage("led1Brightness") private var led1Brightness: Double = 50.0
+    @AppStorage("led2Brightness") private var led2Brightness: Double = 50.0
+    @AppStorage("led3Brightness") private var led3Brightness: Double = 50.0
+    @AppStorage("led4Brightness") private var led4Brightness: Double = 50.0
+    @AppStorage("led5Brightness") private var led5Brightness: Double = 50.0
+
     // Array to store brightness values for each PWM LED
-    @State private var pwmBrightness: [Double] = Array(repeating: 50.0, count: 5)
+    @State private var pwmBrightness: [Double] = []
     
     // Animation states
     @State private var isAppearing = false
@@ -352,6 +359,20 @@ struct MiniControllerView: View {
         .onReceive(SharedDevice.shared.$lastReceivedBytes) { bytes in
             ledStateManager.processDeviceMessage(bytes)
         }
+        
+        .onAppear {
+            // Load brightness values from AppStorage
+            pwmBrightness = [led1Brightness, led2Brightness, led3Brightness, led4Brightness, led5Brightness]
+        }
+        
+        // Update the brightness values in AppStorage when they change
+        .onChange(of: pwmBrightness) { newValues in
+            led1Brightness = newValues[0]
+            led2Brightness = newValues[1]
+            led3Brightness = newValues[2]
+            led4Brightness = newValues[3]
+            led5Brightness = newValues[4]
+        }
     }
 
     // Function to send color to LED
@@ -451,6 +472,21 @@ struct MiniControllerView: View {
 
             print("Final brightness (\(targetBrightness))")
             UserDefaults.standard.set(targetBrightness, forKey: key)
+            
+            switch pwmled {
+            case 1:
+                led1Brightness = brightness
+            case 2:
+                led2Brightness = brightness
+            case 3:
+                led3Brightness = brightness
+            case 4:
+                led4Brightness = brightness
+            case 5:
+                led5Brightness = brightness
+            default:
+                break
+            }
         }
     }
 

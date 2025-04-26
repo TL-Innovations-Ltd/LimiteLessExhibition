@@ -7,11 +7,14 @@ struct CurvedSlider: View {
     var onEditingChanged: (Bool) -> Void
     var isDisabled: Bool
     
-    private let trackHeight: CGFloat = 10  // Increased track height
-    private let knobSize: CGFloat = 36      // Increased knob size
-    private let radius: CGFloat = 180        // Increased radius of the circular arc
+    private let trackHeight: CGFloat = 10
+    private let knobSize: CGFloat = 36
+    private let radius: CGFloat = 180
     
     @State private var isDragging = false
+
+    @State private var showPercentagePopup = false
+    @State private var longPressTimer: Timer?
     
     init(value: Binding<Double>, in range: ClosedRange<Double>, step: Double = 1, onEditingChanged: @escaping (Bool) -> Void = { _ in }, disabled: Bool = false) {
         self._value = value
@@ -46,7 +49,7 @@ struct CurvedSlider: View {
                     )
                     .frame(width: 2 * radius, height: radius)
 
-                // Knob
+                // Knob with percentage popup
                 ZStack {
                     Circle()
                         .fill(Color.white.opacity(0.5))
@@ -68,6 +71,24 @@ struct CurvedSlider: View {
                         .fill(Color.white)
                         .frame(width: knobSize * 0.6, height: knobSize * 0.6)
                 }
+                .overlay(
+                    Group {
+                        if showPercentagePopup {
+                            VStack(spacing: 4) {
+                                Text("Cold: \(coldPercentage())%")
+                                    .foregroundColor(.charlestonGreen)
+                                Text("Warm: \(warmPercentage())%")
+                                    .foregroundColor(.charlestonGreen)
+                            }
+                            .padding(8)
+                            .background(Color.alabaster)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                            .frame(width: 120) // 👈 Width fix kar di
+                            .offset(y: -80) // 👈 thoda upar kiya
+                        }
+                    }
+                )
                 .position(x: knobXPosition(), y: knobYPosition())
                 .gesture(
                     DragGesture(minimumDistance: 0)
@@ -75,6 +96,8 @@ struct CurvedSlider: View {
                             if isDisabled { return }
                             if !isDragging {
                                 isDragging = true
+
+                                startLongPressTimer()
                                 onEditingChanged(true)
                             }
                             updateValue(with: gesture.location)
@@ -82,9 +105,12 @@ struct CurvedSlider: View {
                         .onEnded { _ in
                             if isDisabled { return }
                             isDragging = false
+                            cancelLongPressTimer()
+                            showPercentagePopup = false
                             onEditingChanged(false)
                         }
                 )
+
 
                 // Tap-to-move the knob anywhere on the arc
                 Color.clear
@@ -109,62 +135,64 @@ struct CurvedSlider: View {
         .frame(height: radius + knobSize / 2)
     }
     
-    // Calculate x position along the circular arc
     private func knobXPosition() -> CGFloat {
         let percentage = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
         let angle = percentage * .pi
-        
         return radius + radius * cos(angle)
     }
     
-    // Calculate y position along the circular arc
     private func knobYPosition() -> CGFloat {
         let percentage = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
         let angle = percentage * .pi
-        
         return radius - radius * sin(angle)
     }
     
-    // Update the value based on the drag position with improved accuracy
     private func updateValue(with location: CGPoint) {
         let cx = radius
         let cy = radius
-        
-        // Calculate vector from center to touch point
         let dx = location.x - cx
-        let dy = cy - location.y  // Invert y-axis
-
-        // Calculate angle in radians
+        let dy = cy - location.y
         var angle = atan2(dy, dx)
-
-        // Clamp angle safely within [0, π]
         angle = max(min(angle, .pi), 0)
-
-        // Optional: Prevent sudden angle jump
+        
         let lastPercentage = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
         let lastAngle = lastPercentage * .pi
         let angleDelta = abs(lastAngle - angle)
 
         if angleDelta > .pi / 1.5 {
-            return // Ignore large unexpected jumps
+            return
         }
 
-        // Convert angle to percentage of the slider range
         let percentage = angle / .pi
         var newValue = range.lowerBound + percentage * (range.upperBound - range.lowerBound)
-
-        // Apply stepping if needed
         if step > 0 {
             newValue = round(newValue / step) * step
         }
-
-        // Clamp to range
         newValue = max(range.lowerBound, min(range.upperBound, newValue))
-
-        // Update the value
         self.value = newValue
     }
 
+    private func startLongPressTimer() {
+        cancelLongPressTimer()
+        longPressTimer = Timer.scheduledTimer(withTimeInterval: 1.5 , repeats: false) { _ in
+            showPercentagePopup = true
+        }
+    }
+    
+    private func cancelLongPressTimer() {
+        longPressTimer?.invalidate()
+        longPressTimer = nil
+    }
+    
+    private func coldPercentage() -> Int {
+        let cold = 100 - Int((value / (range.upperBound - range.lowerBound)) * 100)
+        return max(0, min(100, cold))
+    }
+    
+    private func warmPercentage() -> Int {
+        let warm = Int((value / (range.upperBound - range.lowerBound)) * 100)
+        return max(0, min(100, warm))
+    }
 }
 
 // Custom shape for the circular track
@@ -173,10 +201,8 @@ struct CircularTrackShape: Shape {
     
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        
         let centerX = radius
         let centerY = radius
-        
         path.addArc(
             center: CGPoint(x: centerX, y: centerY),
             radius: radius,
@@ -184,18 +210,16 @@ struct CircularTrackShape: Shape {
             endAngle: .degrees(0),
             clockwise: false
         )
-        
         return path
     }
 }
 
-// Preview provider for testing
+// Preview provider
 struct CurvedSlider_Previews: PreviewProvider {
     static var previews: some View {
         PreviewWrapper()
     }
     
-    // Wrapper to handle the state
     struct PreviewWrapper: View {
         @State private var sliderValue: Double = 50.0
         

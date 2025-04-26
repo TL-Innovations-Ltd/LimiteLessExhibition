@@ -282,7 +282,7 @@ struct PendantLampControlView: View {
     private func sendLampState() {
         DispatchQueue.main.async {
             if isOn {
-                sendColor()
+                sendIntensity()
             } else {
                 sendOff()
             }

@@ -94,7 +94,7 @@ struct DataRGBView: View {
             
             VStack{
                 HStack {
-                    Text("RGB Led")
+                    Text("RGB LED")
                         .font(.title)
                         .fontWeight(.bold)
                         .foregroundColor(.alabaster)
@@ -152,25 +152,26 @@ struct DataRGBView: View {
                 
                 VStack {
                     HStack{
+                        Spacer()
                         Text("Select Color")
                             .font(.title2)
                             .foregroundColor(.alabaster)
                             .padding(.top)
                         Spacer()
-                        Button(action: {
-                            pasteColor()
-                        }) {
-                            Text("Paste Colour")
-                                .font(.title2)
-                                .padding(8)
-                                .bold()
-                                .background(!showSolidColor ? Color.yellow : selectedColor)
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                        }
-                        .padding(.top)
-                        .disabled(!isOn)
-                        .opacity(isOn ? 1.0 : 0.4)
+//                        Button(action: {
+//                            pasteColor()
+//                        }) {
+//                            Text("Paste Colour")
+//                                .font(.title2)
+//                                .padding(8)
+//                                .bold()
+//                                .background(!showSolidColor ? Color.yellow : selectedColor)
+//                                .foregroundColor(.white)
+//                                .cornerRadius(8)
+//                        }
+//                        .padding(.top)
+//                        .disabled(!isOn)
+//                        .opacity(isOn ? 1.0 : 0.4)
                     }
                     
                     
@@ -211,7 +212,7 @@ struct DataRGBView: View {
                                 // Haptic feedback
                                 let generator = UIImpactFeedbackGenerator(style: .medium)
                                 generator.impactOccurred()
-                                
+                                sendHapticFeedback()
                                 // Send color to LED
                                 sendColorToLED(selectedColor)
                             }

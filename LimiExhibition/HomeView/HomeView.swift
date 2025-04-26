@@ -82,18 +82,6 @@ struct HomeView: View {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 // MARK: - Custom Shape for Rounded Corners
 struct RoundedCornerShape: Shape {
     var cornerRadius: CGFloat
@@ -117,8 +105,10 @@ struct EnhancedSidebarView: View {
         ("gear", "Settings"),
         ("person.fill", "Profile"),
         ("questionmark.circle", "Help"),
-        ("info.circle", "About")
+        ("info.circle", "About"),
+        ("sparkles", "What is Limi!")
     ]
+    @State private var navigateToLIMI = false
     @State private var selectedItem = "Home"
     @State private var animateBackground = false
     @State private var showGetStartScreen = false // State variable to control the presentation
@@ -241,6 +231,11 @@ struct EnhancedSidebarView: View {
                                         // Haptic feedback
                                         let impactMed = UIImpactFeedbackGenerator(style: .light)
                                         impactMed.impactOccurred()
+                                        
+                                        // Special case: If "What is Limi!" selected
+                                        if item.1 == "What is Limi!" {
+                                            navigateToLIMI = true
+                                        }
                                     }
                                 }) {
                                     HStack(spacing: 15) {
@@ -262,6 +257,7 @@ struct EnhancedSidebarView: View {
                                         Spacer()
                                         
                                         if selectedItem == item.1 {
+                                            
                                             Circle()
                                                 .fill(Color.eton)
                                                 .frame(width: 8, height: 8)
@@ -284,8 +280,10 @@ struct EnhancedSidebarView: View {
                                     .delay(isSidebarOpen ? Double(index) * 0.05 : 0),
                                     value: isSidebarOpen
                                 )
+                                
+
+
                             }
-                            
                             
                             
                             // Enhanced logout button with animation
@@ -347,6 +345,11 @@ struct EnhancedSidebarView: View {
             .fullScreenCover(isPresented: $showGetStartScreen) {
                 GetStart() // Replace with your GetStart screen view
             }
+            .fullScreenCover(isPresented: $navigateToLIMI) {
+                WhatIsLimi() // Replace this with your actual screen
+            }
+
+
         }
     }
 }
