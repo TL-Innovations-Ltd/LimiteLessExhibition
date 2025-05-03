@@ -41,7 +41,7 @@ struct ARRoomPlanContentView: View {
             }
             .navigationTitle("LIMI Home")
             .fullScreenCover(isPresented: $showARView) {
-                LIMIARView()
+                //LIMIARView()
             }
         }
     }

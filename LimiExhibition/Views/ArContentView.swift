@@ -106,3 +106,96 @@
 //        }
 //    }
 //}
+
+import SwiftUI
+import RealityKit
+import ARKit
+struct CrosshairView: View {
+    var body: some View {
+        Circle()
+            .stroke(Color.white, lineWidth: 2)
+            .frame(width: 10, height: 10)
+            .position(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
+    }
+}
+struct ARViewContainer: UIViewRepresentable {
+    @Binding var points: [SIMD3<Float>]
+
+    func makeUIView(context: Context) -> ARView {
+        let arView = ARView(frame: .zero)
+
+        let config = ARWorldTrackingConfiguration()
+        config.planeDetection = [.horizontal, .vertical]
+        arView.session.run(config)
+
+        // Tap gesture for placing points
+        let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(context.coordinator.handleTap(_:)))
+        arView.addGestureRecognizer(tapGesture)
+
+        context.coordinator.arView = arView
+        return arView
+    }
+
+    func updateUIView(_ uiView: ARView, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(points: $points)
+    }
+
+    class Coordinator: NSObject {
+        var arView: ARView?
+        @Binding var points: [SIMD3<Float>]
+
+        init(points: Binding<[SIMD3<Float>]>) {
+            _points = points
+        }
+
+        @objc func handleTap(_ sender: UITapGestureRecognizer) {
+            guard let arView = arView else { return }
+
+            let center = arView.center
+            let results = arView.raycast(from: center, allowing: .estimatedPlane, alignment: .any)
+
+            if let firstResult = results.first {
+                let position = SIMD3<Float>(firstResult.worldTransform.columns.3.x,
+                                            firstResult.worldTransform.columns.3.y,
+                                            firstResult.worldTransform.columns.3.z)
+
+                points.append(position)
+
+                // Place visual point
+                let sphere = MeshResource.generateSphere(radius: 0.01)
+                let material = SimpleMaterial(color: .white, isMetallic: false)
+                let pointEntity = ModelEntity(mesh: sphere, materials: [material])
+                pointEntity.position = position
+
+                let anchor = AnchorEntity(world: position)
+                anchor.addChild(pointEntity)
+                arView.scene.addAnchor(anchor)
+
+                print("Point added: \(position)")
+                if points.count >= 2 {
+                    let last = points[points.count - 1]
+                    let secondLast = points[points.count - 2]
+                    let distance = distanceBetween(last, and: secondLast)
+                    print("Distance: \(distance) meters")
+                }
+            }
+        }
+
+        func distanceBetween(_ p1: SIMD3<Float>, and p2: SIMD3<Float>) -> Float {
+            simd_distance(p1, p2)
+        }
+    }
+}
+struct RoomMeasureView: View {
+    @State var points: [SIMD3<Float>] = []
+
+    var body: some View {
+        ZStack {
+            ARViewContainer(points: $points)
+                .edgesIgnoringSafeArea(.all)
+            CrosshairView()
+        }
+    }
+}

@@ -61,7 +61,7 @@ struct HomeView: View {
             
             // MARK: - AR Scan View
             .fullScreenCover(isPresented: $viewModel.showARScan) {
-                ARRoomPlanContentView()
+                RoomMeasureView()
             }
             .onAppear {
                 viewModel.setupInitialState()
@@ -280,12 +280,7 @@ struct EnhancedSidebarView: View {
                                     .delay(isSidebarOpen ? Double(index) * 0.05 : 0),
                                     value: isSidebarOpen
                                 )
-                                
-
-
                             }
-                            
-                            
                             // Enhanced logout button with animation
                             HStack {
                                 Spacer() // Pushes the button to the center
@@ -298,8 +293,6 @@ struct EnhancedSidebarView: View {
                                     hasCompletedOnboarding = false
                                     hasLaunchedBefore = false
                                     demoEmail = ""  // Set demoEmail to an empty string (null equivalent)
-
-
                                 }) {
                                     HStack {
                                         ZStack {
@@ -348,8 +341,6 @@ struct EnhancedSidebarView: View {
             .fullScreenCover(isPresented: $navigateToLIMI) {
                 WhatIsLimi() // Replace this with your actual screen
             }
-
-
         }
     }
 }

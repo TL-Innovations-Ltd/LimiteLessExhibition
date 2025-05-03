@@ -116,8 +116,13 @@ class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CB
         self.peripheral = peripheral
         self.peripheral?.delegate = self
         
-        print("🔍 Discovered: \(name) | ID: \(id)")
-        
+        print("🔍 Discovered: \(name) | ID: \(id) | \(RSSI)")
+        // 🔎 Print all keys and values from advertisement data
+        print("📡 Advertisement Data:")
+        for (key, value) in advertisementData {
+            print("   \(key): \(value)")
+        }
+
         if !discoveredDevices.contains(where: { $0.id == id }) {
             discoveredDevices.append((name: name, id: id))
             onDevicesUpdated?(discoveredDevices)
