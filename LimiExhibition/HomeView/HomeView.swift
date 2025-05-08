@@ -11,7 +11,7 @@ struct HomeView: View {
     @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
     @ObservedObject var bluetoothManager = BluetoothManager.shared
     @ObservedObject var sharedDevice = SharedDevice.shared
-    
+    @EnvironmentObject var roomDataModel: RoomDataModel
     var body: some View {
         NavigationStack {
             ZStack {
@@ -62,6 +62,7 @@ struct HomeView: View {
             // MARK: - AR Scan View
             .fullScreenCover(isPresented: $viewModel.showARScan) {
                 RoomScannerView()
+                    .environmentObject(roomDataModel) // ✅ Inject it here again
             }
             .onAppear {
                 viewModel.setupInitialState()
