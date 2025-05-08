@@ -22,6 +22,10 @@
     <true/>
     <key>NSCameraUsageDescription</key>
     <string>This app needs access to your camera for augmented reality room scanning and 3D floor plan creation.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>This app needs camera access to scan your room</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs photo library access to save your room scans</string>
     <key>Privacy - Microphone Usage Description</key>
     <string>To capture room environment</string>
     <key>UIApplicationSupportsIndirectInputEvents</key>
