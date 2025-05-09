@@ -8,10 +8,11 @@ import SwiftUI
 struct HomeView: View {
     // MARK: - Properties
     @StateObject private var viewModel = HomeViewModel()
+    @StateObject private var roomDataModel = RoomDataModel() // ✅ Create the RoomDataModel here
     @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
     @ObservedObject var bluetoothManager = BluetoothManager.shared
     @ObservedObject var sharedDevice = SharedDevice.shared
-    @EnvironmentObject var roomDataModel: RoomDataModel
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -62,7 +63,7 @@ struct HomeView: View {
             // MARK: - AR Scan View
             .fullScreenCover(isPresented: $viewModel.showARScan) {
                 RoomScannerView()
-                    .environmentObject(roomDataModel) // ✅ Inject it here again
+                    .environmentObject(roomDataModel) // Now this will work correctly
             }
             .onAppear {
                 viewModel.setupInitialState()
@@ -79,6 +80,7 @@ struct HomeView: View {
                 ),
                 alignment: .bottom
             )
+            .environmentObject(roomDataModel) // ✅ Also inject it at the root level for other views
         }
     }
 }
