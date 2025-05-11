@@ -22,12 +22,12 @@ struct ElegantGradientBackgroundView: View {
             .ignoresSafeArea()
 
             // Soft blur overlay to add depth
-            VisualEffectBlur()
+            VisualEffectBlurGet()
         }
     }
 }
 
-struct VisualEffectBlur: View {
+struct VisualEffectBlurGet: View {
     var body: some View {
         Color.white.opacity(0.1)
             .blur(radius: 15)
