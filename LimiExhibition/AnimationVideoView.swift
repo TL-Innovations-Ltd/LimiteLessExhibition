@@ -26,7 +26,7 @@ class AnimationVideoView: UIViewController {
     }
     
     func playBackgroundVideo() {
-        guard let path = Bundle.main.path(forResource: "", ofType: "mp4") else {
+        guard let path = Bundle.main.path(forResource: "logoanimationupdate - Trim", ofType: "mp4") else {
             print("Video file not found")
             return
         }
