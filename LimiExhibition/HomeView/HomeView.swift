@@ -1,14 +1,21 @@
-import SwiftUI
+
 
 // MARK: - MVVM Architecture
 
-
+import SwiftUI
+import SwiftData
+import RoomPlan
 
 // MARK: - Main View
 struct HomeView: View {
     // MARK: - Properties
     @StateObject private var viewModel = HomeViewModel()
-    @StateObject private var roomDataModel = RoomDataModel() // ✅ Create the RoomDataModel here
+   // @StateObject private var roomDataModel = RoomDataModel() // ✅ Create the RoomDataModel here
+    @StateObject private var roomCaptureController = RoomCaptureController()
+    
+    init() {
+        _ = RoominatorFileManager.shared
+    }
     @AppStorage("demoEmail") var demoEmail: String = "umer.asif@terralumen.co.uk"
     @ObservedObject var bluetoothManager = BluetoothManager.shared
     @ObservedObject var sharedDevice = SharedDevice.shared
@@ -59,11 +66,15 @@ struct HomeView: View {
                 
                 Spacer()
             }
-            
+            .navigationBarBackButtonHidden(true) // Hides the back button if any
+
             // MARK: - AR Scan View
             .fullScreenCover(isPresented: $viewModel.showARScan) {
-                RoomScannerView()
-                    .environmentObject(roomDataModel) // Now this will work correctly
+//                RoomScannerView()
+//                    .environmentObject(roomDataModel) // Now this will work correctly
+                RoomPlanContentView()
+                    .environment(roomCaptureController)
+                
             }
             .onAppear {
                 viewModel.setupInitialState()
@@ -80,7 +91,7 @@ struct HomeView: View {
                 ),
                 alignment: .bottom
             )
-            .environmentObject(roomDataModel) // ✅ Also inject it at the root level for other views
+            //.environmentObject(roomDataModel) // ✅ Also inject it at the root level for other views
         }
     }
 }

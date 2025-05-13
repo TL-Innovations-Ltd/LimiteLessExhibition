@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import SwiftData
+import RoomPlan
 
 @main
 struct YourApp: App {

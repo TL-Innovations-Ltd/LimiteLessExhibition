@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9A78A3142D8A7E4100F01E0D /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 9A78A3132D8A7E4100F01E0D /* SDWebImageSwiftUI */; };
+		9A9D0CE62DD30B6900A8C1B3 /* FocusEntity in Frameworks */ = {isa = PBXBuildFile; productRef = 9A9D0CE52DD30B6900A8C1B3 /* FocusEntity */; };
 		9ABD247D2DA57617003A5A22 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ABD247C2DA57617003A5A22 /* ARKit.framework */; };
 		9ABFFE3B2D6F20AF00FCA582 /* modela.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */; };
 		9ABFFE502D6F38BC00FCA582 /* Bulbs.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 9ABFFE4F2D6F38BC00FCA582 /* Bulbs.usdz */; };
@@ -108,6 +109,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A9D0CE62DD30B6900A8C1B3 /* FocusEntity in Frameworks */,
 				9AF3A3AB2DA58E8E004EADAA /* Metal.framework in Frameworks */,
 				9ABD247D2DA57617003A5A22 /* ARKit.framework in Frameworks */,
 				9A78A3142D8A7E4100F01E0D /* SDWebImageSwiftUI in Frameworks */,
@@ -222,6 +224,7 @@
 			packageProductDependencies = (
 				9AF2B1BB2D7D59A1003D366D /* FLAnimatedImage */,
 				9A78A3132D8A7E4100F01E0D /* SDWebImageSwiftUI */,
+				9A9D0CE52DD30B6900A8C1B3 /* FocusEntity */,
 			);
 			productName = LimiExhibition;
 			productReference = 9ADA72142D6DD6D80044A7CF /* Limi.app */;
@@ -254,6 +257,7 @@
 			packageReferences = (
 				9AF2B1BA2D7D59A1003D366D /* XCRemoteSwiftPackageReference "FLAnimatedImage" */,
 				9A78A3122D8A7E4100F01E0D /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				9A9D0CE42DD30B6900A8C1B3 /* XCRemoteSwiftPackageReference "FocusEntity" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9ADA72152D6DD6D80044A7CF /* Products */;
@@ -454,12 +458,14 @@
 				INFOPLIST_KEY_NFCReaderUsageDescription = "This app needs access to NFC to scan tags.";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app needs Bluetooth to connect to devices";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app needs Bluetooth to connect to devices";
-				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera to capture item photos.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to scan your room";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs permission to save room scans to your photo library";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs photo library access to save your room scans";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = "armv7 arkit";
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -490,12 +496,14 @@
 				INFOPLIST_KEY_NFCReaderUsageDescription = "This app needs access to NFC to scan tags.";
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app needs Bluetooth to connect to devices";
 				INFOPLIST_KEY_NSBluetoothPeripheralUsageDescription = "This app needs Bluetooth to connect to devices";
-				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera to capture item photos.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to scan your room";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "This app needs permission to save room scans to your photo library";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs photo library access to save your room scans";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = "armv7 arkit";
 				INFOPLIST_KEY_UIStatusBarStyle = "";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -542,6 +550,14 @@
 				minimumVersion = 3.1.3;
 			};
 		};
+		9A9D0CE42DD30B6900A8C1B3 /* XCRemoteSwiftPackageReference "FocusEntity" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/maxxfrazer/FocusEntity";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.1;
+			};
+		};
 		9AF2B1BA2D7D59A1003D366D /* XCRemoteSwiftPackageReference "FLAnimatedImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Flipboard/FLAnimatedImage";
@@ -557,6 +573,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9A78A3122D8A7E4100F01E0D /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
 			productName = SDWebImageSwiftUI;
+		};
+		9A9D0CE52DD30B6900A8C1B3 /* FocusEntity */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9A9D0CE42DD30B6900A8C1B3 /* XCRemoteSwiftPackageReference "FocusEntity" */;
+			productName = FocusEntity;
 		};
 		9AF2B1BB2D7D59A1003D366D /* FLAnimatedImage */ = {
 			isa = XCSwiftPackageProductDependency;
