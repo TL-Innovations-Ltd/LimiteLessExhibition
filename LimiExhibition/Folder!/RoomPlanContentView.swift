@@ -28,6 +28,9 @@ struct RoomPlanContentView: View {
 
                 if files.isEmpty {
                     VStack {
+                        Image("ARLogo")
+                            .resizable()
+                            .frame(width: 100, height: 100)
                         Image("roomImage3")
                             .resizable()
                             .frame(width: 250, height: 250)
@@ -55,7 +58,9 @@ struct RoomPlanContentView: View {
                     }) {
                         HStack {
                             Image(systemName: "chevron.left")
+                                .foregroundColor(.charlestonGreen)
                             Text("Back")
+                                .foregroundColor(.charlestonGreen)
                         }
                     }
                 }
@@ -63,16 +68,16 @@ struct RoomPlanContentView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink(destination: ScanNewRoomView()) {
                         Image(systemName: "plus")
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Color.alabaster)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
-                            .background(Color.blue)
+                            .background(Color.charlestonGreen)
                             .cornerRadius(8)
                     }
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                    EditButton().foregroundStyle(Color.charlestonGreen)
                 }
             }
             .onAppear {
