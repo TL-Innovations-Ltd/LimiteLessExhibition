@@ -30,7 +30,7 @@ struct RoomPlanContentView: View {
                     VStack {
                         Image("ARLogo")
                             .resizable()
-                            .frame(width: 100, height: 100)
+                            .frame(width: 100, height: 20)
                         Image("roomImage3")
                             .resizable()
                             .frame(width: 250, height: 250)
