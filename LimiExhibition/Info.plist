@@ -56,6 +56,12 @@
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
+    
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>metal</string>
+        <string>gyroscope</string>
+    </array>
 
     <!-- Optional: iPhone-specific orientations -->
     <key>UISupportedInterfaceOrientations~iphone</key>
