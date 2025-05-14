@@ -72,9 +72,10 @@ struct HomeView: View {
             .fullScreenCover(isPresented: $viewModel.showARScan) {
 //                RoomScannerView()
 //                    .environmentObject(roomDataModel) // Now this will work correctly
-                RoomPlanContentView()
-                    .environment(roomCaptureController)
-                
+//                RoomPlanContentView()
+//                    .environment(roomCaptureController)
+  
+                AugmentedRealityContentView()
             }
             .onAppear {
                 viewModel.setupInitialState()

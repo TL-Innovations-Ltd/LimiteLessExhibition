@@ -4,5 +4,9 @@
 <dict>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+    <key>NSCameraUsageDescription</key>
+    <string>This app uses the camera for Augmented Reality experience to preview lighting fixtures in your space.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>This app saves screenshots of your AR lighting preview to your photo library.</string>
 </dict>
 </plist>
