@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A5AFD7B2DDC35EC00B785BE /* RoomPlan.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A5AFD7A2DDC35EC00B785BE /* RoomPlan.framework */; };
 		9A78A3142D8A7E4100F01E0D /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 9A78A3132D8A7E4100F01E0D /* SDWebImageSwiftUI */; };
 		9A9D0CE62DD30B6900A8C1B3 /* FocusEntity in Frameworks */ = {isa = PBXBuildFile; productRef = 9A9D0CE52DD30B6900A8C1B3 /* FocusEntity */; };
 		9ABD247D2DA57617003A5A22 /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9ABD247C2DA57617003A5A22 /* ARKit.framework */; };
@@ -46,6 +47,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9A5AFD7A2DDC35EC00B785BE /* RoomPlan.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RoomPlan.framework; path = System/Library/Frameworks/RoomPlan.framework; sourceTree = SDKROOT; };
 		9A8310452DA135A300D84901 /* Limi.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Limi.entitlements; sourceTree = "<group>"; };
 		9ABD247C2DA57617003A5A22 /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
 		9ABFFE3A2D6F20AF00FCA582 /* modela.usdz */ = {isa = PBXFileReference; lastKnownFileType = file; path = modela.usdz; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A5AFD7B2DDC35EC00B785BE /* RoomPlan.framework in Frameworks */,
 				9A9D0CE62DD30B6900A8C1B3 /* FocusEntity in Frameworks */,
 				9AF3A3AB2DA58E8E004EADAA /* Metal.framework in Frameworks */,
 				9ABD247D2DA57617003A5A22 /* ARKit.framework in Frameworks */,
@@ -123,6 +126,7 @@
 		9ABD247B2DA57617003A5A22 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9A5AFD7A2DDC35EC00B785BE /* RoomPlan.framework */,
 				9AF3A3AA2DA58E8E004EADAA /* Metal.framework */,
 				9ABD247C2DA57617003A5A22 /* ARKit.framework */,
 			);

@@ -14,7 +14,7 @@ class RoominatorFileManager {
         createForRealScansFolder()
     }
     
-    private let folderName = "ForRealScans"
+    private let folderName = "ForRealScans"// Flolder name in device
     
     private var ForRealScansFolderURL: URL? {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent(folderName)

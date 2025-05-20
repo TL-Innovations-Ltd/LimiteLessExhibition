@@ -72,10 +72,10 @@ struct HomeView: View {
             .fullScreenCover(isPresented: $viewModel.showARScan) {
 //                RoomScannerView()
 //                    .environmentObject(roomDataModel) // Now this will work correctly
-//                RoomPlanContentView()
-//                    .environment(roomCaptureController)
-                ProductDetailView(card: Card(imageName: ["chairFront","chairSide","chairBack"], title: "Placeholder", price: 49, description: "Placeholder", objectName: "ceilingonependant", size: "22 x 22 x 22", color: "red"))
-                    .environment(BackgroundLogic())
+                RoomPlanContentView()
+                    .environment(roomCaptureController)
+//                ProductDetailView(card: Card(imageName: ["chairFront","chairSide","chairBack"], title: "Placeholder", price: 49, description: "Placeholder", objectName: "ceilingonependant", size: "22 x 22 x 22", color: "red"))
+//                    .environment(BackgroundLogic())
             }
             .onAppear {
                 viewModel.setupInitialState()

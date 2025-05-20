@@ -66,6 +66,17 @@ struct RoomPlanContentView: View {
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink(destination: ModelListView()) {
+                        Image(systemName: "plus")
+                            .foregroundStyle(Color.alabaster)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(Color.emerald)
+                            .cornerRadius(8)
+                    }
+                }
+
+                ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink(destination: ScanNewRoomView()) {
                         Image(systemName: "plus")
                             .foregroundStyle(Color.alabaster)

@@ -109,6 +109,13 @@ struct AugmentedRealityContentView: View {
     }
 }
 
+#Preview {
+    AugmentedRealityContentView()
+
+}
+
+
+
 struct ARViewContainer: UIViewRepresentable {
     var viewModel: ARViewModel
     
